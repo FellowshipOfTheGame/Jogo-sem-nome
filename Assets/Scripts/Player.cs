@@ -3,13 +3,10 @@ using System.Collections;
 
 public class Player : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+	// algo assim
+	public override bool StabilishConnection()
+	public override bool SendMessage()
+	public override bool GetMessage()
+	public override bool CloseConnection()
+
 }
