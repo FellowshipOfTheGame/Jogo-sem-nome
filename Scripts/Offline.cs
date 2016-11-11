@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+// Media a interacao com a IA do jogo
 public class Offline : Connection {	
 
 	// algo assim

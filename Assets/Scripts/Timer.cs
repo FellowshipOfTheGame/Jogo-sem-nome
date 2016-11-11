@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Timer : MonoBehaviour {
 
+    [SerializeField]
 	private float time = 5.0f;
 
 	// Use this for initialization
@@ -13,7 +14,7 @@ public class Timer : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        // UpdateTimer();
+        UpdateTimer();
 		
 	}
 
@@ -24,7 +25,7 @@ public class Timer : MonoBehaviour {
         if(time <= 0){
             time = 0;
             // print("Timer zerou");
-            // ResolveRound();
+            ResolveRound();
         }
     }
 
