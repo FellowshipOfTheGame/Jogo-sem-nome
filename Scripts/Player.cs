@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 // Responsavel por ter as informacoes do player e enviar as acoes realizadas para o GameManager

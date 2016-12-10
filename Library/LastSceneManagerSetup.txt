@@ -1,1 +1,8 @@
+<<<<<<< HEAD
 sceneSetups: []
+=======
+sceneSetups:
+- path: Assets/Scenes/placeholderscene.unity
+  isLoaded: 1
+  isActive: 1
+>>>>>>> 61a3cdd9aa9eb639e36ed379fc12f12d2bafc74e
