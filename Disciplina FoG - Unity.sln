@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{BB971BDE-C525-E8FC-4487-518BC9EC5367}") = "Disciplina FoG - Unity", "Assembly-CSharp.csproj", "{C4AA0564-F667-A3DB-E289-289E728AF9AB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C4AA0564-F667-A3DB-E289-289E728AF9AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4AA0564-F667-A3DB-E289-289E728AF9AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4AA0564-F667-A3DB-E289-289E728AF9AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4AA0564-F667-A3DB-E289-289E728AF9AB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
