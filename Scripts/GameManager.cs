@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 enum Action : byte {NOOP, ATK, DEF, REL}
