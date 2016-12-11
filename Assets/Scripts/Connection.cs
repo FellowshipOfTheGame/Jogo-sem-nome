@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public abstract static class Connection : MonoBehaviour {
+public abstract class Connection : MonoBehaviour {
 
 	// algo assim
 	public abstract bool StabilishConnection();
