@@ -1,26 +1,24 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Offline : Connection {
+// Media a interacao com a IA do jogo
+public class Offline : Connection {	
 
-    public override bool StabilishConnection(){
+	// algo assim
+	public override bool StabilishConnection(){
 
-        return true;
-    }
+	}
 
-    public override bool SendMessage(){
+	public override bool SendMessage(){
 
-        return true;
-    }
+	}
 
-    public override bool GetMessage(){
+	public override bool GetMessage(){
 
-        return true;
-    }
+	}
 
-    public override bool CloseConnection(){
-
-        return true;
-    }
+	public override bool CloseConnection(){
+		
+	}
 
 }

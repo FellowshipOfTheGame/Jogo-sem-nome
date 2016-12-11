@@ -12,24 +12,16 @@ public class Timer : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
-        // UpdateTimer();
-		
+		UpdateTimer();
 	}
 
     void UpdateTimer(){
-
         time -= Time.deltaTime;
-
         if(time <= 0){
             time = 0;
-            // print("Timer zerou");
-            // ResolveRound();
+            print("Timer zerou");
+            // resolve round
         }
-    }
-
-    void ResolveRound(){
-
     }
 
 	void OnGUI() {
