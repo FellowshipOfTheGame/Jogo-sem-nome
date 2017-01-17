@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-enum Action : byte {NOOP, ATK, DEF, REL}
+enum Resultado: byte {NOAMMO, CANATK, NODEF, CANDEF, NOREL, CANREL, NOTHING}
 
 // Recebe as mensagens do player e do inimigo conectado, avalia o resultado nesse turno e envia o resultado calculado para os dois
 public class GameManager : MonoBehaviour {
