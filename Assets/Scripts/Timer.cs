@@ -3,24 +3,37 @@ using System.Collections;
 
 public class Timer : MonoBehaviour {
 
-	private float time = 5.0f;
+    public delegate void VoidFunction();
+
+    private bool counting;
+    private float time;
+    private float maxTime;
+    private VoidFunction timerFunction;
 
 	// Use this for initialization
 	void Start () {
-		
+        counting = false;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		UpdateTimer();
+        if(counting)
+		    UpdateTimer();
 	}
+
+    public void StartTimer(float maxTime, VoidFunction function){
+        this.maxTime = maxTime;
+        time = maxTime;
+        timerFunction = function;
+        counting = true;
+    }
 
     void UpdateTimer(){
         time -= Time.deltaTime;
         if(time <= 0){
+            counting = false;
             time = 0;
-            print("Timer zerou");
-            // resolve round
+            timerFunction();
         }
     }
 
