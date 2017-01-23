@@ -8,50 +8,50 @@ public class Player : MonoBehaviour {
 
 	private int defCount, defMax; 
 	private int ammo, maxBullets; 
-	private Action action;
+	public Action action { get; set; }
+
+    public Player(int maxDef, int maxShot) {
+        defMax = maxDef;
+        maxBullets = maxShot;
+    }
 
 	// Use this for initialization
 	void Start () {
 		ammo = 0;
 		defCount = 0;
-		defMax = 5; 	//placeholder
-		maxBullets = 5; //placeholder
-	}
-
-	/* Setter da ação */
-	public void SetAction(Action act) {
-		action = act;
+		//defMax = 5; 	//placeholder
+		//maxBullets = 5; //placeholder
 	}
 
 	/* Realiza a ação, e será chamada quando o timer acabar */
-	public Action DoAction() {
+	public Resultado DoAction() {
 		switch(action) {
-			case DEF: // player quer defender
+			case Action.DEF: // player quer defender
 				defCount++; //incrementa a contagem de defesas
 				if(defCount > defMax) { //nao pode defender mais
-					defCount = defMax; 
-					return NODEF;
+					defCount = defMax;
+					return Resultado.NODEF;
 				}
 				
-				return CANDEF;
-			case ATK: // player quer atacar
+				return Resultado.CANDEF;
+			case Action.ATK: // player quer atacar
 				defCount = 0; //reinicia a contagem de defesas
-				if(ammo == 0) return NOAMMO; //nao pode atacar				
+				if(ammo == 0) return Resultado.NOAMMO; //nao pode atacar				
 				ammo--; 
 
-				return CANATK;		
-			case REL: // player quer recarregar
+				return Resultado.CANATK;		
+			case Action.REL: // player quer recarregar
 				defCount = 0; //reinicia a contagem de defesas
 				ammo++;
 				if(ammo > maxBullets) { //nao pode carregar mais
 					ammo = maxBullets; 
-					return NOREL;
+					return Resultado.NOREL;
 				}
 
-				return CANREL;
+				return Resultado.CANREL;
 			default: // player nao quer fazer nada
 				defCount = 0; //reinicia a contagem de defesas
-				return NOTHING;
+				return Resultado.NOTHING;
 		}
 	}
 	

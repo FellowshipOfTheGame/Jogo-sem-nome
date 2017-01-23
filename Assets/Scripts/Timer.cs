@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public delegate void VoidFunction();
+
 public class Timer : MonoBehaviour {
 
-    public delegate void VoidFunction();
-
     private bool counting;
-    private float time;
+    public float time { get; private set; }
     private float maxTime;
     private VoidFunction timerFunction;
 
@@ -21,11 +21,6 @@ public class Timer : MonoBehaviour {
         if(counting)
 		    UpdateTimer();
 	}
-
-    // getter da variável time
-    public float getTime() {
-        return time;
-    }
 
     // Essa função deve ser chamada de fora para iniciar o timer
     public void StartTimer(float maxTime, VoidFunction function){
@@ -45,8 +40,8 @@ public class Timer : MonoBehaviour {
         if(time <= 0){
             // Indica o fim, zera time e chama a função salva
             counting = false;
-            time = 0;
             timerFunction();
+            time = 0;
         }
     }
 
