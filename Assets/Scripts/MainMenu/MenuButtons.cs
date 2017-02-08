@@ -11,7 +11,7 @@ public class MenuButtons : MonoBehaviour {
 
 	void Start(){
 
-		gameManager = Object.FindObjectsOfType<GameManager> () as GameManager;
+		gameManager = Object.FindObjectOfType<GameManager> () as GameManager;
 		buttons = Object.FindObjectsOfType<Button>() as Button[];
 		sliders = Object.FindObjectsOfType<Slider>() as Slider[];
 
@@ -36,6 +36,7 @@ public class MenuButtons : MonoBehaviour {
 
 		foreach(Slider s in sliders) {
 			if(s.name.Equals("MaxDefenses") || s.name.Equals("MaxBullets")) {
+				Debug.Log("Got here");
 				s.minValue = 3;
 				s.maxValue = 10;
 			}
@@ -43,7 +44,7 @@ public class MenuButtons : MonoBehaviour {
 				s.minValue = 2;
 				s.maxValue = 10;
 			}
-			s.SetActive(false);
+			s.enabled = false;
 		}
 	}
 
@@ -65,7 +66,7 @@ public class MenuButtons : MonoBehaviour {
 		foreach(Button b in buttons)
 			if(b.tag.Equals("OptionMenu"))
 				names.Add(b.name);
-		foreach(Slider s in buttons)
+		foreach(Slider s in sliders)
 			if(s.tag.Equals("OptionMenu"))
 				names.Add(s.name);
 
@@ -86,23 +87,23 @@ public class MenuButtons : MonoBehaviour {
 	public void ChangedMaxDef(){
 		foreach(Slider s in sliders) {
 			if(s.name.Equals("MaxDefenses")) {
-				gameManager.SetMaxDefs(s.value);
+				gameManager.MaxDefenses = (int) s.value;
 			}
 		}
     }
 
-    public void ChangedCountdownTime(int t) {
+    public void ChangedCountdownTime() {
         foreach(Slider s in sliders) {
 			if(s.name.Equals("MaxBullets")) {
-				gameManager.SetMaxBullets(s.value);
+				gameManager.MaxBullets = (int) s.value;
 			}
 		}
     }
 
-    public void ChangedMaxBullets(int d) {
+    public void ChangedMaxBullets() {
        foreach(Slider s in sliders) {
 			if(s.name.Equals("CountdownTime")) {
-				gameManager.SetCountdownTime(s.value);
+				gameManager.CountdownTime = s.value;
 			}
 		}
 	}
@@ -157,7 +158,7 @@ public class MenuButtons : MonoBehaviour {
 			foreach(Button b in buttons)
 				b.gameObject.SetActive(false);
 			foreach(Slider s in sliders)
-				s.gameObject.SetActive(false);
+				s.enabled = false;
 
 		} else {
 			foreach(Button b in buttons){
@@ -168,9 +169,9 @@ public class MenuButtons : MonoBehaviour {
 			}
 			foreach(Slider s in sliders){
 				if(names.Contains(s.name))
-					s.gameObject.SetActive(true);
+					s.enabled = true;
 				else 
-					s.gameObject.SetActive(false);
+					s.enabled = false;
 			}
 		}
 	}

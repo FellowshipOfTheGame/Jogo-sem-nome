@@ -18,6 +18,37 @@ public class GameManager : MonoBehaviour {
     private bool battleStarted;
     private bool battleEnded; // Isso pode ser desnecessario, vamos ver
 
+    public int MaxDefenses {
+        get { return maxDefenses; }
+        set {
+            if(battleStarted) {
+                maxDefenses = value;
+            }
+            else Debug.Log("Can not change that parameter during game");
+        }
+    }
+
+    public int MaxBullets {
+        get { return maxBullets; }
+        set {
+            if(battleStarted) {
+                maxBullets = value;
+            }
+            else Debug.Log("Can not change that parameter during game");
+        }
+    }
+
+    public float CountdownTime {
+        get { return countdownTime; }
+        set {
+            if(battleStarted) {
+                countdownTime = value;
+            }
+            else Debug.Log("Can not change that parameter during game");
+        }
+    }
+
+
     // Use this for initialization
     void Start () {
         timer = new Timer();
@@ -31,8 +62,9 @@ public class GameManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         if (battleStarted) {
-            if(timer.time <= 0) // Sempre que o timer não estiver ativo, uma ação deve ser realizada
+            if(timer.time <= 0) {// Sempre que o timer não estiver ativo, uma ação deve ser realizada
                 timer.StartTimer(countdownTime, SelectAction); // inicia o timer
+            }   
         }
         if (battleEnded) {
             // To do, pode ser desnecessario tbm
@@ -57,7 +89,7 @@ public class GameManager : MonoBehaviour {
     public void SetPlayerAction(Action action) {
         localPlayer.action = action;
     }
-    
+
     public void SelectAction() {
         // Envia a ação selecionada (esperar connection ser feito para implementar)
         // Recebe a ação do inimigo (esperar connection ser feito para implementar)
