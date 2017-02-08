@@ -1,23 +1,29 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+// using UnityEditor;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
-public class MenuButtons : MonoBehaviour {
+public class MenuController : MonoBehaviour {
+
+	public Text localIp;
+	public InputField serverIp;
+	private Connection connection = null;
 	
-	private GameManager gameManager;
-	Button[] buttons = null;
-	Slider[] sliders = null;
+	private Button[] buttons = null;
+	private Slider[] sliders = null;
 
 	void Start(){
 
-		gameManager = Object.FindObjectsOfType<GameManager> () as GameManager;
 		buttons = Object.FindObjectsOfType<Button>() as Button[];
 		sliders = Object.FindObjectsOfType<Slider>() as Slider[];
 
 		Debug.Log("Buttons found:");
 		foreach(Button b in buttons)	// Debug
 			Debug.Log(b);
+
+		localIp.gameObject.SetActive(false);
+		serverIp.gameObject.SetActive(false);
 
 		foreach(Button b in buttons){
 			
@@ -43,7 +49,7 @@ public class MenuButtons : MonoBehaviour {
 				s.minValue = 2;
 				s.maxValue = 10;
 			}
-			s.SetActive(false);
+			s.gameObject.SetActive(false);
 		}
 	}
 
@@ -65,7 +71,7 @@ public class MenuButtons : MonoBehaviour {
 		foreach(Button b in buttons)
 			if(b.tag.Equals("OptionMenu"))
 				names.Add(b.name);
-		foreach(Slider s in buttons)
+		foreach(Slider s in sliders)
 			if(s.tag.Equals("OptionMenu"))
 				names.Add(s.name);
 
@@ -86,28 +92,41 @@ public class MenuButtons : MonoBehaviour {
 	public void ChangedMaxDef(){
 		foreach(Slider s in sliders) {
 			if(s.name.Equals("MaxDefenses")) {
-				gameManager.SetMaxDefs(s.value);
+				// gameManager.SetMaxDefs(s.value);
 			}
 		}
     }
-
-    public void ChangedCountdownTime(int t) {
-        foreach(Slider s in sliders) {
-			if(s.name.Equals("MaxBullets")) {
-				gameManager.SetMaxBullets(s.value);
-			}
-		}
-    }
-
-    public void ChangedMaxBullets(int d) {
-       foreach(Slider s in sliders) {
-			if(s.name.Equals("CountdownTime")) {
-				gameManager.SetCountdownTime(s.value);
-			}
-		}
-	}
 
 	public void Wifi(){
+
+		connection = new Wifi();
+		Wifi wifiConnection = connection as Wifi;
+
+		localIp.gameObject.SetActive(true);
+		serverIp.gameObject.SetActive(true);
+		localIp.text = "<b>Seu ip: " + wifiConnection.GetLocalIp() + "</b>";
+
+		wifiConnection.Host();
+
+		List<string> names = new List<string>();
+
+		foreach(Button b in buttons)
+			if(b.tag.Equals("WifiMenu"))
+				names.Add(b.name);
+
+		EnableButton(names);
+	}
+
+	public void Join(){
+
+		Wifi wifiConnection = connection as Wifi;
+		wifiConnection.WifiConnect(serverIp.text);
+
+
+		// Disable button interaction while client is joining
+		// foreach(Button b in buttons)
+		// 	if(b.tag.Equals("WifiMenu"))
+		// 		b.interactable = false;
 
 	}
 
@@ -122,18 +141,21 @@ public class MenuButtons : MonoBehaviour {
 	public void Quit(){
 
 		// Exit editor play mode
-		if(Application.isEditor) 
-			UnityEditor.EditorApplication.isPlaying = false;
+		// if(Application.isEditor) 
+		// 	UnityEditor.EditorApplication.isPlaying = false;
 		
 		// Exit application
-		else 
+		// else 
 			Application.Quit();
 	}
 
 	public void Back(){
-		Debug.Log("VER COMO IMPLEMENTAR UM BACK DECENTE!!!");
+		Debug.Log("VER COMO IMPLEMENTAR UM BACK DECENTE!!! (pilha de menus?)");
 		Debug.Log("Back placeholder, sempre volta pro MainMenu");
+		Debug.Log("Na real, esse menu todo é placeholder :v");
 
+		localIp.gameObject.SetActive(false);
+		serverIp.gameObject.SetActive(false);
 		List<string> names = new List<string>();
 
 		foreach(Button b in buttons)
@@ -145,6 +167,22 @@ public class MenuButtons : MonoBehaviour {
 
 	public void LoadBattleScene() {
 		SceneManager.LoadScene("BattleScene");
+	}
+
+    public void ChangedCountdownTime(int t) {
+        foreach(Slider s in sliders) {
+			if(s.name.Equals("MaxBullets")) {
+				// gameManager.SetMaxBullets(s.value);
+			}
+		}
+    }
+
+    public void ChangedMaxBullets(int d) {
+       foreach(Slider s in sliders) {
+			if(s.name.Equals("CountdownTime")) {
+				// gameManager.SetCountdownTime(s.value);
+			}
+		}
 	}
 
 	private void EnableButton(string[] names){

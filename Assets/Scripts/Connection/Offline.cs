@@ -5,7 +5,7 @@ using System.Collections;
 public class Offline : Connection {	
 
 	// algo assim
-	public override bool StabilishConnection(){
+	protected override bool Connect(){
         return true;
 	}
 

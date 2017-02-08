@@ -20,9 +20,9 @@ public class GameManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        timer = new Timer();
-        localPlayer = new Player(maxDefenses, maxBullets);
-        enemyPlayer = new Player(maxDefenses, maxBullets);
+		timer = gameObject.AddComponent<Timer>();
+        localPlayer = gameObject.AddComponent<Player>();
+        enemyPlayer = gameObject.AddComponent<Player>();
         connection = null;
         battleStarted = false;
         battleEnded = false;
