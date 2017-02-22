@@ -6,17 +6,23 @@ public enum Resultado: byte {NOAMMO, CANATK, NODEF, CANDEF, NOREL, CANREL, NOTHI
 // Recebe as mensagens do player e do inimigo conectado, avalia o resultado nesse turno e envia o resultado calculado para os dois
 public class GameManager : MonoBehaviour {
 
-	// metodo para receber/enviar mensagem do/ao player, metodo para receber/enviar mensagem do/ao inimigo
-	// criar scripts auxiliares(Ex.: AnimationController) para nao sobrecarregar o GameManager
+    enum Batalha : byte {VICTORY, DEFEAT, DRAW}
 
-	private Player localPlayer, enemyPlayer;
+    // metodo para receber/enviar mensagem do/ao player, metodo para receber/enviar mensagem do/ao inimigo
+    // criar scripts auxiliares(Ex.: AnimationController) para nao sobrecarregar o GameManager
+
+    private Player localPlayer, enemyPlayer;
 	private Timer timer;
 	private Connection connection;
     private int maxDefenses = 3; // Parametros devem ser sujeitos a alteracoes de acordo com o modo de jogo
     private int maxBullets = 3;
     private float countdownTime = 3;
     private bool battleStarted;
-    private bool battleEnded; // Isso pode ser desnecessario, vamos ver
+
+    public bool battleEnded {
+        get { return battleEnded; }
+        private set { battleStarted = value; }
+    }
 
     public int MaxDefenses {
         get { return maxDefenses; }
@@ -67,9 +73,6 @@ public class GameManager : MonoBehaviour {
                 timer.StartTimer(countdownTime, SelectAction); // inicia o timer
             }   
         }
-        if (battleEnded) {
-            // To do, pode ser desnecessario tbm
-        }
 	}
 
     // Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
@@ -80,17 +83,21 @@ public class GameManager : MonoBehaviour {
     }
 
     // Função a ser chamada quando acabar a batalha
-    private void EndBattle(/*Pode precisar de parametros pra saber quem venceu*/) {
-        // To do
+    private void EndBattle(Batalha result) {
+        if (result != Batalha.DEFEAT){
+            // Roda a animação de morte no inimigo
+        } else {
+            // Roda a animação de vitória no inimigo
+        }
+        if (result != Batalha.VICTORY) {
+            // Roda a animação de morte no player
+        } else {
+            // Roda a animação de vitoria no player
+        }
         battleStarted = false;
-        battleEnded = true; // ¯\_(ツ)_/¯
-        // To do?
+        battleEnded = true;
     }
 
-    public void SetPlayerAction(Action action) {
-        localPlayer.action = action;
-    }
-    
     public void SelectAction() {
         // Envia a ação selecionada (esperar connection ser feito para implementar)
         // Recebe a ação do inimigo (esperar connection ser feito para implementar)

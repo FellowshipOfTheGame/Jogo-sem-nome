@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour {
 
-	public GameManager gm;
+	public GameManager gameManager;
 	public Text localIp;
 	public InputField serverIp;
 	private Connection connection = null;
@@ -99,7 +99,6 @@ public class MenuController : MonoBehaviour {
 		}
     }
 
-<<<<<<< HEAD:Assets/Scripts/MainMenu/MenuController.cs
 	public void Wifi(){
 
 		connection = new Wifi();
