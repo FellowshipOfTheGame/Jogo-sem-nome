@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum Resultado: byte {NOAMMO, CANATK, NODEF, CANDEF, NOREL, CANREL, NOTHING}
+public enum Animation: byte { NOAMMO, CANATK, NODEF, CANDEF, NOREL, CANREL, NOTHING }
+public enum Result : byte { VICTORY, DEFEAT, DRAW }
 
-// Recebe as mensagens do player e do inimigo conectado, avalia o resultado nesse turno e envia o resultado calculado para os dois
+// Recebe as mensagens do player e do inimigo conectado, avalia o Animation nesse turno e envia o Animation calculado para os dois
 public class GameManager : MonoBehaviour {
 
-    enum Batalha : byte {VICTORY, DEFEAT, DRAW}
 
     // metodo para receber/enviar mensagem do/ao player, metodo para receber/enviar mensagem do/ao inimigo
     // criar scripts auxiliares(Ex.: AnimationController) para nao sobrecarregar o GameManager
@@ -14,9 +14,6 @@ public class GameManager : MonoBehaviour {
     private Player localPlayer, enemyPlayer;
 	private Timer timer;
 	private Connection connection;
-    private int maxDefenses = 3; // Parametros devem ser sujeitos a alteracoes de acordo com o modo de jogo
-    private int maxBullets = 3;
-    private float countdownTime = 3;
     private bool battleStarted;
 
     public bool battleEnded {
@@ -24,46 +21,45 @@ public class GameManager : MonoBehaviour {
         private set { battleStarted = value; }
     }
 
-    public int MaxDefenses {
+    public int maxDefenses {
         get { return maxDefenses; }
         set {
-            if(battleStarted) {
+            if(!battleStarted) {
                 maxDefenses = value;
             }
             else Debug.Log("Can not change that parameter during game");
         }
     }
 
-    public int MaxBullets {
+    public int maxBullets {
         get { return maxBullets; }
         set {
-            if(battleStarted) {
+            if(!battleStarted) {
                 maxBullets = value;
             }
             else Debug.Log("Can not change that parameter during game");
         }
     }
 
-    public float CountdownTime {
+    public float countdownTime {
         get { return countdownTime; }
         set {
-            if(battleStarted) {
+            if (!battleStarted) {
                 countdownTime = value;
-            }
-            else Debug.Log("Can not change that parameter during game");
+            } else Debug.Log("Can not change that parameter during game");
         }
     }
-
 
     // Use this for initialization
     void Start () {
         timer = new Timer();
-        localPlayer = new Player(maxDefenses, maxBullets);
-        enemyPlayer = new Player(maxDefenses, maxBullets);
+        maxBullets = 3;
+        maxDefenses = 3;
+        countdownTime = 3;
 
         connection = null;
         battleStarted = false;
-        battleEnded = false;
+        battleEnded = true;
     }
 	
 	// Update is called once per frame
@@ -75,25 +71,34 @@ public class GameManager : MonoBehaviour {
         }
 	}
 
-    // Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
+    // Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a Result
     public void StartBattle(Connection successfulConection) {
         connection = successfulConection;
-        // Inserir aqui qualquer animação de início de batalha
+        localPlayer = new Player(maxDefenses, maxBullets);
+        enemyPlayer = new Player(maxDefenses, maxBullets);
+
+        // Inserir aqui qualquer animação de início de Result
         battleStarted = true;
     }
 
-    // Função a ser chamada quando acabar a batalha
-    private void EndBattle(Batalha result) {
-        if (result != Batalha.DEFEAT){
+    // Função a ser chamada quando acabar a Result
+    private void EndBattle(Result result) {
+        if (result != Result.DEFEAT){
             // Roda a animação de morte no inimigo
         } else {
             // Roda a animação de vitória no inimigo
         }
-        if (result != Batalha.VICTORY) {
+        if (result != Result.VICTORY) {
             // Roda a animação de morte no player
         } else {
             // Roda a animação de vitoria no player
         }
+
+        maxBullets = 3;
+        maxDefenses = 3;
+        countdownTime = 3;
+
+        connection = null;
         battleStarted = false;
         battleEnded = true;
     }
@@ -102,10 +107,10 @@ public class GameManager : MonoBehaviour {
         // Envia a ação selecionada (esperar connection ser feito para implementar)
         // Recebe a ação do inimigo (esperar connection ser feito para implementar)
         Action enemyAction = Action.NOOP; // placeholder
-        Resultado localResult = localPlayer.DoAction();
+        Animation localAnimation = localPlayer.DoAction();
         enemyPlayer.action = enemyAction;
-        Resultado enemyResult = enemyPlayer.DoAction();
-        // Compara os resultados das duas ações e, de acordo com o que aconteceu chama as animações
-        // Se necessário, chama a função de fim da batalha
+        Animation enemyAnimation = enemyPlayer.DoAction();
+        // Compara os Animations das duas ações e, de acordo com o que aconteceu chama as animações
+        // Se necessário, chama a função de fim da Result
     }
 }

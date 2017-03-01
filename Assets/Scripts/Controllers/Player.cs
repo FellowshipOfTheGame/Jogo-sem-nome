@@ -24,34 +24,34 @@ public class Player : MonoBehaviour {
 	}
 
 	/* Realiza a ação, e será chamada quando o timer acabar */
-	public Resultado DoAction() {
+	public Animation DoAction() {
 		switch(action) {
 			case Action.DEF: // player quer defender
 				defCount++; //incrementa a contagem de defesas
 				if(defCount > defMax) { //nao pode defender mais
 					defCount = defMax;
-					return Resultado.NODEF;
+					return Animation.NODEF;
 				}
 				
-				return Resultado.CANDEF;
+				return Animation.CANDEF;
 			case Action.ATK: // player quer atacar
 				defCount = 0; //reinicia a contagem de defesas
-				if(ammo == 0) return Resultado.NOAMMO; //nao pode atacar				
+				if(ammo == 0) return Animation.NOAMMO; //nao pode atacar				
 				ammo--; 
 
-				return Resultado.CANATK;		
+				return Animation.CANATK;		
 			case Action.REL: // player quer recarregar
 				defCount = 0; //reinicia a contagem de defesas
 				ammo++;
 				if(ammo > maxBullets) { //nao pode carregar mais
 					ammo = maxBullets; 
-					return Resultado.NOREL;
+					return Animation.NOREL;
 				}
 
-				return Resultado.CANREL;
+				return Animation.CANREL;
 			default: // player nao quer fazer nada
 				defCount = 0; //reinicia a contagem de defesas
-				return Resultado.NOTHING;
+				return Animation.NOTHING;
 		}
 	}
 	
