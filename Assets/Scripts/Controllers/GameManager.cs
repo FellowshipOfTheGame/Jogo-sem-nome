@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum Animation: byte { NOAMMO, CANATK, NODEF, CANDEF, NOREL, CANREL, NOTHING }
+public enum Animation: byte { NOAMMO, CANATK, NODEF, CANDEF, NOREL, CANREL, NOTHING, DEATH, ATKHIT, ATKMISS, DEFHIT, DEFMISS}
 public enum Result : byte { VICTORY, DEFEAT, DRAW }
 
-// Recebe as mensagens do player e do inimigo conectado, avalia o Animation nesse turno e envia o Animation calculado para os dois
+// Recebe as mensagens do player e do inimigo conectado, avalia o comando nesse turno e envia o resultado calculado para os dois
 public class GameManager : MonoBehaviour {
 
 
@@ -15,11 +15,8 @@ public class GameManager : MonoBehaviour {
 	private Timer timer;
 	private Connection connection;
     private bool battleStarted;
-
-    public bool battleEnded {
-        get { return battleEnded; }
-        private set { battleStarted = value; }
-    }
+    public SceneChanger sc;
+    public bool battleEnded { get; private set; }
 
     public int maxDefenses {
         get { return maxDefenses; }
@@ -52,6 +49,7 @@ public class GameManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        DontDestroyOnLoad(gameObject);
         timer = new Timer();
         maxBullets = 3;
         maxDefenses = 3;
@@ -66,51 +64,66 @@ public class GameManager : MonoBehaviour {
 	void Update () {
         if (battleStarted) {
             if(timer.time <= 0) {// Sempre que o timer não estiver ativo, uma ação deve ser realizada
+                localPlayer.action = Action.NOOP;
                 timer.StartTimer(countdownTime, SelectAction); // inicia o timer
             }   
         }
 	}
 
-    // Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a Result
+    // Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
     public void StartBattle(Connection successfulConection) {
+        sc.LoadBattleScene();
         connection = successfulConection;
-        localPlayer = new Player(maxDefenses, maxBullets);
-        enemyPlayer = new Player(maxDefenses, maxBullets);
+        // Instancia a prefab do player
+        GameObject go = Instantiate(Resources.Load("Assets/PlayerCharacter"), gameObject.transform) as GameObject;
+        // Obtem uma referencia para o script e configura
+        localPlayer = go.GetComponent<Player>();
+        localPlayer.Configure(maxDefenses, maxBullets);
+        // Faz o mesmo para o inimigo
+        go = Instantiate(Resources.Load("Assets/EnemyCharacter"), gameObject.transform) as GameObject;
+        enemyPlayer = go.GetComponent<Player>();
+        enemyPlayer.Configure(maxDefenses, maxBullets);
 
-        // Inserir aqui qualquer animação de início de Result
+        // Inserir aqui qualquer animação de início de batalha
+
         battleStarted = true;
     }
 
-    // Função a ser chamada quando acabar a Result
-    private void EndBattle(Result result) {
-        if (result != Result.DEFEAT){
-            // Roda a animação de morte no inimigo
-        } else {
-            // Roda a animação de vitória no inimigo
-        }
-        if (result != Result.VICTORY) {
-            // Roda a animação de morte no player
-        } else {
-            // Roda a animação de vitoria no player
-        }
+    // Função a ser chamada quando acabar a batalha
+    private void EndBattle() {
 
+        Result result = localPlayer.alive? Result.VICTORY : enemyPlayer.alive? Result.DEFEAT : Result.DRAW;
+
+        // Faz alguma coisa
+
+        // Volta as configurações para o default
         maxBullets = 3;
         maxDefenses = 3;
         countdownTime = 3;
 
+        Destroy(localPlayer.gameObject);
+        Destroy(enemyPlayer.gameObject);
+
         connection = null;
         battleStarted = false;
         battleEnded = true;
+
+        // Muda de cena
+        sc.LoadMenuScene();
     }
 
     public void SelectAction() {
         // Envia a ação selecionada (esperar connection ser feito para implementar)
+        Animation localAnimation = localPlayer.DoAction();
         // Recebe a ação do inimigo (esperar connection ser feito para implementar)
         Action enemyAction = Action.NOOP; // placeholder
-        Animation localAnimation = localPlayer.DoAction();
-        enemyPlayer.action = enemyAction;
+        enemyPlayer.action = enemyAction; // placeholder
         Animation enemyAnimation = enemyPlayer.DoAction();
-        // Compara os Animations das duas ações e, de acordo com o que aconteceu chama as animações
+        // Compara os Animations das duas ações e, de acordo com o que aconteceu chama as animações de reação
+        localPlayer.DoReaction(localAnimation, enemyAnimation);
+        enemyPlayer.DoReaction(enemyAnimation, localAnimation);
         // Se necessário, chama a função de fim da Result
+        if (!localPlayer.alive || !enemyPlayer.alive)
+            EndBattle();
     }
 }
