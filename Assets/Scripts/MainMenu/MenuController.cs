@@ -94,7 +94,7 @@ public class MenuController : MonoBehaviour {
 	public void ChangedMaxDef(){
 		foreach(Slider s in sliders) {
 			if(s.name.Equals("MaxDefenses")) {
-				gameManager.maxDefenses = (int) s.value;
+				gameManager.MaxDefenses = (int) s.value;
 			}
 		}
     }
@@ -174,7 +174,7 @@ public class MenuController : MonoBehaviour {
     public void ChangedCountdownTime() {
         foreach(Slider s in sliders) {
 			if(s.name.Equals("MaxBullets")) {
-				gameManager.maxBullets = (int) s.value;
+				gameManager.MaxBullets = (int) s.value;
 			}
 		}
     }
@@ -182,7 +182,7 @@ public class MenuController : MonoBehaviour {
     public void ChangedMaxBullets() {
        foreach(Slider s in sliders) {
 			if(s.name.Equals("CountdownTime")) {
-				gameManager.countdownTime = s.value;
+				gameManager.CountdownTime = s.value;
 			}
 		}
 	}

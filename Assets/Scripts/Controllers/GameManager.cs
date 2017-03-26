@@ -18,7 +18,11 @@ public class GameManager : MonoBehaviour {
     public SceneChanger sc;
     public bool battleEnded { get; private set; }
 
-    public int maxDefenses {
+    private int maxDefenses;
+    private int maxBullets;
+    private float countdownTime;
+
+    public int MaxDefenses {
         get { return maxDefenses; }
         set {
             if(!battleStarted) {
@@ -28,7 +32,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public int maxBullets {
+    public int MaxBullets {
         get { return maxBullets; }
         set {
             if(!battleStarted) {
@@ -38,7 +42,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public float countdownTime {
+    public float CountdownTime {
         get { return countdownTime; }
         set {
             if (!battleStarted) {
