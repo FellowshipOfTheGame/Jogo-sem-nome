@@ -101,15 +101,6 @@ public class MenuController : MonoBehaviour {
 
 	public void Wifi(){
 
-		connection = new Wifi();
-		Wifi wifiConnection = connection as Wifi;
-
-		localIp.gameObject.SetActive(true);
-		serverIp.gameObject.SetActive(true);
-		localIp.text = "<b>Seu ip: " + wifiConnection.GetLocalIp() + "</b>";
-
-		wifiConnection.Host();
-
 		List<string> names = new List<string>();
 
 		foreach(Button b in buttons)
@@ -119,16 +110,39 @@ public class MenuController : MonoBehaviour {
 		EnableButton(names);
 	}
 
+	public void Client(){
+
+		serverIp.gameObject.SetActive(true);
+		
+
+		// connection.SetIp(serverIp.text);
+		// connection.Connect();
+
+		foreach(Button b in buttons){
+			if(b.tag.Equals("ClientMenu"))
+				b.gameObject.SetActive(true);
+			else
+				b.gameObject.SetActive(false);
+		}
+	}
+
+	public void Server(){
+		
+		localIp.gameObject.SetActive(true);
+		
+		foreach(Button b in buttons){
+			if(b.tag.Equals("ServerMenu"))
+				b.gameObject.SetActive(true);
+			else
+				b.gameObject.SetActive(false);
+		}
+	}
+
+	public void Host(){
+
+	}
+
 	public void Join(){
-
-		Wifi wifiConnection = connection as Wifi;
-		wifiConnection.WifiConnect(serverIp.text);
-
-
-		// Disable button interaction while client is joining
-		// foreach(Button b in buttons)
-		// 	if(b.tag.Equals("WifiMenu"))
-		// 		b.interactable = false;
 
 	}
 
@@ -152,13 +166,13 @@ public class MenuController : MonoBehaviour {
 	}
 
 	public void Back(){
-		Debug.Log("VER COMO IMPLEMENTAR UM BACK DECENTE!!! (pilha de menus?)");
-		Debug.Log("Back placeholder, sempre volta pro MainMenu");
-		Debug.Log("Na real, esse menu todo é placeholder :v");
 
 		localIp.gameObject.SetActive(false);
 		serverIp.gameObject.SetActive(false);
 		List<string> names = new List<string>();
+
+		if (connection != null)
+			connection.CloseConnection();
 
 		foreach(Button b in buttons)
 			if(b.tag.Equals("MainMenu"))

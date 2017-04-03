@@ -1,23 +1,32 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 
 public class Wifi : Connection {
 
-	private int[] ports = {11100, 21025, 2626, 6262, 77777, 4444};
-	private string hostIp;
-	private NetworkClient myClient;
+	private bool isHost;
+	private string localIp;
+	private string ip;
+	private NetworkClient localClient, remoteClient;
+	private NetworkManager net;
 
 	public Wifi(){
-		myClient = new NetworkClient();
-		hostIp = "127.0.0.1";
+		net = new NetworkManager();
+		localIp = GetLocalIp();
+		ip = null;
 	}
 
-	// algo assim
-	protected override bool Connect(){
-		Debug.Log("Connecting at port 11100");
-		myClient.Connect(hostIp, 11100);
-        return true;
+
+	public override bool Connect(){
+		
+		if(isHost)
+			localClient = net.StartHost();
+		else {
+			net.networkPort = 7777;
+			remoteClient = net.StartClient();
+		}
+
+		return true;
     }
 	
 	public override bool SendMessage(){
@@ -29,29 +38,25 @@ public class Wifi : Connection {
     }
 	
 	public override bool CloseConnection(){
+		NetworkManager.Shutdown();
         return true;
     }
 
-    public void WifiConnect(string ip){
-    	Debug.Log("ip: " + ip);
-    	hostIp = ip;
-    	Connect();
+    public void SetIpAddress(string ip){
+    	net.networkAddress = ip;
     }
+
+
 
     public string GetLocalIp(){
 		return Network.player.ipAddress;
-    }
-    
-    public void Host(){
-    	NetworkServer.Listen(11100);
-		myClient.Connect("127.0.0.1", 11100);
     }
 
     public void OnConnected(NetworkConnection conn, NetworkReader reader) {
 		Debug.Log("Connected!");
 	}
 
-	public void OnConnectedToServer() {
+	public void OnConnectedToServer(){
 		Debug.Log("Connected to server!");
 	}
 

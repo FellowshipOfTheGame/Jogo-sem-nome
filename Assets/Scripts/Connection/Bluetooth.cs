@@ -7,7 +7,7 @@ public class Bluetooth : Connection {
 	private GameManager localManager;
 
 	// algo assim
-	protected override bool Connect(){
+	public override bool Connect(){
         return true;
 	}
 	
