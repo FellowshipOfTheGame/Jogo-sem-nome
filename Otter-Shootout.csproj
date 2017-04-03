@@ -79,9 +79,11 @@
     <Compile Include="Assets\Scripts\Connection\Connection.cs" />
     <Compile Include="Assets\Scripts\Connection\Offline.cs" />
     <Compile Include="Assets\Scripts\Connection\Wifi.cs" />
+    <Compile Include="Assets\Scripts\Controllers\GameManager.cs" />
     <Compile Include="Assets\Scripts\Controllers\IABurra.cs" />
     <Compile Include="Assets\Scripts\Controllers\Player.cs" />
-    <Compile Include="Assets\Scripts\GameManager.cs" />
+    <Compile Include="Assets\Scripts\Controllers\SceneChanger.cs" />
+    <Compile Include="Assets\Scripts\DontDestroyThis.cs" />
     <Compile Include="Assets\Scripts\MainMenu\MenuController.cs" />
     <Compile Include="Assets\Scripts\Timer.cs" />
   </ItemGroup>
