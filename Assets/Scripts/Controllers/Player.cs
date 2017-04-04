@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum Action : byte {NOOP, ATK, DEF, REL}
-
 // Responsavel por ter as informacoes do player e enviar as acoes realizadas para o GameManager
 public class Player : MonoBehaviour {
 
@@ -39,20 +37,24 @@ public class Player : MonoBehaviour {
 				if(defCount > defMax) { //nao pode defender mais
 					defCount = defMax;
                     PlayAnimation(Animation.NODEF);
+                    action = Action.NOOP;
 					return Animation.NODEF;
 				}
 
                 PlayAnimation(Animation.CANDEF);
+                action = Action.NOOP;
 				return Animation.CANDEF;
 			case Action.ATK: // player quer atacar
 				defCount = 0; //reinicia a contagem de defesas
                 if (ammo == 0) {
                     PlayAnimation(Animation.NOAMMO);
+                    action = Action.NOOP;
                     return Animation.NOAMMO; //nao pode atacar
                 }
 				ammo--;
 
                 PlayAnimation(Animation.CANATK);
+                action = Action.NOOP;
 				return Animation.CANATK;		
 			case Action.REL: // player quer recarregar
 				defCount = 0; //reinicia a contagem de defesas
@@ -60,10 +62,12 @@ public class Player : MonoBehaviour {
 				if(ammo > maxBullets) { //nao pode carregar mais
 					ammo = maxBullets;
                     PlayAnimation(Animation.NOREL);
+                    action = Action.NOOP;
 					return Animation.NOREL;
 				}
 
                 PlayAnimation(Animation.CANREL);
+                action = Action.NOOP;
 				return Animation.CANREL;
 			default: // player nao quer fazer nada
 				defCount = 0; //reinicia a contagem de defesas
@@ -86,9 +90,10 @@ public class Player : MonoBehaviour {
     }
 
     private void PlayAnimation(Animation selectedAnim) {
-        // To do: Esperar até que a animação atual seja nothing
+        // Espera até que a animação atual seja Idle
+        while (!anim.GetCurrentAnimatorStateInfo(0).IsName("Idle"));
         switch (selectedAnim) {
-            // To do
+            // Seta o trigger da animação correspondente
             case Animation.NOTHING:
                 break;
             case Animation.NOREL:
@@ -104,10 +109,13 @@ public class Player : MonoBehaviour {
             case Animation.DEATH:
                 break;
             case Animation.CANREL:
+                anim.SetTrigger("Reload");
                 break;
             case Animation.CANDEF:
+                anim.SetTrigger("Guard");
                 break;
             case Animation.CANATK:
+                anim.SetTrigger("Attack");
                 break;
             case Animation.ATKMISS:
                 break;

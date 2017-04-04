@@ -79,6 +79,7 @@
     <Compile Include="Assets\Scripts\Connection\Connection.cs" />
     <Compile Include="Assets\Scripts\Connection\Offline.cs" />
     <Compile Include="Assets\Scripts\Connection\Wifi.cs" />
+    <Compile Include="Assets\Scripts\Controllers\BattleButtons.cs" />
     <Compile Include="Assets\Scripts\Controllers\GameManager.cs" />
     <Compile Include="Assets\Scripts\Controllers\IABurra.cs" />
     <Compile Include="Assets\Scripts\Controllers\Player.cs" />

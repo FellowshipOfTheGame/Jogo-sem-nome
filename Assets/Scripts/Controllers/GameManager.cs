@@ -3,6 +3,7 @@ using System.Collections;
 
 public enum Animation: byte { NOAMMO, CANATK, NODEF, CANDEF, NOREL, CANREL, NOTHING, DEATH, ATKHIT, ATKMISS, DEFHIT, DEFMISS}
 public enum Result : byte { VICTORY, DEFEAT, DRAW }
+public enum Action : byte { NOOP, ATK, DEF, REL }
 
 // Recebe as mensagens do player e do inimigo conectado, avalia o comando nesse turno e envia o resultado calculado para os dois
 public class GameManager : MonoBehaviour {
@@ -114,6 +115,10 @@ public class GameManager : MonoBehaviour {
 
         // Muda de cena
         sc.LoadMenuScene();
+    }
+
+    public void SetPlayerAction(Action selectedAction) {
+        localPlayer.action = selectedAction;
     }
 
     public void SelectAction() {
