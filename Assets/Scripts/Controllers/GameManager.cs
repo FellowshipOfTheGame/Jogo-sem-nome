@@ -76,7 +76,7 @@ public class GameManager : MonoBehaviour {
 
     // Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
     public void StartBattle(Connection successfulConection) {
-        sc.LoadBattleScene();
+        sc.LoadBattleScene(successfulConection);
         connection = successfulConection;
         // Instancia a prefab do player
         GameObject go = Instantiate(Resources.Load("Assets/PlayerCharacter"), gameObject.transform) as GameObject;
