@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour {
     // metodo para receber/enviar mensagem do/ao player, metodo para receber/enviar mensagem do/ao inimigo
     // criar scripts auxiliares(Ex.: AnimationController) para nao sobrecarregar o GameManager
 
+    private GameObject playersObject;
     private Player localPlayer, enemyPlayer;
 	private Timer timer;
 	private Connection connection;
@@ -58,7 +59,7 @@ public class GameManager : MonoBehaviour {
         timer = null;
         maxBullets = 3;
         maxDefenses = 3;
-        countdownTime = 10f;
+        countdownTime = 3f;
 
         connection = null;
         battleStarted = false;
@@ -77,6 +78,7 @@ public class GameManager : MonoBehaviour {
     // Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
     public void StartBattle(Connection successfulConection) {
         connection = successfulConection;
+        //playersObject = new GameObject();
         // Instancia a prefab do player
         GameObject go = Resources.Load("Prefabs/PlayerCharacter") as GameObject;
         GameObject.Instantiate(go, gameObject.transform);
@@ -90,9 +92,8 @@ public class GameManager : MonoBehaviour {
         enemyPlayer.Configure(maxDefenses, maxBullets);
 
         // Instancia e salva referencia para o timer
-        go = Resources.Load("Prefabs/Timer") as GameObject;
-        GameObject.Instantiate(go, gameObject.transform);
-        timer = go.GetComponent<Timer>();
+        gameObject.AddComponent<Timer>();
+        timer = gameObject.GetComponent<Timer>();
 
         // Inserir aqui qualquer animação de início de batalha
 
@@ -111,9 +112,10 @@ public class GameManager : MonoBehaviour {
         maxDefenses = 3;
         countdownTime = 3;
 
-        Destroy(localPlayer.gameObject);
-        Destroy(enemyPlayer.gameObject);
-        Destroy(timer.gameObject);
+        Destroy(playersObject);
+        localPlayer = null;
+        enemyPlayer = null;
+        Destroy(timer);
 
         connection = null;
         battleStarted = false;
@@ -160,16 +162,16 @@ public class GameManager : MonoBehaviour {
     private void sendLocalAction(Action localAction) {
         switch (localAction) {
             case Action.ATK:
-                connection.SendMessage("ATK");
+                connection.OtterSendMessage("ATK");
                 break;
             case Action.DEF:
-                connection.SendMessage("DEF");
+                connection.OtterSendMessage("DEF");
                 break;
             case Action.REL:
-                connection.SendMessage("REL");
+                connection.OtterSendMessage("REL");
                 break;
             case Action.NOOP:
-                connection.SendMessage("NOOP");
+                connection.OtterSendMessage("NOOP");
                 break;
             default:
                 throw new System.Exception("Trying to send invalid message");

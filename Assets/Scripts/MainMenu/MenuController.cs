@@ -152,11 +152,10 @@ public class MenuController : MonoBehaviour {
 
 	public void Join(){
 
-		// Arrumar esse cast?
-		connection = new Wifi();		// Create a new connection
-		Wifi wifi = (Wifi) connection;// as Wifi;	// Use new connection as wifi connection
-		
-		Debug.Log("[Debug]: Wifi: " + wifi);
+        // Arrumar esse cast?
+        gameObject.AddComponent<Wifi>();
+        connection = gameObject.GetComponent<Wifi>();		// Create a new connection
+        
 		Debug.Log("[Debug]: Connection: " + connection);
 
 		Debug.Log("Connecting to: " + userInputIP);

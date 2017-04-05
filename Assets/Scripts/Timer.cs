@@ -21,16 +21,8 @@ public class Timer : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (counting) {
-            Debug.Log("counting is true(Update)");
-        }else {
-            Debug.Log("counting is false(Update)");
-        }
-        if (counting) {
-            Debug.Log("it's counting");
+        if (counting)
             UpdateTimer();
-        }
-        currentTime = time;
 	}
 
     // Essa função deve ser chamada de fora para iniciar o timer
@@ -38,14 +30,10 @@ public class Timer : MonoBehaviour {
         // O tempo máximo e o tempo atual são atualizados
         maxTime = countdownTime;
         time = maxTime;
-        Debug.Log("---------------------CHAMOU A FUNÇÃO----------------------\n maxTime = " + maxTime + "   time = " + time + "\n");
         // A função a ser executada no final da contagem é armazenada
         timerFunction = function;
         // Indica o início da contagem
         counting = true;
-        if (counting) {
-            Debug.Log("counting is true");
-        }
     }
 
     void UpdateTimer(){

@@ -27,6 +27,7 @@ public class Player : MonoBehaviour {
 		defCount = 0;
 		defMax = 0;
 		maxBullets = 0;
+        anim = gameObject.GetComponent<Animator>();
 	}
 
 	/* Realiza a ação, e será chamada quando o timer acabar */
@@ -91,7 +92,7 @@ public class Player : MonoBehaviour {
 
     private void PlayAnimation(Animation selectedAnim) {
         // Espera até que a animação atual seja Idle
-        while (!anim.GetCurrentAnimatorStateInfo(0).IsName("Idle"));
+        //while (!anim.GetCurrentAnimatorStateInfo(0).IsName("Idle"));
         switch (selectedAnim) {
             // Seta o trigger da animação correspondente
             case Animation.NOTHING:

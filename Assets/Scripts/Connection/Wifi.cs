@@ -8,18 +8,14 @@ public class Wifi : Connection {
 	private string localIp;
 	private string ip;
 	private NetworkClient localClient, remoteClient;
-	private NetworkManager net;
 
-	public Wifi(){
+	public void Awake(){
 		Debug.Log("[Debug]: Creating a new Wifi");
-		net = new NetworkManager();
-		Debug.Log("[Debug]: net: " + net);
 		localIp = GetLocalIp();
 		Debug.Log("[Debug]: localIp: " + localIp);
 		ip = null;
 		localClient = null;
 		remoteClient = null;
-		net = null;
 		isHost = false;
 	}
 
@@ -27,11 +23,11 @@ public class Wifi : Connection {
 	public override bool Connect(){
 		
 		if(isHost)
-			localClient = net.StartHost();
+			localClient = StartHost();
 		else {
-			net.networkPort = 7777;
-			remoteClient = net.StartClient();
-			remoteClient.Connect(net.networkAddress, net.networkPort);
+			networkPort = 7777;
+			remoteClient = StartClient();
+			remoteClient.Connect(networkAddress, networkPort);
 		}
 
 		return true;
@@ -51,7 +47,7 @@ public class Wifi : Connection {
     }
 
     public void SetIpAddress(string ip){
-    	net.networkAddress = ip;
+    	networkAddress = ip;
     }
 
 
