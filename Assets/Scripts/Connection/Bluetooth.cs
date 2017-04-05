@@ -11,7 +11,7 @@ public class Bluetooth : Connection {
         return true;
 	}
 	
-	public override bool SendMessage(string msg){
+	public override bool OtterSendMessage(string msg){
         return true;
 	}
 	

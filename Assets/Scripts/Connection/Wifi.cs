@@ -11,9 +11,16 @@ public class Wifi : Connection {
 	private NetworkManager net;
 
 	public Wifi(){
+		Debug.Log("[Debug]: Creating a new Wifi");
 		net = new NetworkManager();
+		Debug.Log("[Debug]: net: " + net);
 		localIp = GetLocalIp();
+		Debug.Log("[Debug]: localIp: " + localIp);
 		ip = null;
+		localClient = null;
+		remoteClient = null;
+		net = null;
+		isHost = false;
 	}
 
 
@@ -30,7 +37,7 @@ public class Wifi : Connection {
 		return true;
     }
 	
-	public override bool SendMessage(string msg){
+	public override bool OtterSendMessage(string msg){
         return true;
     }
 	

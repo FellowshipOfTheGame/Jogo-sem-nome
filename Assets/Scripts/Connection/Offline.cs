@@ -9,7 +9,7 @@ public class Offline : Connection {
         return true;
 	}
 
-	public override bool SendMessage(string msg){
+	public override bool OtterSendMessage(string msg){
         return true;
 	}
 
