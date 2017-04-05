@@ -16,7 +16,7 @@ public class Bluetooth : Connection {
 	}
 	
 	public override string GetMessage(){
-        return null;
+        return "NOOP";
 	}
 	
 	public override bool CloseConnection(){

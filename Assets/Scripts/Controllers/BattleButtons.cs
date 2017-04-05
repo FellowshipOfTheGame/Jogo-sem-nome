@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BattleButtons : MonoBehaviour {
 
-    GameManager gm;
+    private GameManager gm;
 
 	// Use this for initialization
 	void Start () {
@@ -23,8 +23,4 @@ public class BattleButtons : MonoBehaviour {
     public void ReloadPressed() {
         gm.SetPlayerAction(Action.REL);
     }
-    // Update is called once per frame
-    void Update () {
-		
-	}
 }

@@ -6,7 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour {
 
-	public GameManager gameManager;
+	private GameManager gameManager;
+    private SceneChanger sceneManager;
 	public Text localIp;
 	public InputField serverIp;
 
@@ -17,6 +18,9 @@ public class MenuController : MonoBehaviour {
 	private Slider[] sliders = null;
 
 	void Start(){
+
+        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        sceneManager = GameObject.FindGameObjectWithTag("SceneManager").GetComponent<SceneChanger>();
 
 		buttons = Object.FindObjectsOfType<Button>() as Button[];
 		sliders = Object.FindObjectsOfType<Slider>() as Slider[];
@@ -162,7 +166,8 @@ public class MenuController : MonoBehaviour {
 	}
 
 	public void Offline(){
-
+        // For testing reasons, there is no prompt or confirmation
+        sceneManager.LoadBattleScene(new Offline());
 	}
 
 	public void Quit(){
@@ -190,10 +195,6 @@ public class MenuController : MonoBehaviour {
 				names.Add(b.name);
 		
 		EnableButton(names);
-	}
-
-	public void LoadBattleScene() {
-		SceneManager.LoadScene("BattleScene");
 	}
 
     public void ChangedCountdownTime() {
