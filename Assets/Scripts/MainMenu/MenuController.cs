@@ -124,14 +124,7 @@ public class MenuController : MonoBehaviour {
 	public void Client(){
 
 		serverIp.gameObject.SetActive(true);
-
-		Wifi wifi = connection as Wifi;
 		serverIp.onEndEdit.AddListener(SetIp);
-
-		Debug.Log("Connecting to: " + ip);
-
-		connection.SetIpAddress(userInputIP);
-		connection.Connect();
 
 		foreach(Button b in buttons){
 			if(b.tag.Equals("ClientMenu"))
@@ -158,6 +151,19 @@ public class MenuController : MonoBehaviour {
 	}
 
 	public void Join(){
+
+		// Arrumar esse cast?
+		connection = new Wifi();		// Create a new connection
+		Wifi wifi = (Wifi) connection;// as Wifi;	// Use new connection as wifi connection
+		
+		Debug.Log("[Debug]: Wifi: " + wifi);
+		Debug.Log("[Debug]: Connection: " + connection);
+
+		Debug.Log("Connecting to: " + userInputIP);
+
+		// Join server
+		// wifi.SetIpAddress(userInputIP);
+		// wifi.Connect();
 
 	}
 
