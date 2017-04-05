@@ -4,7 +4,7 @@ using System.Collections;
 
 public class Wifi : Connection {
 
-	private bool isHost;
+	private bool isHost { get; set; }
 	private string localIp;
 	private string ip;
 	private NetworkClient localClient, remoteClient;
@@ -24,17 +24,18 @@ public class Wifi : Connection {
 		else {
 			net.networkPort = 7777;
 			remoteClient = net.StartClient();
+			remoteClient.Connect(net.networkAddress, net.networkPort);
 		}
 
 		return true;
     }
 	
-	public override bool SendMessage(){
+	public override bool SendMessage(string msg){
         return true;
     }
 	
-	public override bool GetMessage(){
-        return true;
+	public override string GetMessage(){
+        return null;
     }
 	
 	public override bool CloseConnection(){

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 // using UnityEditor;
 using System.Collections.Generic;
@@ -9,8 +9,10 @@ public class MenuController : MonoBehaviour {
 	public GameManager gameManager;
 	public Text localIp;
 	public InputField serverIp;
+
+
 	private Connection connection = null;
-	
+	private string userInputIP = null;
 	private Button[] buttons = null;
 	private Slider[] sliders = null;
 
@@ -110,13 +112,22 @@ public class MenuController : MonoBehaviour {
 		EnableButton(names);
 	}
 
+	private void SetIp(string ip){
+	
+		userInputIP = ip;
+	}
+
 	public void Client(){
 
 		serverIp.gameObject.SetActive(true);
-		
 
-		// connection.SetIp(serverIp.text);
-		// connection.Connect();
+		Wifi wifi = connection as Wifi;
+		serverIp.onEndEdit.AddListener(SetIp);
+
+		Debug.Log("Connecting to: " + ip);
+
+		connection.SetIpAddress(userInputIP);
+		connection.Connect();
 
 		foreach(Button b in buttons){
 			if(b.tag.Equals("ClientMenu"))

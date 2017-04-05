@@ -11,12 +11,12 @@ public class Bluetooth : Connection {
         return true;
 	}
 	
-	public override bool SendMessage(){
+	public override bool SendMessage(string msg){
         return true;
 	}
 	
-	public override bool GetMessage(){
-        return true;
+	public override string GetMessage(){
+        return null;
 	}
 	
 	public override bool CloseConnection(){
