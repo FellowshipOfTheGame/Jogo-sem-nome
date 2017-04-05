@@ -5,32 +5,47 @@ public delegate void VoidFunction();
 
 public class Timer : MonoBehaviour {
 
+    public float currentTime;
     private bool counting;
     public float time { get; private set; }
     private float maxTime;
     private VoidFunction timerFunction;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
+        Debug.Log("Called Awake");
         time = 0;
+        currentTime = 0;
         counting = false;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        if(counting)
-		    UpdateTimer();
+        if (counting) {
+            Debug.Log("counting is true(Update)");
+        }else {
+            Debug.Log("counting is false(Update)");
+        }
+        if (counting) {
+            Debug.Log("it's counting");
+            UpdateTimer();
+        }
+        currentTime = time;
 	}
 
     // Essa função deve ser chamada de fora para iniciar o timer
-    public void StartTimer(float maxTime, VoidFunction function){
+    public void StartTimer(float countdownTime, VoidFunction function){
         // O tempo máximo e o tempo atual são atualizados
-        this.maxTime = maxTime;
+        maxTime = countdownTime;
         time = maxTime;
+        Debug.Log("---------------------CHAMOU A FUNÇÃO----------------------\n maxTime = " + maxTime + "   time = " + time + "\n");
         // A função a ser executada no final da contagem é armazenada
         timerFunction = function;
         // Indica o início da contagem
         counting = true;
+        if (counting) {
+            Debug.Log("counting is true");
+        }
     }
 
     void UpdateTimer(){
@@ -38,10 +53,12 @@ public class Timer : MonoBehaviour {
         time -= Time.deltaTime;
         // Quando a contagem acabar
         if(time <= 0){
+            Debug.Log("finished counting");
             // Indica o fim, zera time e chama a função salva
             counting = false;
             timerFunction();
             time = 0;
+            timerFunction = null;
         }
     }
 

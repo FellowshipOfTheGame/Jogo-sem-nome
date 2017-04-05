@@ -33,8 +33,8 @@ public class Wifi : Connection {
         return true;
     }
 	
-	public override bool GetMessage(){
-        return true;
+	public override string GetMessage(){
+        return "NOOP";
     }
 	
 	public override bool CloseConnection(){

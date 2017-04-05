@@ -22,7 +22,9 @@ public class SceneChanger : MonoBehaviour {
     }
 
     public void LoadBattleScene(Connection successfulConection) {
+        Debug.Log("entrou");
         SceneManager.LoadScene("BattleScene");
+        Debug.Log("criou");
         gm.StartBattle(successfulConection);
     }
 }
