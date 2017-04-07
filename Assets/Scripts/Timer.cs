@@ -13,7 +13,6 @@ public class Timer : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-        Debug.Log("Called Awake");
         time = 0;
         currentTime = 0;
         counting = false;
@@ -41,7 +40,6 @@ public class Timer : MonoBehaviour {
         time -= Time.deltaTime;
         // Quando a contagem acabar
         if(time <= 0){
-            Debug.Log("finished counting");
             // Indica o fim, zera time e chama a função salva
             counting = false;
             timerFunction();

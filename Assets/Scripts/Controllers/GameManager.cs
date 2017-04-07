@@ -11,14 +11,15 @@ public class GameManager : MonoBehaviour {
 
     // metodo para receber/enviar mensagem do/ao player, metodo para receber/enviar mensagem do/ao inimigo
     // criar scripts auxiliares(Ex.: AnimationController) para nao sobrecarregar o GameManager
-
-    private GameObject playersObject;
+    
     private Player localPlayer, enemyPlayer;
+    private GameObject[] playerObjects;
 	private Timer timer;
 	private Connection connection;
     public bool battleStarted;
     public SceneChanger sc;
     public bool battleEnded { get; private set; }
+    public GameObject playerPrefab, enemyPrefab;
 
     private int maxDefenses;
     private int maxBullets;
@@ -68,7 +69,7 @@ public class GameManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (battleStarted) {
+        if (battleStarted && !battleEnded) {
             if(timer.time <= 0) {// Sempre que o timer não estiver ativo, uma ação deve ser realizada
                 timer.StartTimer(countdownTime, SelectAction); // inicia o timer
             }   
@@ -77,18 +78,16 @@ public class GameManager : MonoBehaviour {
 
     // Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
     public void StartBattle(Connection successfulConection) {
+        playerObjects = new GameObject[2];
         connection = successfulConection;
-        //playersObject = new GameObject();
         // Instancia a prefab do player
-        GameObject go = Resources.Load("Prefabs/PlayerCharacter") as GameObject;
-        GameObject.Instantiate(go, gameObject.transform);
+        playerObjects[0] = GameObject.Instantiate(playerPrefab, gameObject.transform);
         // Obtem uma referencia para o script e configura
-        localPlayer = go.GetComponent<Player>();
+        localPlayer = playerObjects[0].GetComponent<Player>();
         localPlayer.Configure(maxDefenses, maxBullets);
         // Faz o mesmo para o inimigo
-        go = Resources.Load("Prefabs/EnemyCharacter") as GameObject;
-        GameObject.Instantiate(go, gameObject.transform);
-        enemyPlayer = go.GetComponent<Player>();
+        playerObjects[1] = GameObject.Instantiate(enemyPrefab, gameObject.transform);
+        enemyPlayer = playerObjects[1].GetComponent<Player>();
         enemyPlayer.Configure(maxDefenses, maxBullets);
 
         // Instancia e salva referencia para o timer
@@ -98,6 +97,7 @@ public class GameManager : MonoBehaviour {
         // Inserir aqui qualquer animação de início de batalha
 
         battleStarted = true;
+        battleEnded = false;
     }
 
     // Função a ser chamada quando acabar a batalha
@@ -112,11 +112,13 @@ public class GameManager : MonoBehaviour {
         maxDefenses = 3;
         countdownTime = 3;
 
-        Destroy(playersObject);
+        Destroy(playerObjects[0]);
+        Destroy(playerObjects[1]);
+        playerObjects = null;
         localPlayer = null;
         enemyPlayer = null;
         Destroy(timer);
-
+        Destroy(connection);
         connection = null;
         battleStarted = false;
         battleEnded = true;

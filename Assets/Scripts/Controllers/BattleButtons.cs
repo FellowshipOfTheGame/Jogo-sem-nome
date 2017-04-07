@@ -7,7 +7,7 @@ public class BattleButtons : MonoBehaviour {
     private GameManager gm;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         GameObject go = GameObject.FindGameObjectWithTag("GameManager");
         gm = go.GetComponent<GameManager>();
 	}

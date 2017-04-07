@@ -14,7 +14,20 @@ public class Offline : Connection {
 	}
 
 	public override string GetMessage(){
-        return "NOOP";
+        int choice = Random.Range(0, 4);
+        switch (choice) {
+            case 0:
+                return "NOOP";
+            case 1:
+                return "ATK";
+            case 2:
+                return "DEF";
+            case 3:
+                return "REL";
+            default:
+                Debug.Log("This REALLY shouldn't happen");
+                return "NOOP";
+        }
 	}
 
 	public override bool CloseConnection(){

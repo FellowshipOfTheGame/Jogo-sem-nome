@@ -17,7 +17,7 @@ public class MenuController : MonoBehaviour {
 	private Button[] buttons = null;
 	private Slider[] sliders = null;
 
-	void Start(){
+	void Awake(){
 
         gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         sceneManager = GameObject.FindGameObjectWithTag("SceneManager").GetComponent<SceneChanger>();
@@ -153,8 +153,8 @@ public class MenuController : MonoBehaviour {
 	public void Join(){
 
         // Arrumar esse cast?
-        gameObject.AddComponent<Wifi>();
-        connection = gameObject.GetComponent<Wifi>();		// Create a new connection
+        gameManager.gameObject.AddComponent<Wifi>();
+        connection = gameManager.gameObject.GetComponent<Wifi>();		// Create a new connection
         
 		Debug.Log("[Debug]: Connection: " + connection);
 
@@ -172,7 +172,9 @@ public class MenuController : MonoBehaviour {
 
 	public void Offline(){
         // For testing reasons, there is no prompt or confirmation
-        sceneManager.LoadBattleScene(new Offline());
+        gameManager.gameObject.AddComponent<Offline>();
+        connection = gameManager.gameObject.GetComponent<Offline>();
+        sceneManager.LoadBattleScene(connection);
 	}
 
 	public void Quit(){

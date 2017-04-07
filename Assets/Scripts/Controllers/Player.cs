@@ -20,7 +20,7 @@ public class Player : MonoBehaviour {
     }
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         alive = true;
         configured = false;
 		ammo = 0;
