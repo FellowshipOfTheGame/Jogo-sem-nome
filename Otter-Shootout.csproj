@@ -83,6 +83,7 @@
     <Compile Include="Assets\Scripts\Controllers\GameManager.cs" />
     <Compile Include="Assets\Scripts\Controllers\IABurra.cs" />
     <Compile Include="Assets\Scripts\Controllers\Player.cs" />
+    <Compile Include="Assets\Scripts\Controllers\PlayerAnimator.cs" />
     <Compile Include="Assets\Scripts\Controllers\SceneChanger.cs" />
     <Compile Include="Assets\Scripts\DontDestroyThis.cs" />
     <Compile Include="Assets\Scripts\MainMenu\MenuController.cs" />

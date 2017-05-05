@@ -50,8 +50,6 @@ public class Wifi : Connection {
     	networkAddress = ip;
     }
 
-
-
     public string GetLocalIp(){
 		return Network.player.ipAddress;
     }
