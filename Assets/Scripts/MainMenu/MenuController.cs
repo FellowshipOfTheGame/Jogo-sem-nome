@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
@@ -19,7 +21,7 @@ public class MenuController : MonoBehaviour {
 
 	void Awake(){
 
-        // this.gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        this.gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         GameObject tmp = GameObject.FindGameObjectWithTag("SceneManager");
         if(tmp != null)
         	this.sceneManager = tmp.GetComponent<SceneChanger>();
@@ -181,12 +183,15 @@ public class MenuController : MonoBehaviour {
 	}
 
 	public void Quit(){
-
-		if(Application.isEditor)  // Exit editor play mode
-			UnityEditor.EditorApplication.isPlaying = false;
-		else 
-			Application.Quit(); // Exit application
-	}
+        int gambiarra = 0;
+        if (Application.isEditor) { // Exit editor play mode
+            gambiarra = 1;
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
+        } else
+            Application.Quit(); // Exit application
+    }
 
 	public void Back(){
 
