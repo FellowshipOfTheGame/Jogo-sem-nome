@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-// using UnityEditor;
+using UnityEditor;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
@@ -14,36 +14,43 @@ public class MenuController : MonoBehaviour {
 
 	private Connection connection = null;
 	private string userInputIP = null;
-	private Button[] buttons = null;
+	private GameObject[] menus = null;
 	private Slider[] sliders = null;
 
 	void Awake(){
 
-        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        sceneManager = GameObject.FindGameObjectWithTag("SceneManager").GetComponent<SceneChanger>();
+        // this.gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        GameObject tmp = GameObject.FindGameObjectWithTag("SceneManager");
+        if(tmp != null)
+        	this.sceneManager = tmp.GetComponent<SceneChanger>();
 
-		buttons = Object.FindObjectsOfType<Button>() as Button[];
-		sliders = Object.FindObjectsOfType<Slider>() as Slider[];
+        this.menus = GameObject.FindGameObjectsWithTag("Menu");
+		this.sliders = Object.FindObjectsOfType<Slider>() as Slider[]; // TODO
 
-		localIp.gameObject.SetActive(false);
-		serverIp.gameObject.SetActive(false);
+		this.localIp.gameObject.SetActive(false);
+		this.serverIp.gameObject.SetActive(false);
 
-		foreach(Button b in buttons){
+		foreach (GameObject go in menus){
+
+			Button[] buttons = go.GetComponentsInChildren<Button>() as Button[];
 			
-			// Disable bluetooth button until we have it
-			if(b.name.Equals("Bluetooth"))
-				b.interactable = false;
+			foreach(Button b in buttons){
+				
+				// Disable bluetooth button until we have it
+				if(b.name.Equals("Bluetooth"))
+					b.interactable = false;
 
-			else if(b.name.Equals("NS só queira deixar quadradinho bunitu :3"))
-				b.interactable = false;
-
-			// Enable firsts buttons and deactivate the rest
-			if(b.tag.Equals("MainMenu"))
-				b.gameObject.SetActive(true);
-			else b.gameObject.SetActive(false);
+				else if(b.name.Equals("NS só queira deixar quadradinho bunitu :3"))
+					b.interactable = false;
+			}
+			
+			// Enable first menu and deactivate the rest
+			if(go.name.Equals("MainMenu"))
+				go.SetActive(true);
+			else go.SetActive(false);
 		}
 
-		foreach(Slider s in sliders) {
+		foreach(Slider s in this.sliders) {
 			if(s.name.Equals("MaxDefenses") || s.name.Equals("MaxBullets")) {
 				s.minValue = 3;
 				s.maxValue = 10;
@@ -60,36 +67,36 @@ public class MenuController : MonoBehaviour {
 		
 		List<string> names = new List<string>();
 
-		foreach(Button b in buttons)
-			if(b.tag.Equals("PlayMenu"))
-				names.Add(b.name);
+		foreach(GameObject go in this.menus)
+			if(go.name.Equals("PlayMenu"))
+				names.Add(go.name);
 
-		EnableButton(names);
+		EnableGameObject(names);
 	}
 
 	public void Options(){
 
 		List<string> names = new List<string>();
 
-		foreach(Button b in buttons)
-			if(b.tag.Equals("OptionMenu"))
-				names.Add(b.name);
+		foreach(GameObject go in this.menus)
+			if(go.name.Equals("OptionsMenu"))
+				names.Add(go.name);
 		foreach(Slider s in sliders)
 			if(s.tag.Equals("OptionMenu"))
 				names.Add(s.name);
 
-		EnableButton(names);
+		EnableGameObject(names);
 	}
 
 	public void Crebitz(){
 		
 		List<string> names = new List<string>();
 
-		foreach(Button b in buttons)
-			if(b.tag.Equals("CrebitzMenu"))
-				names.Add(b.name);
+		foreach(GameObject go in this.menus)
+			if(go.name.Equals("CrebitzMenu"))
+				names.Add(go.name);
 
-		EnableButton(names);
+		EnableGameObject(names);
 	}
 
 	public void ChangedMaxDef(){
@@ -104,11 +111,11 @@ public class MenuController : MonoBehaviour {
 
 		List<string> names = new List<string>();
 
-		foreach(Button b in buttons)
-			if(b.tag.Equals("WifiMenu"))
-				names.Add(b.name);
+		foreach(GameObject go in this.menus)
+			if(go.name.Equals("WifiMenu"))
+				names.Add(go.name);
 
-		EnableButton(names);
+		EnableGameObject(names);
 	}
 
 	private void SetIp(string ip){
@@ -121,11 +128,11 @@ public class MenuController : MonoBehaviour {
 		serverIp.gameObject.SetActive(true);
 		serverIp.onEndEdit.AddListener(SetIp);
 
-		foreach(Button b in buttons){
-			if(b.tag.Equals("ClientMenu"))
-				b.gameObject.SetActive(true);
+		foreach(GameObject go in this.menus){
+			if(go.name.Equals("ClientMenu"))
+				go.SetActive(true);
 			else
-				b.gameObject.SetActive(false);
+				go.SetActive(false);
 		}
 	}
 
@@ -133,11 +140,11 @@ public class MenuController : MonoBehaviour {
 		
 		localIp.gameObject.SetActive(true);
 		
-		foreach(Button b in buttons){
-			if(b.tag.Equals("ServerMenu"))
-				b.gameObject.SetActive(true);
+		foreach(GameObject go in this.menus){
+			if(go.name.Equals("ServerMenu"))
+				go.SetActive(true);
 			else
-				b.gameObject.SetActive(false);
+				go.SetActive(false);
 		}
 	}
 
@@ -175,13 +182,10 @@ public class MenuController : MonoBehaviour {
 
 	public void Quit(){
 
-		// Exit editor play mode
-		// if(Application.isEditor) 
-		// 	UnityEditor.EditorApplication.isPlaying = false;
-		
-		// Exit application
-		// else 
-			Application.Quit();
+		if(Application.isEditor)  // Exit editor play mode
+			UnityEditor.EditorApplication.isPlaying = false;
+		else 
+			Application.Quit(); // Exit application
 	}
 
 	public void Back(){
@@ -193,11 +197,11 @@ public class MenuController : MonoBehaviour {
 		if (connection != null)
 			connection.CloseConnection();
 
-		foreach(Button b in buttons)
-			if(b.tag.Equals("MainMenu"))
-				names.Add(b.name);
+		foreach(GameObject go in this.menus)
+			if(go.name.Equals("MainMenu"))
+				names.Add(go.name);
 		
-		EnableButton(names);
+		EnableGameObject(names);
 
 		this.connection = null;
 	}
@@ -218,24 +222,24 @@ public class MenuController : MonoBehaviour {
 		}
 	}
 
-	private void EnableButton(string[] names){
-		EnableButton(new List<string>(names));
+	private void EnableGameObject(string[] names){
+		EnableGameObject(new List<string>(names));
 	}
 
-	private void EnableButton(List<string> names){
+	private void EnableGameObject(List<string> names){
 	
 		if(names.Count == 0){
-			foreach(Button b in buttons)
-				b.gameObject.SetActive(false);
+			foreach(GameObject go in this.menus)
+				go.gameObject.SetActive(false);
 			foreach(Slider s in sliders)
 				s.enabled = false;
 
 		} else {
-			foreach(Button b in buttons){
-				if(names.Contains(b.name))
-					b.gameObject.SetActive(true);
+			foreach(GameObject go in this.menus){
+				if(names.Contains(go.name))
+					go.gameObject.SetActive(true);
 				else 
-					b.gameObject.SetActive(false);
+					go.gameObject.SetActive(false);
 			}
 			foreach(Slider s in sliders){
 				if(names.Contains(s.name))
