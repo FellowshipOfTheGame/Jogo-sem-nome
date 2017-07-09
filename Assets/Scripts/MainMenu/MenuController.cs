@@ -25,10 +25,6 @@ public class MenuController : MonoBehaviour {
 		buttons = Object.FindObjectsOfType<Button>() as Button[];
 		sliders = Object.FindObjectsOfType<Slider>() as Slider[];
 
-		Debug.Log("Buttons found:");
-		foreach(Button b in buttons)	// Debug
-			Debug.Log(b);
-
 		localIp.gameObject.SetActive(false);
 		serverIp.gameObject.SetActive(false);
 
@@ -49,7 +45,6 @@ public class MenuController : MonoBehaviour {
 
 		foreach(Slider s in sliders) {
 			if(s.name.Equals("MaxDefenses") || s.name.Equals("MaxBullets")) {
-				Debug.Log("Got here");
 				s.minValue = 3;
 				s.maxValue = 10;
 			}
@@ -153,8 +148,9 @@ public class MenuController : MonoBehaviour {
 	public void Join(){
 
         // Arrumar esse cast?
-        gameManager.gameObject.AddComponent<Wifi>();
-        connection = gameManager.gameObject.GetComponent<Wifi>();		// Create a new connection
+        this.connection = new Wifi();
+        // gameManager.gameObject.AddComponent<Wifi>();
+        // connection = gameManager.gameObject.GetComponent<Wifi>();		// Create a new connection
         
 		Debug.Log("[Debug]: Connection: " + connection);
 
@@ -202,6 +198,8 @@ public class MenuController : MonoBehaviour {
 				names.Add(b.name);
 		
 		EnableButton(names);
+
+		this.connection = null;
 	}
 
     public void ChangedCountdownTime() {
