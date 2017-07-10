@@ -15,12 +15,14 @@ public class GameManager : MonoBehaviour {
     private Player localPlayer, enemyPlayer;
     private GameObject[] playerObjects;
     private Timer timer;
+    private GameObject timerObject;
     private uint i;
-	private Connection connection;
+	public Connection connection;
+    private GameObject canvasObject;
     public bool battleStarted;
     public SceneChanger sc;
     public bool battleEnded { get; private set; }
-    public GameObject playerPrefab, enemyPrefab;
+    public GameObject playerPrefab, enemyPrefab, timerPrefab;
 
     private int maxDefenses;
     private int maxBullets;
@@ -54,6 +56,10 @@ public class GameManager : MonoBehaviour {
                 countdownTime = value;
             } else Debug.Log("Can not change that parameter during game");
         }
+    }
+
+    public void findCanvas() {
+        canvasObject = GameObject.FindGameObjectWithTag("Canvas");
     }
 
     // Use this for initialization
@@ -104,8 +110,8 @@ public class GameManager : MonoBehaviour {
 	}
 
     // Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
-    public void StartBattle(Connection successfulConection) {
-        connection = successfulConection;
+    public void StartBattle() {
+        findCanvas();
         // Instancia a prefab do player
         playerObjects[0] = GameObject.Instantiate(playerPrefab, gameObject.transform);
         // Obtem uma referencia para o script e configura
@@ -115,10 +121,10 @@ public class GameManager : MonoBehaviour {
         playerObjects[1] = GameObject.Instantiate(enemyPrefab, gameObject.transform);
         enemyPlayer = playerObjects[1].GetComponent<Player>();
         enemyPlayer.Configure(maxDefenses, maxBullets);
-
+        
         // Instancia e salva referencia para o timer
-        gameObject.AddComponent<Timer>();
-        timer = gameObject.GetComponent<Timer>();
+        timerObject = GameObject.Instantiate(timerPrefab, canvasObject.transform);
+        timer = timerObject.GetComponent<Timer>();
 
         // Inserir aqui qualquer animação de início de batalha
 
@@ -146,12 +152,14 @@ public class GameManager : MonoBehaviour {
         Destroy(playerObjects[0]);
         Destroy(playerObjects[1]);
         playerObjects[0] = playerObjects[1] = null;
+        Destroy(timerObject);
+        timerObject = null;
         localPlayer = null;
         enemyPlayer = null;
-        Destroy(timer);
         Destroy(connection);
         connection = null;
         battleStarted = false;
+        canvasObject = null;
 
         // Muda de cena
         sc.LoadMenuScene(false);

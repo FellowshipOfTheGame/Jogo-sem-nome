@@ -6,23 +6,55 @@ public delegate void VoidFunction();
 public class Timer : MonoBehaviour {
     
     private bool counting;
-    public float time { get; private set; }
     private float maxTime;
+    private int currentPosition;
     private VoidFunction timerFunction;
     private bool show;
+    private GameObject[] fuse;
+    private GameObject barrel, tip;
+    public float fuseSize;
+    public int nFuses;
+    public float time { get; private set; }
 
-	// Use this for initialization
-	void Awake () {
+    // Use this for initialization
+    void Awake () {
         time = 0;
         counting = false;
         timerFunction = null;
         show = false;
-	}
+        fuse = new GameObject[nFuses];
+        currentPosition = nFuses - 1;
+        foreach(Transform child in transform){
+            if (child.gameObject.tag == "Fuse") {
+                string positionString = child.gameObject.name.Split(' ')[1];
+                int position = int.Parse(positionString);
+                if(position < nFuses)
+                    fuse[position] = child.gameObject;
+            } else if (child.gameObject.tag == "Tip")
+                tip = child.gameObject;
+            else if (child.gameObject.tag == "Barrel")
+                barrel = child.gameObject;
+        }
+    }
 	
 	// Update is called once per frame
 	void Update () {
         if (counting)
             UpdateTimer();
+        int newPosition = Mathf.Min(Mathf.FloorToInt((time / maxTime) * nFuses), nFuses - 1);
+        Debug.Log("newPosition = " + newPosition);
+        if (newPosition < currentPosition) {
+            for (int i = currentPosition; i > newPosition; i--) {
+                fuse[currentPosition--].SetActive(false);
+                tip.transform.position = new Vector3(tip.transform.position.x - fuseSize, tip.transform.position.y, tip.transform.position.z);
+            }
+        } else if (newPosition > currentPosition) {
+            foreach (GameObject go in fuse) {
+                go.SetActive(true);
+            }
+            tip.transform.position = new Vector3(tip.transform.position.x + ((newPosition - currentPosition) * fuseSize), tip.transform.position.y, tip.transform.position.z);
+            currentPosition = newPosition;
+        }
 	}
 
     // Essa função deve ser chamada de fora para iniciar o timer
@@ -51,10 +83,4 @@ public class Timer : MonoBehaviour {
         } else
             time = newTime;
     }
-
-    // Mostra o valor da contagem atual
-	void OnGUI() {
-        if(show)
-		    GUI.Box(new Rect(15, 15, 55, 20), "Test: " + time.ToString("0"));
-	}
 }
