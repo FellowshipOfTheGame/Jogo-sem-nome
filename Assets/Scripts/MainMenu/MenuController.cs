@@ -1,8 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEditor;
+
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class MenuController : MonoBehaviour {
 
@@ -19,10 +23,16 @@ public class MenuController : MonoBehaviour {
 
 	void Awake(){
 
-        // this.gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        GameObject tmp = GameObject.FindGameObjectWithTag("SceneManager");
+		// Get GameManager reference
+		GameObject tmp = GameObject.FindGameObjectWithTag("GameManager");
+							
         if(tmp != null)
-        	this.sceneManager = tmp.GetComponent<SceneChanger>();
+        	this.gameManager = tmp.GetComponent<GameManager>() as GameManager;
+        
+        // Get SceneManager reference
+        tmp = GameObject.FindGameObjectWithTag("SceneManager");
+        if(tmp != null)
+        	this.sceneManager = tmp.GetComponent<SceneChanger>() as SceneChanger;
 
         this.menus = GameObject.FindGameObjectsWithTag("Menu");
 		this.sliders = Object.FindObjectsOfType<Slider>() as Slider[]; // TODO
@@ -118,10 +128,7 @@ public class MenuController : MonoBehaviour {
 		EnableGameObject(names);
 	}
 
-	private void SetIp(string ip){
-	
-		userInputIP = ip;
-	}
+	private void SetIp(string ip){ this.userInputIP = ip; }
 
 	public void Client(){
 
@@ -138,7 +145,7 @@ public class MenuController : MonoBehaviour {
 
 	public void Server(){
 		
-		localIp.gameObject.SetActive(true);
+		this.localIp.gameObject.SetActive(true);
 		
 		foreach(GameObject go in this.menus){
 			if(go.name.Equals("ServerMenu"))
@@ -149,23 +156,29 @@ public class MenuController : MonoBehaviour {
 	}
 
 	public void Host(){
+		
+		// Wifi wifi = gameObject.AddComponent<Wifi>();
+		Wifi wifi = new Wifi();
+		wifi.isHost = true;
 
+		// Start hosting
+		wifi.Connect();
+
+		this.connection = wifi;
 	}
 
 	public void Join(){
 
-        // Arrumar esse cast?
-        this.connection = new Wifi();
-        // gameManager.gameObject.AddComponent<Wifi>();
-        // connection = gameManager.gameObject.GetComponent<Wifi>();		// Create a new connection
+		// Wifi wifi = gameObject.AddComponent<Wifi>();
+		Wifi wifi = new Wifi();
         
-		Debug.Log("[Debug]: Connection: " + connection);
+		// Debug.Log("[Debug]: Connection: " + connection);
 
-		Debug.Log("Connecting to: " + userInputIP);
+		// Debug.Log("Connecting to: " + userInputIP);
 
 		// Join server
-		// wifi.SetIpAddress(userInputIP);
-		// wifi.Connect();
+		wifi.SetIpAddress(userInputIP);
+		wifi.Connect();
 
 	}
 
@@ -182,9 +195,11 @@ public class MenuController : MonoBehaviour {
 
 	public void Quit(){
 
+		#if UNITY_EDITOR
 		if(Application.isEditor)  // Exit editor play mode
 			UnityEditor.EditorApplication.isPlaying = false;
 		else 
+		#endif
 			Application.Quit(); // Exit application
 	}
 
