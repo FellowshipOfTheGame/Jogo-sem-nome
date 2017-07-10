@@ -4,30 +4,30 @@ using System.Collections;
 
 public class Wifi : Connection {
 
-	private bool isHost { get; set; }
+	public bool isHost { get; set; }
 	private string localIp;
-	private string ip;
 	private NetworkClient localClient, remoteClient;
 
-	public void Awake(){
+	public void Start(){
+
+		this.localIp = GetLocalIp();
 		Debug.Log("[Debug]: Creating a new Wifi");
-		localIp = GetLocalIp();
 		Debug.Log("[Debug]: localIp: " + localIp);
-		ip = null;
-		localClient = null;
-		remoteClient = null;
-		isHost = false;
+
+		this.localClient = null;
+		this.remoteClient = null;
+		this.isHost = false;
 	}
 
 
 	public override bool Connect(){
 		
 		if(isHost)
-			localClient = StartHost();
+			this.localClient = StartHost();
 		else {
-			networkPort = 7777;
-			remoteClient = StartClient();
-			remoteClient.Connect(networkAddress, networkPort);
+			this.networkPort = 7777;
+			this.remoteClient = StartClient();
+			this.remoteClient.Connect(networkAddress, networkPort);
 		}
 
 		return true;
@@ -46,13 +46,10 @@ public class Wifi : Connection {
         return true;
     }
 
-    public void SetIpAddress(string ip){
-    	networkAddress = ip;
-    }
+    public void SetIpAddress(string remoteIp){ this.networkAddress = remoteIp; }
 
-    public string GetLocalIp(){
-		return Network.player.ipAddress;
-    }
+    public string GetLocalIp(){ return Network.player.ipAddress; }
+    public string GetRemoteIp(){ return this.networkAddress; }
 
     public void OnConnected(NetworkConnection conn, NetworkReader reader) {
 		Debug.Log("Connected!");
@@ -67,7 +64,7 @@ public class Wifi : Connection {
 	}
 
 	public void OnError(NetworkConnection conn, NetworkReader reader) {
-		Debug.Log("Error connecting with message: Vish deu ruim :c");
+		Debug.Log("Error connecting - Vish deu ruim :c");
 	}
 
 }

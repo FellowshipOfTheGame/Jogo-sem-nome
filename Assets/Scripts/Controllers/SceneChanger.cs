@@ -9,7 +9,7 @@ public class SceneChanger : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         DontDestroyOnLoad(gameObject);
-        LoadMenuScene();
+        // LoadMenuScene();
 	}
 	
 	// Update is called once per frame
