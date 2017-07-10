@@ -168,6 +168,8 @@ public class MenuController : MonoBehaviour {
 			else
 				go.SetActive(false);
 		}
+
+		Host();
 	}
 
 	public void Host(){
@@ -186,15 +188,10 @@ public class MenuController : MonoBehaviour {
 
 		// Wifi wifi = gameObject.AddComponent<Wifi>();
 		Wifi wifi = new Wifi();
-        
-		// Debug.Log("[Debug]: Connection: " + connection);
-
-		// Debug.Log("Connecting to: " + userInputIP);
 
 		// Join server
 		wifi.SetIpAddress(userInputIP);
 		wifi.Connect();
-
 	}
 
 	public void Bluetooth(){
@@ -210,11 +207,11 @@ public class MenuController : MonoBehaviour {
 
 	public void Quit(){
 
-		#if UNITY_EDITOR
+#if UNITY_EDITOR
 		if(Application.isEditor)  // Exit editor play mode
 			UnityEditor.EditorApplication.isPlaying = false;
 		else 
-		#endif
+#endif
 			Application.Quit(); // Exit application
 	}
 

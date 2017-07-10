@@ -22,9 +22,14 @@ public class Wifi : Connection {
 
 	public override bool Connect(){
 		
-		if(isHost)
+		Debug.Log("[DEBUG] Connecting...");
+
+		if(isHost){
+			Debug.Log("[DEBUG] Host is up");
 			this.localClient = StartHost();
-		else {
+		} else {
+			Debug.Log("[DEBUG] Host ip: " + networkAddress);
+			Debug.Log("[DEBUG] Host port: " + networkPort);
 			this.networkPort = 7777;
 			this.remoteClient = StartClient();
 			this.remoteClient.Connect(networkAddress, networkPort);
