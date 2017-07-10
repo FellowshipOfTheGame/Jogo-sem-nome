@@ -64,6 +64,9 @@ public class GameManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+#if UNITY_STANDALONE_OSX || UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX
+        Screen.SetResolution(410, 656, false);
+#endif
         // Define que o manager não deve ser destruído e qual o seu estado inicial
         DontDestroyOnLoad(gameObject);
         playerObjects = new GameObject[2];
@@ -77,9 +80,9 @@ public class GameManager : MonoBehaviour {
         battleStarted = false;
         battleEnded = true;
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update () {
         // Loop de batalha
         if (battleStarted) {
             // Verifica se o player já acabou sua animação e caso true armazena esse resultado
