@@ -9,14 +9,16 @@ using UnityEditor;
 
 public class MenuController : MonoBehaviour {
 
-	private GameManager gameManager;
-    private SceneChanger sceneManager;
+	public GameObject playerPrefab;
 	public Text localIp;
 	public InputField serverIp;
-
-
+	
+	private GameManager gameManager;
+    private SceneChanger sceneManager;
+	
 	private Connection connection = null;
 	private string userInputIP = null;
+	
 	private GameObject[] menus = null;
 	private Slider[] sliders = null;
 
@@ -158,20 +160,24 @@ public class MenuController : MonoBehaviour {
 
 	public void Host(){
 		
-		// Wifi wifi = gameObject.AddComponent<Wifi>();
-		Wifi wifi = new Wifi();
+		Wifi wifi = gameObject.AddComponent<Wifi>();
+		this.connection = wifi; // Store a reference to this connection
+
+		// Set prefab
+		wifi.SetPlayerPrefab(this.playerPrefab);
 		wifi.isHost = true;
 
 		// Start hosting
 		wifi.Connect();
-
-		this.connection = wifi;
 	}
 
 	public void Join(){
 
-		// Wifi wifi = gameObject.AddComponent<Wifi>();
-		Wifi wifi = new Wifi();
+		Wifi wifi = gameObject.AddComponent<Wifi>();
+		this.connection = wifi; // Store a reference to this connection
+
+		// Set prefab
+		wifi.SetPlayerPrefab(this.playerPrefab);
 
 		// Join server
 		wifi.SetIpAddress(userInputIP);
@@ -179,7 +185,7 @@ public class MenuController : MonoBehaviour {
 	}
 
 	public void Bluetooth(){
-
+		return;
 	}
 
 	public void Offline(){
@@ -214,7 +220,8 @@ public class MenuController : MonoBehaviour {
 		
 		EnableGameObject(names);
 
-		this.connection = null;
+		if(this.connection)
+			Object.Destroy(this.connection);
 	}
 
     public void ChangedCountdownTime() {

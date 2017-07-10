@@ -4,7 +4,7 @@ using System.Collections;
 
 public class Wifi : Connection {
 
-	public bool isHost { get; set; }
+	public bool isHost;
 	private string localIp;
 	private NetworkClient localClient, remoteClient;
 
@@ -49,6 +49,11 @@ public class Wifi : Connection {
 	public override bool CloseConnection(){
 		NetworkManager.Shutdown();
         return true;
+    }
+
+    public void SetPlayerPrefab(GameObject pp){
+    	NetworkIdentity ni = pp.AddComponent<NetworkIdentity>();
+    	this.playerPrefab = pp;
     }
 
     public void SetIpAddress(string remoteIp){ this.networkAddress = remoteIp; }
