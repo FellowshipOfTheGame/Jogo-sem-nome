@@ -23,7 +23,7 @@ public class Timer : MonoBehaviour {
         timerFunction = null;
         show = false;
         fuse = new GameObject[nFuses];
-        currentPosition = nFuses - 1;
+        currentPosition = nFuses;
         foreach(Transform child in transform){
             if (child.gameObject.tag == "Fuse") {
                 string positionString = child.gameObject.name.Split(' ')[1];
@@ -39,20 +39,24 @@ public class Timer : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        // Updates timer if needed
         if (counting)
             UpdateTimer();
-        int newPosition = Mathf.Min(Mathf.FloorToInt((time / maxTime) * nFuses), nFuses - 1);
-        Debug.Log("newPosition = " + newPosition);
+        // Calculates new tip position
+        int newPosition = Mathf.Min(Mathf.FloorToInt((time / maxTime) * nFuses), nFuses);
+        // If the new position is to the left of the current one, moves tip deactivating the fuse components
         if (newPosition < currentPosition) {
             for (int i = currentPosition; i > newPosition; i--) {
-                fuse[currentPosition--].SetActive(false);
+                fuse[currentPosition - 1].SetActive(false);
                 tip.transform.position = new Vector3(tip.transform.position.x - fuseSize, tip.transform.position.y, tip.transform.position.z);
             }
+            currentPosition = newPosition;
+        // If the new position is to the right of the current one, moves tip activating the components instead
         } else if (newPosition > currentPosition) {
-            foreach (GameObject go in fuse) {
-                go.SetActive(true);
+            for (int i = currentPosition; i < newPosition; i++) {
+                fuse[i].SetActive(true);
+                tip.transform.position = new Vector3(tip.transform.position.x + fuseSize, tip.transform.position.y, tip.transform.position.z);
             }
-            tip.transform.position = new Vector3(tip.transform.position.x + ((newPosition - currentPosition) * fuseSize), tip.transform.position.y, tip.transform.position.z);
             currentPosition = newPosition;
         }
 	}
