@@ -15,13 +15,13 @@ public class SceneChanger : MonoBehaviour {
     // Use this for initialization
     private void Awake() {
         backgroundSpeed = 50f;
-        background = findBackground();
+        background = FindBackground();
         noFunctionsQueued = true;
     }
 
     void Start() {
         Moving = false;
-        background.transform.position = new Vector3(3.04f, 6.14f, 0.0f);
+        background.transform.position = new Vector3(3.115f, 6.25f, 0.0f);
         target = background.transform.position;
         DontDestroyOnLoad(gameObject);
         LoadMenuScene(true);
@@ -61,26 +61,26 @@ public class SceneChanger : MonoBehaviour {
 
     public void MoveUp() {
         Moving = true;
-        target = new Vector3(target.x, target.y - 10.32f, target.z);
+        target = new Vector3(target.x, target.y - 10.52f, target.z);
     }
 
     public void MoveDown() {
         Moving = true;
-        target = new Vector3(target.x, target.y + 10.32f, target.z);
+        target = new Vector3(target.x, target.y + 10.52f, target.z);
     }
 
     public void MoveRight() {
         Moving = true;
-        target = new Vector3(target.x - 6.06f, target.y, target.z);
+        target = new Vector3(target.x - 6.21f, target.y, target.z);
     }
 
     public void MoveLeft() {
         Moving = true;
-        target = new Vector3(target.x + 6.06f, target.y, target.z);
+        target = new Vector3(target.x + 6.21f, target.y, target.z);
     }
 
     // Auxiliary function to get background reference
-    private GameObject findBackground() {
+    private GameObject FindBackground() {
         foreach (Transform child in transform) {
             if (child.gameObject.tag == "Background")
                 return child.gameObject;
@@ -88,10 +88,15 @@ public class SceneChanger : MonoBehaviour {
         return null;
     }
 
-    private void PressPlay(Scene scene, LoadSceneMode mode) {
+    private void OnMainMenuLoad(Scene scene, LoadSceneMode mode) {
         GameObject mc = GameObject.FindGameObjectWithTag("MenuController");
         MenuController menuController = mc.GetComponent<MenuController>();
         menuController.Play();
+        gm.findCanvas();
+    }
+
+    private void OnBattleSceneLoad(Scene scene, LoadSceneMode mode) {
+        gm.StartBattle();
     }
 
     public void LoadMenuScene(bool gameStart) {
@@ -99,23 +104,28 @@ public class SceneChanger : MonoBehaviour {
         if (!gameStart) {
             MoveLeft();
             MoveLeft();
+            // Clear sceneloaded queue
+            if (!noFunctionsQueued)
+                SceneManager.sceneLoaded -= OnBattleSceneLoad;
+
             // And queues a function that simulates the play button being pressed
-            if (noFunctionsQueued) {
-                noFunctionsQueued = false;
-                SceneManager.sceneLoaded += PressPlay;
-            }
+            SceneManager.sceneLoaded += OnMainMenuLoad;
+            noFunctionsQueued = false;
+        } else {
+            gm.findCanvas();
         }
         SceneManager.LoadScene("MainMenu");
     }
 
     public void LoadBattleScene(Connection successfulConection) {
         MoveRight();
-        // Removes the play button function from the sceneLoaded variable
-        if (!noFunctionsQueued) {
-            noFunctionsQueued = true;
-            SceneManager.sceneLoaded -= PressPlay;
-        }
+        // Removes the OnMainMenuLoad function from queue
+        if (!noFunctionsQueued)
+            SceneManager.sceneLoaded -= OnMainMenuLoad;
+        // Adds a different function to be called when the scene is loaded
+        SceneManager.sceneLoaded += OnBattleSceneLoad;
+        noFunctionsQueued = false;
         SceneManager.LoadScene("BattleScene");
-        gm.StartBattle(successfulConection);
+        gm.connection = successfulConection;
     }
 }
