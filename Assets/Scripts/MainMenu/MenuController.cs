@@ -7,6 +7,13 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 #endif
 
+enum MenuPosition {
+    MAIN,
+    OPTIONS,
+    CREDITS,
+    PLAY
+}
+
 public class MenuController : MonoBehaviour {
 
 	public GameObject playerPrefab;
@@ -16,6 +23,8 @@ public class MenuController : MonoBehaviour {
 	private GameManager gameManager;
     private SceneChanger sceneManager;
 	
+    private GameObject background;
+    private MenuPosition position;
 	private Connection connection = null;
 	private string userInputIP = null;
 	
@@ -23,6 +32,8 @@ public class MenuController : MonoBehaviour {
 	private Slider[] sliders = null;
 
 	void Awake(){
+
+        position = MenuPosition.MAIN;
 
 		// Get GameManager reference
 		GameObject tmp = GameObject.FindGameObjectWithTag("GameManager");
@@ -83,6 +94,8 @@ public class MenuController : MonoBehaviour {
 				names.Add(go.name);
 
 		EnableGameObject(names);
+        sceneManager.MoveRight();
+        position = MenuPosition.PLAY;
 	}
 
 	public void Options(){
@@ -97,6 +110,8 @@ public class MenuController : MonoBehaviour {
 				names.Add(s.name);
 
 		EnableGameObject(names);
+        sceneManager.MoveLeft();
+        position = MenuPosition.OPTIONS;
 	}
 
 	public void Crebitz(){
@@ -108,6 +123,8 @@ public class MenuController : MonoBehaviour {
 				names.Add(go.name);
 
 		EnableGameObject(names);
+        sceneManager.MoveUp();
+        position = MenuPosition.CREDITS;
 	}
 
 	public void ChangedMaxDef(){
@@ -205,23 +222,37 @@ public class MenuController : MonoBehaviour {
 			Application.Quit(); // Exit application
 	}
 
-	public void Back(){
+    public void Back() {
 
-		localIp.gameObject.SetActive(false);
-		serverIp.gameObject.SetActive(false);
-		List<string> names = new List<string>();
+        if (!sceneManager.Moving) {
+            switch (position) {
+                case MenuPosition.CREDITS:
+                    sceneManager.MoveDown();
+                    break;
+                case MenuPosition.OPTIONS:
+                    sceneManager.MoveRight();
+                    break;
+                case MenuPosition.PLAY:
+                    sceneManager.MoveLeft();
+                    break;
+            }
+            position = MenuPosition.MAIN;
 
-		if (connection != null)
-			connection.CloseConnection();
+            localIp.gameObject.SetActive(false);
+            serverIp.gameObject.SetActive(false);
+            List<string> names = new List<string>();
 
-		foreach(GameObject go in this.menus)
-			if(go.name.Equals("MainMenu"))
-				names.Add(go.name);
-		
-		EnableGameObject(names);
+            if(this.connection){
+				connection.CloseConnection();
+				connection = null;
+			}
 
-		if(this.connection)
-			Object.Destroy(this.connection);
+            foreach (GameObject go in this.menus)
+                if (go.name.Equals("MainMenu"))
+                    names.Add(go.name);
+
+            EnableGameObject(names);
+        }
 	}
 
     public void ChangedCountdownTime() {

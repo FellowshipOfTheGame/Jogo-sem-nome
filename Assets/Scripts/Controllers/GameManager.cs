@@ -154,7 +154,7 @@ public class GameManager : MonoBehaviour {
         battleStarted = false;
 
         // Muda de cena
-        sc.LoadMenuScene();
+        sc.LoadMenuScene(false);
     }
 
     public void SetPlayerAction(Action selectedAction) {
