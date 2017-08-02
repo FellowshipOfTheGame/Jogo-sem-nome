@@ -103,10 +103,10 @@ public class GameManager : MonoBehaviour {
             // Caso o turno tenha acabado e o timer esteja em 0
             if (timer.time <= 0 && !turnHappening) {// Sempre que o timer não estiver ativo, uma ação deve ser realizada
                 // Caso necessário, reinicia o timer
-                if (!battleEnded)
+                if (!battleEnded) {
                     timer.StartTimer(countdownTime, SelectAction, true); // inicia o timer
                 // Senão, acaba a batalha
-                else
+                } else
                     EndBattle();
             }
         }
@@ -126,7 +126,8 @@ public class GameManager : MonoBehaviour {
         enemyPlayer.Configure(maxDefenses, maxBullets);
         
         // Instancia e salva referencia para o timer
-        timerObject = GameObject.Instantiate(timerPrefab, canvasObject.transform);
+        timerObject = GameObject.Instantiate(timerPrefab);
+        timerObject.transform.SetParent(canvasObject.transform, false);
         timer = timerObject.GetComponent<Timer>();
 
         // Inserir aqui qualquer animação de início de batalha
@@ -189,6 +190,8 @@ public class GameManager : MonoBehaviour {
         // Se necessário, indica que acabou a batalha
         if (!localPlayer.alive || !enemyPlayer.alive)
             battleEnded = true;
+
+        localPlayer.action = enemyPlayer.action = Action.NOOP;
     }
 
     private Action getEnemyAction () {
