@@ -104,7 +104,7 @@ public class GameManager : MonoBehaviour {
             if (timer.time <= 0 && !turnHappening) {// Sempre que o timer não estiver ativo, uma ação deve ser realizada
                 // Caso necessário, reinicia o timer
                 if (!battleEnded) {
-                    timer.StartTimer(countdownTime, SelectAction, true); // inicia o timer
+                    timer.StartTimer(countdownTime, SelectAction); // inicia o timer
                 // Senão, acaba a batalha
                 } else
                     EndBattle();
