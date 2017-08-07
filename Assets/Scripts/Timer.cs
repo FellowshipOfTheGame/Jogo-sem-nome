@@ -6,12 +6,12 @@ public delegate void VoidFunction();
 public class Timer : MonoBehaviour {
     
     private bool counting;
-    private float maxTime, firstPosition, currentPosition;
+    private float maxTime, firstPosition, currentPosition, fuseSize;
     private int currentIndex;
     private VoidFunction timerFunction;
     private GameObject[] fuse;
     private GameObject barrel, tip;
-    public float fuseSize, speed;
+    public float speed;
     public int nFuses;
     public float time { get; private set; }
 
@@ -34,12 +34,12 @@ public class Timer : MonoBehaviour {
             else if (child.gameObject.tag == "Barrel")
                 barrel = child.gameObject;
         }
-        firstPosition = fuse[0].transform.position.x - (fuseSize/2);
+        fuseSize = fuse[1].GetComponent<RectTransform>().anchoredPosition.x - fuse[0].GetComponent<RectTransform>().anchoredPosition.x;
+        firstPosition = fuse[0].GetComponent<RectTransform>().anchoredPosition.x - (fuseSize/2);
         Debug.Log("first position = " + firstPosition);
         currentPosition = firstPosition + (nFuses * fuseSize);
         Debug.Log("current position = " + currentPosition);
         currentIndex = nFuses;
-        //tip.transform.position = new Vector3(currentPosition, tip.transform.position.y, tip.transform.position.z);
         tip.GetComponent<RectTransform>().anchoredPosition = new Vector3(currentPosition, tip.transform.position.y, tip.transform.position.z);
     }
 	
