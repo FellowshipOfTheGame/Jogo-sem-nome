@@ -53,7 +53,6 @@ public class Wifi : Connection {
     }
 
     public void SetPlayerPrefab(GameObject pp){
-    	NetworkIdentity ni = pp.AddComponent<NetworkIdentity>();
     	this.playerPrefab = pp;
     }
 
