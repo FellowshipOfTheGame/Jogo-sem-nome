@@ -17,6 +17,7 @@ enum MenuPosition {
 public class MenuController : MonoBehaviour {
 
 	public GameObject playerPrefab;
+	public GameObject dummy;
 	public Text localIp;
 	public InputField serverIp;
 	
@@ -162,8 +163,12 @@ public class MenuController : MonoBehaviour {
 	}
 
 	public void Server(){
+
+		Wifi wifi = gameObject.AddComponent<Wifi>();
+		this.connection = wifi; // Store a reference to this connection
 		
 		this.localIp.gameObject.SetActive(true);
+		localIp.text = "Your IP: " + (this.connection as Wifi).GetLocalIp();
 		
 		foreach(GameObject go in this.menus){
 			if(go.name.Equals("ServerMenu"))
@@ -176,12 +181,11 @@ public class MenuController : MonoBehaviour {
 	}
 
 	public void Host(){
-		
-		Wifi wifi = gameObject.AddComponent<Wifi>();
-		this.connection = wifi; // Store a reference to this connection
+
+		Wifi wifi = this.connection as Wifi;
 
 		// Set prefab
-		wifi.SetPlayerPrefab(this.playerPrefab);
+		wifi.SetPlayerPrefab(this.dummy);
 		wifi.isHost = true;
 
 		// Start hosting
@@ -194,11 +198,15 @@ public class MenuController : MonoBehaviour {
 		this.connection = wifi; // Store a reference to this connection
 
 		// Set prefab
-		wifi.SetPlayerPrefab(this.playerPrefab);
+		wifi.SetPlayerPrefab(this.dummy);
 
 		// Join server
 		wifi.SetIpAddress(userInputIP);
 		wifi.Connect();
+	}
+
+	public void LoadWifiBattle(){
+		sceneManager.LoadBattleScene(connection);
 	}
 
 	public void Bluetooth(){

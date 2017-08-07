@@ -17,8 +17,8 @@ public class Wifi : Connection {
 		this.localClient = null;
 		this.remoteClient = null;
 		this.isHost = false;
+		this.autoCreatePlayer = false;
 	}
-
 
 	public override bool Connect(){
 		
@@ -64,6 +64,7 @@ public class Wifi : Connection {
 
     public void OnConnected(NetworkConnection conn, NetworkReader reader) {
 		Debug.Log("Connected!");
+		GameObject.FindGameObjectWithTag("MenuController").GetComponent<MenuController>().LoadWifiBattle();
 	}
 
 	public void OnConnectedToServer(){
