@@ -36,9 +36,7 @@ public class Timer : MonoBehaviour {
         }
         fuseSize = fuse[1].GetComponent<RectTransform>().anchoredPosition.x - fuse[0].GetComponent<RectTransform>().anchoredPosition.x;
         firstPosition = fuse[0].GetComponent<RectTransform>().anchoredPosition.x - (fuseSize/2);
-        Debug.Log("first position = " + firstPosition);
         currentPosition = firstPosition + (nFuses * fuseSize);
-        Debug.Log("current position = " + currentPosition);
         currentIndex = nFuses;
         tip.GetComponent<RectTransform>().anchoredPosition = new Vector3(currentPosition, tip.transform.position.y, tip.transform.position.z);
     }
@@ -53,16 +51,14 @@ public class Timer : MonoBehaviour {
         float targetPosition = firstPosition + (targetIndex * fuseSize);
         currentPosition = tip.GetComponent<RectTransform>().anchoredPosition.x;
         currentIndex = Mathf.FloorToInt((currentPosition - firstPosition) / fuseSize);
-        Debug.Log("current index = " + currentIndex);
-        Debug.Log("target index = " + targetIndex);
         // If the new position is to the left of the current one, moves tip deactivating the fuse components
         if (targetIndex < currentIndex) {
-            for (int i = currentIndex; i > targetIndex; i--) {
+            for (int i = currentIndex; i > targetIndex && i > 0; i--) {
                 fuse[i - 1].SetActive(false);
             }
             // If the new position is to the right of the current one, moves tip activating the components instead
         } else if (targetIndex > currentIndex) {
-            for (int i = currentIndex; i < targetIndex; i++) {
+            for (int i = currentIndex; i < targetIndex && i < nFuses - 1; i++) {
                 fuse[i].SetActive(true);
             }
         }

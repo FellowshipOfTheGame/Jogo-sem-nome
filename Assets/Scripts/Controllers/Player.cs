@@ -115,6 +115,7 @@ public class Player : MonoBehaviour {
 
         // Reseta a ação do player para o próximo turno
         playerAction = Animation.NOTHING;
+        action = Action.NOOP;
     }
 
     private void PlayAnimation(Animation selectedAnim) {
@@ -159,8 +160,8 @@ public class Player : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (anim.GetBool("enteredIdle")) {
-            anim.SetBool("enteredIdle", false);
+        if (anim.GetBool("stopped_moving")) {
+            anim.SetBool("stopped_moving", false);
             finishedAnimation = true;
         }
 	}

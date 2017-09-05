@@ -8,25 +8,29 @@ public enum Action : byte { NOOP, ATK, DEF, REL }
 // Recebe as mensagens do player e do inimigo conectado, avalia o comando nesse turno e envia o resultado calculado para os dois
 public class GameManager : MonoBehaviour {
 
-    
+
     // criar scripts auxiliares(Ex.: AnimationController) para nao sobrecarregar o GameManager
-    
+
+    enum State : byte { MENU, GAME, RESULT}
+
     private Player localPlayer, enemyPlayer;
     private GameObject[] playerObjects;
     private Timer timer;
     private GameObject timerObject;
-    private uint i;
-	public Connection connection;
+    private State currentState;
     private GameObject canvasObject;
-    public bool battleStarted;
-    public SceneChanger sc;
+    private bool animating, playerAnimFinished, enemyAnimFinished, battleStarted;
+    private float stopwatch;
+
+    public Connection connection;
     public bool battleEnded { get; private set; }
-    public GameObject playerPrefab, enemyPrefab, timerPrefab;
+    public float endingDuration;
+    public SceneChanger sc;
+    public GameObject playerPrefab, enemyPrefab, timerPrefab, victorySign, drawSign, defeatSignLeft, defeatSignRight;
 
     private int maxDefenses;
     private int maxBullets;
     private float countdownTime;
-    private bool turnHappening, playerAnimFinished, enemyAnimFinished;
 
     public int MaxDefenses {
         get { return maxDefenses; }
@@ -71,45 +75,78 @@ public class GameManager : MonoBehaviour {
         maxBullets = 3;
         maxDefenses = 3;
         countdownTime = 3.0f;
+        endingDuration = 5.0f;
 
         connection = null;
         battleStarted = false;
         battleEnded = true;
+        currentState = State.MENU;
     }
 
     // Update is called once per frame
     void Update () {
-        // Loop de batalha
-        if (battleStarted) {
-            // Verifica se o player já acabou sua animação e caso true armazena esse resultado
-            if (!playerAnimFinished) {
-                playerAnimFinished = localPlayer.FinishedAnimation;
-            }
-            // Verifica se a animação do inimigo já acabou
-            if (!enemyAnimFinished) {
-                enemyAnimFinished = enemyPlayer.FinishedAnimation;
-            }
-            // Caso as duas animações tenham acabado
-            if (playerAnimFinished && enemyAnimFinished) {
-                // Indica que o turno terminou
-                playerAnimFinished = false;
-                enemyAnimFinished = false;
-                turnHappening = false;
-            }
-            // Caso o turno tenha acabado e o timer esteja em 0
-            if (timer.time <= 0 && !turnHappening) {// Sempre que o timer não estiver ativo, uma ação deve ser realizada
-                // Caso necessário, reinicia o timer
-                if (!battleEnded) {
-                    timer.StartTimer(countdownTime, SelectAction); // inicia o timer
-                // Senão, acaba a batalha
-                } else
+        switch (currentState) {
+
+            // Loop de batalha
+            case State.GAME:
+                // Verifica se o player já acabou sua animação e caso true armazena esse resultado
+                if (!playerAnimFinished) {
+                    playerAnimFinished = localPlayer.FinishedAnimation;
+                }
+                // Verifica se a animação do inimigo já acabou
+                if (!enemyAnimFinished) {
+                    enemyAnimFinished = enemyPlayer.FinishedAnimation;
+                }
+                // Caso as duas animações tenham acabado
+                if (playerAnimFinished && enemyAnimFinished) {
+                    // Indica que o turno terminou
+                    playerAnimFinished = false;
+                    enemyAnimFinished = false;
+                    animating = false;
+                }
+                // Caso o turno tenha acabado e o timer esteja em 0
+                if (timer.time <= 0 && !animating) {// Sempre que o timer não estiver ativo, uma ação deve ser realizada
+                    // Caso necessário, reinicia o timer
+                    if (!battleEnded) {
+                        timer.StartTimer(countdownTime, SelectAction); // inicia o timer
+                    // Senão, acaba a batalha
+                    } else {
+                        // Avalia qual foi o resultado
+                        Result result = localPlayer.alive ? Result.VICTORY : enemyPlayer.alive ? Result.DEFEAT : Result.DRAW;
+                        // Creates the sign to indicate battle result
+                        switch (result) {
+                            case Result.VICTORY:
+                                GameObject.Instantiate(victorySign);
+                                break;
+                            case Result.DEFEAT:
+                                GameObject.Instantiate(defeatSignLeft);
+                                GameObject.Instantiate(defeatSignRight);
+                                break;
+                            case Result.DRAW:
+                                GameObject.Instantiate(drawSign);
+                                break;
+                        }
+                        // Changes current state
+                        currentState = State.RESULT;
+                    }
+                }
+                break;
+            case State.RESULT:
+                if (stopwatch > 0)
+                    stopwatch -= Time.deltaTime;
+                else
                     EndBattle();
-            }
+                break;
+            case State.MENU:
+                break;
+            default:
+                break;
         }
 	}
 
     // Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
     public void StartBattle() {
+        stopwatch = endingDuration;
         findCanvas();
         // Instancia a prefab do player
         playerObjects[0] = GameObject.Instantiate(playerPrefab, gameObject.transform);
@@ -125,29 +162,20 @@ public class GameManager : MonoBehaviour {
         timerObject = GameObject.Instantiate(timerPrefab);
         timerObject.transform.SetParent(canvasObject.transform, false);
         timer = timerObject.GetComponent<Timer>();
-
-        // Inserir aqui qualquer animação de início de batalha
-
+        
         // Seta as variáveis booleanas que indicam o estado da batalha
         playerAnimFinished = false;
         enemyAnimFinished = false;
-        turnHappening = false;
+        animating = false;
         battleStarted = true;
         battleEnded = false;
+
+        currentState = State.GAME;
     }
 
     // Função a ser chamada quando acabar a batalha
     private void EndBattle() {
-
-        // Avalia qual foi o resultado
-        Result result = localPlayer.alive? Result.VICTORY : enemyPlayer.alive? Result.DEFEAT : Result.DRAW;
-
-        // Faz alguma coisa (Mensagem de vitória/derrota talvez)
-
-        // Volta as configurações para o default
-        maxBullets = 3;
-        maxDefenses = 3;
-        countdownTime = 3;
+        
         // Destrói os objetos e componentes desnecessários
         Destroy(playerObjects[0]);
         Destroy(playerObjects[1]);
@@ -162,6 +190,7 @@ public class GameManager : MonoBehaviour {
         canvasObject = null;
 
         // Muda de cena
+        currentState = State.MENU;
         sc.LoadMenuScene(false);
     }
 
@@ -172,7 +201,7 @@ public class GameManager : MonoBehaviour {
     private void SelectAction() {
 
         // Avisa que o turno começou
-        turnHappening = true;
+        animating = true;
 
         // Envia a ação selecionada
         sendLocalAction(localPlayer.action);
@@ -186,8 +215,6 @@ public class GameManager : MonoBehaviour {
         // Se necessário, indica que acabou a batalha
         if (!localPlayer.alive || !enemyPlayer.alive)
             battleEnded = true;
-
-        localPlayer.action = enemyPlayer.action = Action.NOOP;
     }
 
     private Action getEnemyAction () {
