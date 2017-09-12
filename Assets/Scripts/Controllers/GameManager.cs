@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour {
 
 	public bool battleEnded { get; private set; }
 	public float endingDuration;
-	public readonly int TIMEOUT = 3;
+	public readonly int TIMEOUT = 10;
 	public Connection connection;
 	public SceneChanger sc;
 	public GameObject playerPrefab, enemyPrefab, timerPrefab, victorySign, drawSign, defeatSignLeft, defeatSignRight;
@@ -146,13 +146,16 @@ public class GameManager : MonoBehaviour {
 
 	// Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
 	public void StartBattle() {
+
 		stopwatch = endingDuration;
 		findCanvas();
+
 		// Instancia a prefab do player
 		playerObjects[0] = GameObject.Instantiate(playerPrefab, gameObject.transform);
 		// Obtem uma referencia para o script e configura
 		localPlayer = playerObjects[0].GetComponent<Player>();
 		localPlayer.Configure(maxDefenses, maxBullets);
+
 		// Faz o mesmo para o inimigo
 		playerObjects[1] = GameObject.Instantiate(enemyPrefab, gameObject.transform);
 		enemyPlayer = playerObjects[1].GetComponent<Player>();

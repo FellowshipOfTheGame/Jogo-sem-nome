@@ -118,10 +118,13 @@ public class SceneChanger : MonoBehaviour {
     }
 
     public void LoadBattleScene(Connection successfulConection) {
+        
         MoveRight();
+        
         // Removes the OnMainMenuLoad function from queue
         if (!noFunctionsQueued)
             SceneManager.sceneLoaded -= OnMainMenuLoad;
+        
         // Adds a different function to be called when the scene is loaded
         SceneManager.sceneLoaded += OnBattleSceneLoad;
         noFunctionsQueued = false;

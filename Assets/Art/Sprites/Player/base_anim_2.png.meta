@@ -1,12 +1,5 @@
 fileFormatVersion: 2
-<<<<<<< HEAD
 guid: b48bdcdb726074a53809c30012d24b1d
-timeCreated: 1504895438
-=======
-guid: 912f33abd0a58df43864012f35fe2bac
-timeCreated: 1504636970
->>>>>>> 51f7ab99e3af712062ec52f1c65ad4f5db7d21a2
-licenseType: Free
 TextureImporter:
   fileIDToRecycleName: {}
   serializedVersion: 4
@@ -76,7 +69,6 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
-<<<<<<< HEAD
   - buildTarget: iPhone
     maxTextureSize: 2048
     textureFormat: -1
@@ -85,8 +77,6 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
-=======
->>>>>>> 51f7ab99e3af712062ec52f1c65ad4f5db7d21a2
   - buildTarget: Android
     maxTextureSize: 2048
     textureFormat: -1
@@ -95,7 +85,6 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
-<<<<<<< HEAD
   - buildTarget: Tizen
     maxTextureSize: 2048
     textureFormat: -1
@@ -120,8 +109,6 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
-=======
->>>>>>> 51f7ab99e3af712062ec52f1c65ad4f5db7d21a2
   spriteSheet:
     serializedVersion: 2
     sprites: []
