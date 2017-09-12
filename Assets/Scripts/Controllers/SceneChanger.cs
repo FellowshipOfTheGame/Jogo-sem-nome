@@ -16,7 +16,7 @@ public class SceneChanger : MonoBehaviour {
     private void Awake() {
         backgroundSpeed = 50f;
         background = FindBackground();
-        noFunctionsQueued = true;
+        queuedFunction = FunctionQueue.None;
     }
 
     void Start() {
@@ -103,14 +103,9 @@ public class SceneChanger : MonoBehaviour {
         // If it's coming back from the battle scene, moves background
         if (!gameStart) {
             MoveLeft();
-            MoveLeft();
-            // Clear sceneloaded queue
-            if (!noFunctionsQueued)
-                SceneManager.sceneLoaded -= OnBattleSceneLoad;
-
             // And queues a function that simulates the play button being pressed
-            SceneManager.sceneLoaded += OnMainMenuLoad;
-            noFunctionsQueued = false;
+            SceneManager.sceneLoaded += MoveBGFindCanvas;
+            queuedFunction = FunctionQueue.MenuAgain;
         } else {
             gm.findCanvas();
         }
