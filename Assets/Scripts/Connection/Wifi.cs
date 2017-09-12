@@ -1,12 +1,20 @@
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Networking.NetworkSystem;
 using System.Collections;
+using System.Collections.Generic;
+
 
 public class Wifi : Connection {
+	
+	private enum MsgType : short { Debug, Op }
 
 	public bool isHost;
+	
 	private string localIp;
 	private NetworkClient localClient, remoteClient;
+	private Queue<string> messages;
+
 
 	public void Start(){
 
@@ -18,6 +26,7 @@ public class Wifi : Connection {
 		this.remoteClient = null;
 		this.isHost = false;
 		this.autoCreatePlayer = false;
+		this.messages = new Queue<string>();
 	}
 
 	public override bool Connect(){
@@ -25,8 +34,12 @@ public class Wifi : Connection {
 		Debug.Log("[DEBUG] Connecting...");
 
 		if(isHost){
+			
 			Debug.Log("[DEBUG] Host is up");
 			this.localClient = StartHost();
+			
+			NetworkServer.RegisterHandler((short) MsgType.Op, HandleMessage);
+
 		} else {
 			Debug.Log("[DEBUG] Host ip: " + networkAddress);
 			Debug.Log("[DEBUG] Host port: " + networkPort);
@@ -39,11 +52,31 @@ public class Wifi : Connection {
     }
 	
 	public override bool OtterSendMessage(string msg){
-        return true;
+		
+		// msg.operation = msg;
+		// msg.debug = "[debug]: Message + " + id;
+
+		StringMessage sendMsg = new StringMessage();
+		sendMsg.value = msg;
+
+        return remoteClient.Send((short) MsgType.Op, sendMsg);
     }
 	
 	public override string GetMessage(){
-        return "NOOP";
+
+		string msg = null;
+
+		if(messages.Count > 0){
+			Debug.Log("[Debug] New message(s)");
+			msg = messages.Dequeue();
+		}
+
+        return msg;
+    }
+
+    public void HandleMessage(NetworkMessage msg){
+    	messages.Enqueue(msg.ReadMessage<StringMessage>().value);
+    	Debug.Log("[Debug] Message handler received: \"" + messages.Peek() + "\"");
     }
 	
 	public override bool CloseConnection(){
@@ -77,5 +110,4 @@ public class Wifi : Connection {
 	public void OnError(NetworkConnection conn, NetworkReader reader) {
 		Debug.Log("Error connecting - Vish deu ruim :c");
 	}
-
 }
