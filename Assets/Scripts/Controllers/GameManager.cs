@@ -213,9 +213,10 @@ public class GameManager : MonoBehaviour {
 
 		// Envia a ação selecionada
 		sendLocalAction(localPlayer.action);
-		Animation localAnimation = localPlayer.DoAction();
-		// Recebe a ação do inimigo
-		enemyPlayer.action = getEnemyAction();
+        // Recebe a ação do inimigo
+        enemyPlayer.action = getEnemyAction();
+        // Realiza as ações selecionadas
+        Animation localAnimation = localPlayer.DoAction();
 		Animation enemyAnimation = enemyPlayer.DoAction();
 		// Compara os Animations das duas ações e, de acordo com o que aconteceu chama as animações de reação
 		localPlayer.DoReaction(localAnimation, enemyAnimation);
