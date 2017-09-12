@@ -1,11 +1,6 @@
 fileFormatVersion: 2
-<<<<<<< HEAD
-guid: 999ae47ce01e24fcda3a284f388ff13d
-timeCreated: 1504895438
-=======
-guid: edad85230bd57fa418e0345bb584f705
-timeCreated: 1504636971
->>>>>>> 51f7ab99e3af712062ec52f1c65ad4f5db7d21a2
+guid: 27183abb6df0e624b9f682a6fdb11bd3
+timeCreated: 1504896432
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName: {}
@@ -76,17 +71,6 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
-<<<<<<< HEAD
-  - buildTarget: iPhone
-    maxTextureSize: 2048
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-=======
->>>>>>> 51f7ab99e3af712062ec52f1c65ad4f5db7d21a2
   - buildTarget: Android
     maxTextureSize: 2048
     textureFormat: -1
@@ -95,33 +79,6 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
-<<<<<<< HEAD
-  - buildTarget: Tizen
-    maxTextureSize: 2048
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-  - buildTarget: WebGL
-    maxTextureSize: 2048
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-  - buildTarget: Samsung TV
-    maxTextureSize: 2048
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-=======
->>>>>>> 51f7ab99e3af712062ec52f1c65ad4f5db7d21a2
   spriteSheet:
     serializedVersion: 2
     sprites: []
