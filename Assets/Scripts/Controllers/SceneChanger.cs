@@ -1,4 +1,4 @@
-﻿using UnityEngine.SceneManagement;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public class SceneChanger : MonoBehaviour {
@@ -59,7 +59,7 @@ public class SceneChanger : MonoBehaviour {
         }else {
             Moving = false;
         }
-	}
+    }
 
     public void MoveUp() {
         Moving = true;
@@ -116,6 +116,7 @@ public class SceneChanger : MonoBehaviour {
 
         // If it's coming back from the battle scene, moves background
         if (!gameStart) {
+            MoveLeft();
             MoveLeft();
             // And queues a function that simulates the play button being pressed
             SceneManager.sceneLoaded += MoveBGFindCanvas;

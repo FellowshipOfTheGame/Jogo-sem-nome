@@ -9,7 +9,10 @@ public class Player : MonoBehaviour {
     private bool configured;
     private Animator anim;
 	public Action action { get; set; }
-    public bool alive { get; private set; }
+    
+    // public bool alive { get; private set; }
+    public bool alive; // FIXME: LEMBRAR DE RESTRINGIR ACESSO - DEBUG ONLY
+    
     private bool finishedAnimation;
 
     public bool FinishedAnimation {
