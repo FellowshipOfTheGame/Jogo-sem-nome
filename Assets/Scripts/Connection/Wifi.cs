@@ -81,7 +81,6 @@ public class Wifi : Connection {
 	
 	public override bool CloseConnection(){
 		NetworkManager.Shutdown();
-		GameObject.Destroy(this);
         return true;
     }
 
