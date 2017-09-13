@@ -14,6 +14,7 @@ public class Offline : Connection {
 	}
 
 	public override string GetMessage(){
+        //return "NOOP";
         int choice = Random.Range(0, 4);
         switch (choice) {
             case 0:

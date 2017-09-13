@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour {
 	public readonly int TIMEOUT = 10;
 	public Connection connection;
 	public SceneChanger sc;
-	public GameObject playerPrefab, enemyPrefab, timerPrefab, victorySign, drawSign, defeatSignLeft, defeatSignRight;
+	public GameObject playerPrefab, enemyPrefab, timerPrefab, victorySign, drawSign, defeatSignLeft, defeatSignRight, tumbleweed;
 
 	private int maxDefenses;
 	private int maxBullets;
@@ -215,6 +215,9 @@ public class GameManager : MonoBehaviour {
 		sendLocalAction(localPlayer.action);
         // Recebe a ação do inimigo
         enemyPlayer.action = getEnemyAction();
+        // Tumbleweed
+        if (localPlayer.action == Action.NOOP && enemyPlayer.action == Action.NOOP)
+            GameObject.Instantiate(tumbleweed);
         // Realiza as ações selecionadas
         Animation localAnimation = localPlayer.DoAction();
 		Animation enemyAnimation = enemyPlayer.DoAction();
