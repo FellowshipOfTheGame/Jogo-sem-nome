@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+
+using System.Collections.Generic;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -14,8 +15,11 @@ enum MenuPosition {
     PLAY
 }
 
+public delegate void MoveEvent();
+
 public class MenuController : MonoBehaviour {
 
+    public GameObject bulletHole;
 	public GameObject playerPrefab;
 	public GameObject dummy;
 	public Text localIp;
@@ -30,7 +34,10 @@ public class MenuController : MonoBehaviour {
 	private string userInputIP = null;
 	
 	private GameObject[] menus = null;
+	private Button[] buttons = null;
 	private Slider[] sliders = null;
+
+	private MoveEvent moveRoutine = null;
 
 	void Awake(){
 
@@ -55,7 +62,7 @@ public class MenuController : MonoBehaviour {
 
 		foreach (GameObject go in menus){
 
-			Button[] buttons = go.GetComponentsInChildren<Button>() as Button[];
+			this.buttons = go.GetComponentsInChildren<Button>() as Button[];
 			
 			foreach(Button b in buttons){
 				
@@ -84,6 +91,142 @@ public class MenuController : MonoBehaviour {
 			}
 			s.gameObject.SetActive(false);
 		}
+	}
+
+	public void ChangedMaxDef(){
+		foreach(Slider s in sliders) {
+			if(s.name.Equals("MaxDefenses")) {
+				gameManager.MaxDefenses = (int) s.value;
+			}
+		}
+    }
+
+    private void SetIp(string ip){ this.userInputIP = ip; }
+
+    public void LoadWifiBattle(){
+		sceneManager.LoadBattleScene(connection);
+	}
+
+	private void EnableGameObject(string[] names){
+		EnableGameObject(new List<string>(names));
+	}
+
+	private void EnableGameObject(List<string> names){
+	
+		if(names.Count == 0){
+			foreach(GameObject go in this.menus)
+				go.gameObject.SetActive(false);
+			foreach(Slider s in sliders)
+				s.enabled = false;
+
+		} else {
+			foreach(GameObject go in this.menus){
+				if(names.Contains(go.name))
+					go.gameObject.SetActive(true);
+				else 
+					go.gameObject.SetActive(false);
+			}
+			foreach(Slider s in sliders){
+				if(names.Contains(s.name))
+					s.enabled = true;
+				else 
+					s.enabled = false;
+			}
+		}
+	}
+
+    public void ChangedCountdownTime() {
+        foreach(Slider s in sliders) {
+			if(s.name.Equals("MaxBullets")) {
+				gameManager.MaxBullets = (int) s.value;
+			}
+		}
+    }
+
+    public void ChangedMaxBullets() {
+       foreach(Slider s in sliders) {
+			if(s.name.Equals("CountdownTime")) {
+				gameManager.CountdownTime = s.value;
+			}
+		}
+	}
+
+    /********************/
+    /* Button Functions */
+    /********************/
+
+	public void ButtonGeneric(){
+		
+		string bName = gameObject.name;
+		string tag = "";
+
+
+		switch(bName){
+		case "Play":
+			tag = "PlayMenu";
+			moveRoutine = sceneManager.MoveRight;
+			break;
+		case "Options":
+			tag = "OptionsMenu";
+			moveRoutine = sceneManager.MoveLeft;
+			break;
+		case "Crebitz":
+			tag = "CrebitzMenu";
+			moveRoutine = sceneManager.MoveUp;
+			break;
+		case "Wifi":
+			tag = "WifiMenu";
+			// moveRoutine = sceneManager.Fade;
+			break;
+		case "Client":
+			tag = "ClientMenu";
+			// moveRoutine = sceneManager.Fade;
+			break;
+
+		case "Back":
+			tag = "ClientMenu";
+			Back();
+			return;
+
+		case "Quit":
+			tag = "ClientMenu";
+			Quit();
+			return;
+		
+		default:
+			Debug.Log("Error");
+			break;
+		}
+
+		if(position != MenuPosition.CREDITS){
+			
+			// Spawn bullet hole
+			Vector2 pos = Input.GetTouch(0).position; // Touch position
+			
+			foreach (Button b in this.buttons){
+				
+				RectTransform rect = b.GetComponent<RectTransform>();
+
+				// If touch is inside a button on screen
+				if(RectTransformUtility.
+					RectangleContainsScreenPoint(rect, pos, GetComponent<Camera>())){
+
+					Destroy(Instantiate(bulletHole, pos, Quaternion.identity), 1.0f);
+					break;
+				}
+			}
+		}
+
+		List<string> names = new List<string>();
+
+		foreach(GameObject go in this.menus)
+			if(go.name.Equals(tag))
+				names.Add(go.name);
+
+		EnableGameObject(names);
+        if(moveRoutine != null) moveRoutine();
+
+
 	}
 
 	public void Play(){
@@ -128,14 +271,6 @@ public class MenuController : MonoBehaviour {
         position = MenuPosition.CREDITS;
 	}
 
-	public void ChangedMaxDef(){
-		foreach(Slider s in sliders) {
-			if(s.name.Equals("MaxDefenses")) {
-				gameManager.MaxDefenses = (int) s.value;
-			}
-		}
-    }
-
 	public void Wifi(){
 
 		List<string> names = new List<string>();
@@ -146,8 +281,6 @@ public class MenuController : MonoBehaviour {
 
 		EnableGameObject(names);
 	}
-
-	private void SetIp(string ip){ this.userInputIP = ip; }
 
 	public void Client(){
 
@@ -205,10 +338,6 @@ public class MenuController : MonoBehaviour {
 		wifi.Connect();
 	}
 
-	public void LoadWifiBattle(){
-		sceneManager.LoadBattleScene(connection);
-	}
-
 	public void Bluetooth(){
 		return;
 	}
@@ -261,49 +390,5 @@ public class MenuController : MonoBehaviour {
 
             EnableGameObject(names);
         }
-	}
-
-    public void ChangedCountdownTime() {
-        foreach(Slider s in sliders) {
-			if(s.name.Equals("MaxBullets")) {
-				gameManager.MaxBullets = (int) s.value;
-			}
-		}
-    }
-
-    public void ChangedMaxBullets() {
-       foreach(Slider s in sliders) {
-			if(s.name.Equals("CountdownTime")) {
-				gameManager.CountdownTime = s.value;
-			}
-		}
-	}
-
-	private void EnableGameObject(string[] names){
-		EnableGameObject(new List<string>(names));
-	}
-
-	private void EnableGameObject(List<string> names){
-	
-		if(names.Count == 0){
-			foreach(GameObject go in this.menus)
-				go.gameObject.SetActive(false);
-			foreach(Slider s in sliders)
-				s.enabled = false;
-
-		} else {
-			foreach(GameObject go in this.menus){
-				if(names.Contains(go.name))
-					go.gameObject.SetActive(true);
-				else 
-					go.gameObject.SetActive(false);
-			}
-			foreach(Slider s in sliders){
-				if(names.Contains(s.name))
-					s.enabled = true;
-				else 
-					s.enabled = false;
-			}
-		}
 	}
 }

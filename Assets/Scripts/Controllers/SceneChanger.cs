@@ -90,11 +90,7 @@ public class SceneChanger : MonoBehaviour {
         return null;
     }
 
-    private void FindTheCanvas(Scene scene, LoadSceneMode mode) {
-        gm.findCanvas();
-    }
-
-    private void MoveBGFindCanvas(Scene scene, LoadSceneMode mode) {
+    private void OnMainMenuLoad(Scene scene, LoadSceneMode mode) {
         GameObject mc = GameObject.FindGameObjectWithTag("MenuController");
         MenuController menuController = mc.GetComponent<MenuController>();
         menuController.Play();
@@ -106,41 +102,29 @@ public class SceneChanger : MonoBehaviour {
     }
 
     public void LoadMenuScene(bool gameStart) {
-        // Clear sceneloaded queue
-        if (queuedFunction == FunctionQueue.Battle)
-            SceneManager.sceneLoaded -= OnBattleSceneLoad;
-        else if (queuedFunction == FunctionQueue.MenuAgain)
-            SceneManager.sceneLoaded -= MoveBGFindCanvas;
-        else if (queuedFunction == FunctionQueue.MenuFirst)
-            SceneManager.sceneLoaded -= FindTheCanvas;
-
         // If it's coming back from the battle scene, moves background
         if (!gameStart) {
-            MoveLeft();
             MoveLeft();
             // And queues a function that simulates the play button being pressed
             SceneManager.sceneLoaded += MoveBGFindCanvas;
             queuedFunction = FunctionQueue.MenuAgain;
         } else {
-            SceneManager.sceneLoaded += FindTheCanvas;
-            queuedFunction = FunctionQueue.MenuFirst;
+            gm.findCanvas();
         }
         SceneManager.LoadScene("MainMenu");
     }
 
     public void LoadBattleScene(Connection successfulConection) {
         MoveRight();
-        // Clear sceneloaded queue
-        if (queuedFunction == FunctionQueue.Battle)
-            SceneManager.sceneLoaded -= OnBattleSceneLoad;
-        else if (queuedFunction == FunctionQueue.MenuAgain)
-            SceneManager.sceneLoaded -= MoveBGFindCanvas;
-        else if (queuedFunction == FunctionQueue.MenuFirst)
-            SceneManager.sceneLoaded -= FindTheCanvas;
+        
+        // Removes the OnMainMenuLoad function from queue
+        if (!noFunctionsQueued)
+            SceneManager.sceneLoaded -= OnMainMenuLoad;
+        
         // Adds a different function to be called when the scene is loaded
         SceneManager.sceneLoaded += OnBattleSceneLoad;
-        queuedFunction = FunctionQueue.Battle;
-        gm.connection = successfulConection;
+        noFunctionsQueued = false;
         SceneManager.LoadScene("BattleScene");
+        gm.connection = successfulConection;
     }
 }
