@@ -102,6 +102,7 @@ public class SceneChanger : MonoBehaviour {
     }
 
     private void OnBattleSceneLoad(Scene scene, LoadSceneMode mode) {
+
         gm.StartBattle();
     }
 
