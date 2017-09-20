@@ -15,8 +15,7 @@ enum MenuPosition {
 }
 
 public class MenuController : MonoBehaviour {
-
-	public GameObject playerPrefab;
+    
 	public GameObject dummy;
 	public Text localIp;
 	public InputField serverIp;
@@ -40,49 +39,24 @@ public class MenuController : MonoBehaviour {
 		GameObject tmp = GameObject.FindGameObjectWithTag("GameManager");
 							
         if(tmp != null)
-        	this.gameManager = tmp.GetComponent<GameManager>() as GameManager;
+        	this.gameManager = tmp.GetComponent<GameManager>();
         
         // Get SceneManager reference
         tmp = GameObject.FindGameObjectWithTag("SceneManager");
         if(tmp != null)
-        	this.sceneManager = tmp.GetComponent<SceneChanger>() as SceneChanger;
+        	this.sceneManager = tmp.GetComponent<SceneChanger>();
 
         this.menus = GameObject.FindGameObjectsWithTag("Menu");
-		this.sliders = Object.FindObjectsOfType<Slider>() as Slider[]; // TODO
 
 		this.localIp.gameObject.SetActive(false);
 		this.serverIp.gameObject.SetActive(false);
 
 		foreach (GameObject go in menus){
-
-			Button[] buttons = go.GetComponentsInChildren<Button>() as Button[];
-			
-			foreach(Button b in buttons){
-				
-				// Disable bluetooth button until we have it
-				if(b.name.Equals("Bluetooth"))
-					b.interactable = false;
-
-				else if(b.name.Equals("NS só queira deixar quadradinho bunitu :3"))
-					b.interactable = false;
-			}
-			
+            
 			// Enable first menu and deactivate the rest
 			if(go.name.Equals("MainMenu"))
 				go.SetActive(true);
 			else go.SetActive(false);
-		}
-
-		foreach(Slider s in this.sliders) {
-			if(s.name.Equals("MaxDefenses") || s.name.Equals("MaxBullets")) {
-				s.minValue = 3;
-				s.maxValue = 10;
-			}
-			else if(s.name.Equals("CountdownTime"))  {
-				s.minValue = 2;
-				s.maxValue = 10;
-			}
-			s.gameObject.SetActive(false);
 		}
 	}
 
@@ -106,9 +80,6 @@ public class MenuController : MonoBehaviour {
 		foreach(GameObject go in this.menus)
 			if(go.name.Equals("OptionsMenu"))
 				names.Add(go.name);
-		foreach(Slider s in sliders)
-			if(s.tag.Equals("OptionMenu"))
-				names.Add(s.name);
 
 		EnableGameObject(names);
         sceneManager.MoveLeft();
@@ -127,14 +98,6 @@ public class MenuController : MonoBehaviour {
         sceneManager.MoveUp();
         position = MenuPosition.CREDITS;
 	}
-
-	public void ChangedMaxDef(){
-		foreach(Slider s in sliders) {
-			if(s.name.Equals("MaxDefenses")) {
-				gameManager.MaxDefenses = (int) s.value;
-			}
-		}
-    }
 
 	public void Wifi(){
 
@@ -263,23 +226,17 @@ public class MenuController : MonoBehaviour {
         }
 	}
 
-    public void ChangedCountdownTime() {
-        foreach(Slider s in sliders) {
-			if(s.name.Equals("MaxBullets")) {
-				gameManager.MaxBullets = (int) s.value;
-			}
-		}
+    public void UpdateMaxDefenses(float value) {
+        gameManager.MaxDefenses = (int)value;
     }
 
-    public void ChangedMaxBullets() {
-       foreach(Slider s in sliders) {
-			if(s.name.Equals("CountdownTime")) {
-				gameManager.CountdownTime = s.value;
-			}
-		}
-	}
+    public void UpdateMaxBullets(float value) {
+        gameManager.MaxBullets = (int)value;
+    }    public void UpdateCountdownTime(float value) {
+        gameManager.CountdownTime = (int)value;
+    }
 
-	private void EnableGameObject(string[] names){
+    private void EnableGameObject(string[] names){
 		EnableGameObject(new List<string>(names));
 	}
 
@@ -288,8 +245,6 @@ public class MenuController : MonoBehaviour {
 		if(names.Count == 0){
 			foreach(GameObject go in this.menus)
 				go.gameObject.SetActive(false);
-			foreach(Slider s in sliders)
-				s.enabled = false;
 
 		} else {
 			foreach(GameObject go in this.menus){
@@ -297,12 +252,6 @@ public class MenuController : MonoBehaviour {
 					go.gameObject.SetActive(true);
 				else 
 					go.gameObject.SetActive(false);
-			}
-			foreach(Slider s in sliders){
-				if(names.Contains(s.name))
-					s.enabled = true;
-				else 
-					s.enabled = false;
 			}
 		}
 	}

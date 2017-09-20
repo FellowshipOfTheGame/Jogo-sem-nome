@@ -13,7 +13,7 @@ public class SceneChanger : MonoBehaviour {
 
     public GameManager gm;
     public Canvas cv;
-
+    
     // Use this for initialization
     private void Awake() {
         backgroundSpeed = 50f;
