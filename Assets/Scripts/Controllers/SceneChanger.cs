@@ -3,9 +3,11 @@ using UnityEngine;
 
 public class SceneChanger : MonoBehaviour {
 
+    private enum FunctionQueue { None, MenuFirst, MenuAgain, Battle}
+
     private GameObject background;
     private Vector3 target;
-    private bool noFunctionsQueued;
+    private FunctionQueue queuedFunction;
     public float backgroundSpeed;
     public bool Moving { get; private set; }
 
@@ -57,7 +59,7 @@ public class SceneChanger : MonoBehaviour {
         }else {
             Moving = false;
         }
-	}
+    }
 
     public void MoveUp() {
         Moving = true;
@@ -88,7 +90,11 @@ public class SceneChanger : MonoBehaviour {
         return null;
     }
 
-    private void OnMainMenuLoad(Scene scene, LoadSceneMode mode) {
+    private void FindTheCanvas(Scene scene, LoadSceneMode mode) {
+        gm.findCanvas();
+    }
+
+    private void MoveBGFindCanvas(Scene scene, LoadSceneMode mode) {
         GameObject mc = GameObject.FindGameObjectWithTag("MenuController");
         MenuController menuController = mc.GetComponent<MenuController>();
         menuController.Play();
@@ -96,34 +102,46 @@ public class SceneChanger : MonoBehaviour {
     }
 
     private void OnBattleSceneLoad(Scene scene, LoadSceneMode mode) {
+
         gm.StartBattle();
     }
 
     public void LoadMenuScene(bool gameStart) {
+        // Clear sceneloaded queue
+        if (queuedFunction == FunctionQueue.Battle)
+            SceneManager.sceneLoaded -= OnBattleSceneLoad;
+        else if (queuedFunction == FunctionQueue.MenuAgain)
+            SceneManager.sceneLoaded -= MoveBGFindCanvas;
+        else if (queuedFunction == FunctionQueue.MenuFirst)
+            SceneManager.sceneLoaded -= FindTheCanvas;
+
         // If it's coming back from the battle scene, moves background
         if (!gameStart) {
+            MoveLeft();
             MoveLeft();
             // And queues a function that simulates the play button being pressed
             SceneManager.sceneLoaded += MoveBGFindCanvas;
             queuedFunction = FunctionQueue.MenuAgain;
         } else {
-            gm.findCanvas();
+            SceneManager.sceneLoaded += FindTheCanvas;
+            queuedFunction = FunctionQueue.MenuFirst;
         }
         SceneManager.LoadScene("MainMenu");
     }
 
     public void LoadBattleScene(Connection successfulConection) {
-        
         MoveRight();
-        
-        // Removes the OnMainMenuLoad function from queue
-        if (!noFunctionsQueued)
-            SceneManager.sceneLoaded -= OnMainMenuLoad;
-        
+        // Clear sceneloaded queue
+        if (queuedFunction == FunctionQueue.Battle)
+            SceneManager.sceneLoaded -= OnBattleSceneLoad;
+        else if (queuedFunction == FunctionQueue.MenuAgain)
+            SceneManager.sceneLoaded -= MoveBGFindCanvas;
+        else if (queuedFunction == FunctionQueue.MenuFirst)
+            SceneManager.sceneLoaded -= FindTheCanvas;
         // Adds a different function to be called when the scene is loaded
         SceneManager.sceneLoaded += OnBattleSceneLoad;
-        noFunctionsQueued = false;
-        SceneManager.LoadScene("BattleScene");
+        queuedFunction = FunctionQueue.Battle;
         gm.connection = successfulConection;
+        SceneManager.LoadScene("BattleScene");
     }
 }

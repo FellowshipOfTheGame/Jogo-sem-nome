@@ -116,21 +116,12 @@ public class MenuController : MonoBehaviour {
 		if(names.Count == 0){
 			foreach(GameObject go in this.menus)
 				go.gameObject.SetActive(false);
-			foreach(Slider s in sliders)
-				s.enabled = false;
-
 		} else {
 			foreach(GameObject go in this.menus){
 				if(names.Contains(go.name))
 					go.gameObject.SetActive(true);
 				else 
 					go.gameObject.SetActive(false);
-			}
-			foreach(Slider s in sliders){
-				if(names.Contains(s.name))
-					s.enabled = true;
-				else 
-					s.enabled = false;
 			}
 		}
 	}
@@ -249,9 +240,6 @@ public class MenuController : MonoBehaviour {
 		foreach(GameObject go in this.menus)
 			if(go.name.Equals("OptionsMenu"))
 				names.Add(go.name);
-		foreach(Slider s in sliders)
-			if(s.tag.Equals("OptionMenu"))
-				names.Add(s.name);
 
 		EnableGameObject(names);
         sceneManager.MoveLeft();
