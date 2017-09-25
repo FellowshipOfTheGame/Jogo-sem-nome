@@ -14,12 +14,12 @@ public class Player : MonoBehaviour {
     private bool finishedAnimation;
 
     public void CheckShake() {
-        Debug.Log("chamou a função");
+
         ShakeableObject so = GetComponent<ShakeableObject>();
+
         if (so != null && shouldShake) {
             so.Shake();
             shouldShake = false;
-            Debug.Log("desativou");
         }
     }
 

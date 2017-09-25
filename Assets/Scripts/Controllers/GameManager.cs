@@ -177,7 +177,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	// Função a ser chamada quando acabar a batalha
-	private void EndBattle() {
+	public void EndBattle() {
 		
 		// Destrói os objetos e componentes desnecessários
 		Destroy(playerObjects[0]);
@@ -235,10 +235,18 @@ public class GameManager : MonoBehaviour {
 		int timeout = 0;
 
 		// Wait up to TIMEOUT seconds for a message.
-		while( (message = connection.GetMessage()) == null && timeout < TIMEOUT){
+		// FIXME: NEED TO SYNC EACH ROUND BETWEEN CLIENTS!!! THIS LOOP CAUSES DESYNC
+		do {
+			message = connection.GetMessage();
 			timeout++;
 			System.Threading.Thread.Sleep(300);
-		}
+			
+			if(timeout < TIMEOUT){
+				// Do what?
+				break;
+			}
+
+		} while(message == null || message.Equals(""));
 		
 		switch (message) {
 			
@@ -250,15 +258,17 @@ public class GameManager : MonoBehaviour {
 				return Action.REL;
 			case "NOOP":
 				return Action.NOOP;
+			case "": // Empty
+				return Action.NOOP;
 			
 			case null: // No message received disconnected?
 				Debug.Log("[Debug] No message received. Disconnected?");
 				return Action.NOOP;
 			
 			default: // Error
+				Debug.Log("[Debug] Message: " + message);
 				throw new System.Exception("Invalid message received");
 		}
-		
 	}
 
 	private void sendLocalAction(Action localAction) {

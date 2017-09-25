@@ -27,6 +27,23 @@ public class Wifi : Connection {
 		messages = new Queue<string>();
 	}
 
+	public void Update(){
+
+		if(Input.GetKeyDown(KeyCode.Space)){
+
+			Debug.Log("[Debug] Server connections: ");
+			foreach (NetworkConnection nc in NetworkServer.connections)
+				if(nc != null)
+					Debug.Log("[Debug] Connection: " + nc.connectionId);
+
+			// Debug.Log("[Debug] Message: " + msg);
+
+			StringMessage sendMsg = new StringMessage();
+			sendMsg.value = "batata";
+			client.Send((short) MyMsgType.Op, sendMsg);
+		}
+	}
+
 	public override bool Connect(){
 		
 		if(isHost){
@@ -62,12 +79,10 @@ public class Wifi : Connection {
 
 	public override bool OtterSendMessage(string msg){
 		
-		Debug.Log("[Debug] Message: " + msg);
+		Debug.Log("[Debug] Sending message: " + msg);
 
 		StringMessage sendMsg = new StringMessage();
 		sendMsg.value = msg;
-
-		// Debug.Log("[Debug] remoteClient: " + remoteClient);
 
 		return client.Send((short) MyMsgType.Op, sendMsg);
 	}
@@ -88,25 +103,14 @@ public class Wifi : Connection {
 	/* Network Manager Functions */
 	/*****************************/
 
-	public void Update(){
-		if(Input.GetKeyDown(KeyCode.Space)){
-
-			Debug.Log("[Debug] Server connections: ");
-			foreach (NetworkConnection nc in NetworkServer.connections)
-				if(nc != null)
-					Debug.Log("[Debug] Connection: " + nc.connectionId);
-
-			// Debug.Log("[Debug] Message: " + msg);
-
-			StringMessage sendMsg = new StringMessage();
-			sendMsg.value = "batata";
-			client.Send((short) MyMsgType.Op, sendMsg);
-		}
-	}
-
 	public void HandleMessage(NetworkMessage msg){
-		messages.Enqueue(msg.ReadMessage<StringMessage>().value);
-		Debug.Log("[Debug] Message handler received: \"" + messages.Peek() + "\"");
+		
+		if(msg.ReadMessage<StringMessage>().value.Equals("START"))
+			GameObject.FindGameObjectWithTag("MenuController").GetComponent<MenuController>().LoadWifiBattle();
+		else {
+			messages.Enqueue(msg.ReadMessage<StringMessage>().value);
+			Debug.Log("[Debug] Message handler received: \"" + messages.Peek() + "\"");
+		}
 	}
 
 	public override bool CloseConnection(){
@@ -131,7 +135,13 @@ public class Wifi : Connection {
 		OtterSendMessage("START");
 		GameObject.FindGameObjectWithTag("MenuController").GetComponent<MenuController>().LoadWifiBattle();
 	}
-	public void OnDisconnected(NetworkMessage netMsg){ Debug.Log("[Debug]: Disconnected from server"); }
+	
+	public void OnDisconnected(NetworkMessage netMsg){ 
+		Debug.Log("[Debug]: Disconnected from server");
+		GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>().EndBattle();
+		CloseConnection();
+	}
+
 	public void OnHostConnected(NetworkMessage netMsg){ Debug.Log("[Debug]: Host connected!"); }
 	public void OnError(NetworkMessage netMsg){ Debug.Log("[ERROR]: Error connecting - Vish deu ruim :c"); }
 }
