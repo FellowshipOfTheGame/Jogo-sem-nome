@@ -81,16 +81,6 @@ public class MenuController : MonoBehaviour {
 		}
 	}
 
-	public void ChangedMaxDef(){
-		foreach(Slider s in sliders) {
-			if(s.name.Equals("MaxDefenses")) {
-				gm.MaxDefenses = (int) s.value;
-			}
-		}
-    }
-
-    private void SetIp(string ip){ this.userInputIP = ip; }
-
     public void LoadWifiBattle(){
 		sceneManager.LoadBattleScene(connection);
 	}
@@ -114,21 +104,14 @@ public class MenuController : MonoBehaviour {
 		}
 	}
 
-    public void ChangedCountdownTime() {
-        foreach(Slider s in sliders) {
-			if(s.name.Equals("MaxBullets")) {
-				gm.MaxBullets = (int) s.value;
-			}
-		}
-    }
+	/********************/
+    /* Events Callbacks */
+    /********************/
 
-    public void ChangedMaxBullets() {
-       foreach(Slider s in sliders) {
-			if(s.name.Equals("CountdownTime")) {
-				gm.CountdownTime = s.value;
-			}
-		}
-	}
+	public void UpdateMaxDefenses(float value){ gm.MaxDefenses = (int)value; }
+    public void UpdateMaxBullets(float value){ gm.MaxBullets = (int)value; }
+    public void UpdateCountdownTime(float value){ gm.CountdownTime = (int)value; }
+	private void SetIp(string ip){ this.userInputIP = ip; }
 
     /********************/
     /* Button Functions */
@@ -260,7 +243,6 @@ public class MenuController : MonoBehaviour {
 
 		serverIp.gameObject.SetActive(true);
 		serverIp.onEndEdit.AddListener(SetIp);
-
 		foreach(GameObject go in this.menus){
 			if(go.name.Equals("ClientMenu"))
 				go.SetActive(true);
@@ -335,7 +317,6 @@ public class MenuController : MonoBehaviour {
         connection = gm.gameObject.AddComponent<Offline>();
         sceneManager.LoadBattleScene(connection);
 	}
-
 	public void Quit(){
 
 #if UNITY_EDITOR
@@ -378,8 +359,4 @@ public class MenuController : MonoBehaviour {
             EnableGameObject(names);
         }
 	}
-
-    public void UpdateMaxDefenses(float value){ gm.MaxDefenses = (int)value; }
-    public void UpdateMaxBullets(float value){ gm.MaxBullets = (int)value; }
-    public void UpdateCountdownTime(float value){ gm.CountdownTime = (int)value; }
 }
