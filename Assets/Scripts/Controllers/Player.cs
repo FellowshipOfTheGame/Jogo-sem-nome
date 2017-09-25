@@ -7,10 +7,21 @@ public class Player : MonoBehaviour {
 	private int defCount, defMax;
 	private int ammo, maxBullets;
     private bool configured;
+    private bool shouldShake = false;
     private Animator anim;
 	public Action action { get; set; }
     public bool alive { get; private set; }
     private bool finishedAnimation;
+
+    public void CheckShake() {
+        Debug.Log("chamou a função");
+        ShakeableObject so = GetComponent<ShakeableObject>();
+        if (so != null && shouldShake) {
+            so.Shake();
+            shouldShake = false;
+            Debug.Log("desativou");
+        }
+    }
 
     public bool FinishedAnimation {
         get {
@@ -31,6 +42,7 @@ public class Player : MonoBehaviour {
             defMax = maxDef;
             maxBullets = maxShots;
             finishedAnimation = false;
+            shouldShake = false;
         }
     }
 
@@ -45,6 +57,7 @@ public class Player : MonoBehaviour {
 		maxBullets = 0;
         anim = gameObject.GetComponent<Animator>();
         finishedAnimation = false;
+        shouldShake = false;
 	}
 
 	// Realiza a ação desejada
@@ -53,9 +66,9 @@ public class Player : MonoBehaviour {
 			case Action.DEF: // player quer defender
 				defCount++; //incrementa a contagem de defesas
 				if(defCount > defMax) { //nao pode defender mais
-					defCount = defMax;
-                    PlayAnimation(Animation.NOTHING); //To do: talvez criar uma animação específica
-                    return Animation.NOTHING;
+					defCount = 0;
+                    PlayAnimation(Animation.NODEF);
+                    return Animation.NODEF;
 				}
 
                 PlayAnimation(Animation.CANDEF);
@@ -93,18 +106,20 @@ public class Player : MonoBehaviour {
         if (enemyAction == Animation.CANATK && playerAction != Animation.CANDEF) {
             alive = false;
             PlayAnimation(Animation.DEATH);
-        // Se o player defender, avalia se a defesa foi bem sucedida
+            // Se o player defender, avalia se a defesa foi bem sucedida
         } else if (playerAction == Animation.CANDEF) {
             PlayAnimation((enemyAction == Animation.CANATK) ? Animation.DEFHIT : Animation.DEFMISS);
-        // Se o player atacar, avalia se o ataque acertou
+            // Se o player atacar, avalia se o ataque acertou
         } else if (playerAction == Animation.CANATK) {
             PlayAnimation((enemyAction == Animation.CANDEF) ? Animation.ATKMISS : Animation.ATKHIT);
-        // Se o player consegue recarregar, mostra a animação de recarregar
+            // Se o player consegue recarregar, mostra a animação de recarregar
         } else if (playerAction == Animation.CANREL) {
             PlayAnimation(Animation.RELOK);
-        // Se o player não conseguiu recarregar, mostra a animação correspondente
+            // Se o player não conseguiu recarregar, mostra a animação correspondente
         } else if (playerAction == Animation.NOREL) {
             PlayAnimation(Animation.RELFAIL);
+        }else if (playerAction == Animation.NODEF) {
+            PlayAnimation(Animation.DEFFAIL);
         // Se o player tenta atacar sem munição, mostra a animação correspondente
         }else if (playerAction == Animation.NOAMMO) {
             PlayAnimation(Animation.ATKMISS);
@@ -133,9 +148,14 @@ public class Player : MonoBehaviour {
                 anim.SetTrigger("success");
                 break;
             case Animation.ATKMISS:
-            case Animation.RELFAIL:
             case Animation.DEFMISS:
                 anim.SetTrigger("failure");
+                break;
+            case Animation.RELFAIL:
+            case Animation.DEFFAIL:
+                anim.SetTrigger("overLimit");
+                Debug.Log("ativou");
+                shouldShake = true;
                 break;
             case Animation.DEATH:
                 anim.SetTrigger("dead");
