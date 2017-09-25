@@ -7,61 +7,80 @@ using System.Collections.Generic;
 
 public class Wifi : Connection {
 	
-	private enum MsgType : short { Debug, Op }
+	private enum MyMsgType : short { Debug = 100, Op }
+
+	public static bool con = false;
 
 	public bool isHost;
-	
-	private string localIp;
-	private NetworkClient localClient, remoteClient;
-	private Queue<string> messages;
 
+	private string localIp;
+	static private NetworkClient localClient, remoteClient;
+	static private Queue<string> messages;
+
+	public void Update(){
+		if(Wifi.con){
+			Wifi.con = false;
+			OtterSendMessage("TEST MESSAGE");
+		}
+	}
 
 	public void Start(){
 
 		this.localIp = GetLocalIp();
-		Debug.Log("[Debug]: Creating a new Wifi");
-		Debug.Log("[Debug]: localIp: " + localIp);
 
-		this.localClient = null;
-		this.remoteClient = null;
+		localClient = null;
+		remoteClient = null;
 		this.isHost = false;
 		this.autoCreatePlayer = false;
-		this.messages = new Queue<string>();
+		messages = new Queue<string>();
 	}
 
 	public override bool Connect(){
 		
-		Debug.Log("[DEBUG] Connecting...");
-
 		if(isHost){
 			
-			Debug.Log("[DEBUG] Host is up");
-			this.localClient = StartHost();
-			
-			NetworkServer.RegisterHandler((short) MsgType.Op, HandleMessage);
+			Debug.Log("[DEBUG] Starting host...");
+			this.networkPort = 7777;
+			localClient = StartHost();
+			localClient.RegisterHandler(MsgType.Connect, OnHostConnected);
+			localClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
+			localClient.RegisterHandler(MsgType.Error, OnError);
 
 		} else {
-			Debug.Log("[DEBUG] Host ip: " + networkAddress);
-			Debug.Log("[DEBUG] Host port: " + networkPort);
+
+			Debug.Log("[DEBUG] Initializing client...");
+			Debug.Log("[DEBUG] Connecting to: " + networkAddress + ":" + networkPort);
+
 			this.networkPort = 7777;
-			this.remoteClient = StartClient();
-			this.remoteClient.Connect(networkAddress, networkPort);
+			remoteClient = StartClient();
+
+			if(remoteClient == null){
+				Debug.Log("[FATAL] Failed to initialize client.");
+				return false;
+			}
+			remoteClient.RegisterHandler((short) MyMsgType.Op, HandleMessage);
+			remoteClient.RegisterHandler(MsgType.Connect, OnConnected);
+			remoteClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
+			remoteClient.RegisterHandler(MsgType.Error, OnError);
+			remoteClient.Connect(networkAddress, networkPort);
 		}
 
 		return true;
-    }
-	
+	}
+
 	public override bool OtterSendMessage(string msg){
 		
-		// msg.operation = msg;
-		// msg.debug = "[debug]: Message + " + id;
+		Debug.Log("[Debug] Message: " + msg);
 
 		StringMessage sendMsg = new StringMessage();
 		sendMsg.value = msg;
 
-        return remoteClient.Send((short) MsgType.Op, sendMsg);
-    }
-	
+		// Debug.Log("[Debug] remoteClient: " + remoteClient);
+
+		return remoteClient.Send((short) MyMsgType.Op, sendMsg);
+		return false;
+	}
+
 	public override string GetMessage(){
 
 		string msg = null;
@@ -71,43 +90,51 @@ public class Wifi : Connection {
 			msg = messages.Dequeue();
 		}
 
-        return msg;
-    }
+		return msg;
+	}
 
-    public void HandleMessage(NetworkMessage msg){
-    	messages.Enqueue(msg.ReadMessage<StringMessage>().value);
-    	Debug.Log("[Debug] Message handler received: \"" + messages.Peek() + "\"");
-    }
-	
+	/*****************************/
+	/* Network Manager Functions */
+	/*****************************/
+
+	public void HandleMessage(NetworkMessage msg){
+		messages.Enqueue(msg.ReadMessage<StringMessage>().value);
+		Debug.Log("[Debug] Message handler received: \"" + messages.Peek() + "\"");
+	}
+
 	public override bool CloseConnection(){
 		NetworkManager.Shutdown();
 		GameObject.Destroy(this);
-        return true;
-    }
+	    return true;
+	}
 
-    public void SetPlayerPrefab(GameObject pp){
-    	this.playerPrefab = pp;
-    }
+	public void SetPlayerPrefab(GameObject pp){ this.playerPrefab = pp; }
+	public void SetIpAddress(string remoteIp){ this.networkAddress = remoteIp; }
 
-    public void SetIpAddress(string remoteIp){ this.networkAddress = remoteIp; }
+	public string GetLocalIp(){ return Network.player.ipAddress; }
+	public string GetRemoteIp(){ return this.networkAddress; }
 
-    public string GetLocalIp(){ return Network.player.ipAddress; }
-    public string GetRemoteIp(){ return this.networkAddress; }
+	public override void OnStartServer() {
+		Debug.Log("[Debug]: Server started!");	
+		NetworkServer.RegisterHandler((short) MyMsgType.Op, HandleMessage);
+	}
 
-    public void OnConnected(NetworkConnection conn, NetworkReader reader) {
+	public override void OnStartHost() {
+		Debug.Log("[Debug]: Host started!");	
+		NetworkServer.RegisterHandler((short) MyMsgType.Op, HandleMessage);
+	}
+
+	public override void OnClientConnect(NetworkConnection conn){
+		Debug.Log("[Debug] OnClientConnect");
+	}
+
+	public void OnConnected(NetworkMessage netMsg){
+		Wifi.con = true;
 		Debug.Log("Connected!");
-		GameObject.FindGameObjectWithTag("MenuController").GetComponent<MenuController>().LoadWifiBattle();
+		// OtterSendMessage("TEST MESSAGE");
+		// GameObject.FindGameObjectWithTag("MenuController").GetComponent<MenuController>().LoadWifiBattle();
 	}
-
-	public void OnConnectedToServer(){
-		Debug.Log("Connected to server!");
-	}
-
-	public void OnDisconnected(NetworkConnection conn, NetworkReader reader) {
-		Debug.Log("Disconnected from server");
-	}
-
-	public void OnError(NetworkConnection conn, NetworkReader reader) {
-		Debug.Log("Error connecting - Vish deu ruim :c");
-	}
+	public void OnDisconnected(NetworkMessage netMsg){ Debug.Log("[Debug]: Disconnected from server"); }
+	public void OnHostConnected(NetworkMessage netMsg){ Debug.Log("[Debug]: Host connected!"); }
+	public void OnError(NetworkMessage netMsg){ Debug.Log("[ERROR]: Error connecting - Vish deu ruim :c"); }
 }

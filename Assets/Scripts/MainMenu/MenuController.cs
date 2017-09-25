@@ -21,11 +21,12 @@ public class MenuController : MonoBehaviour {
 
     public GameObject bulletHole;
 	public GameObject playerPrefab;
+
 	public GameObject dummy;
 	public Text localIp;
 	public InputField serverIp;
 	
-	private GameManager gameManager;
+	private GameManager gm;
     private SceneChanger sceneManager;
 	
     private GameObject background;
@@ -47,15 +48,14 @@ public class MenuController : MonoBehaviour {
 		GameObject tmp = GameObject.FindGameObjectWithTag("GameManager");
 							
         if(tmp != null)
-        	this.gameManager = tmp.GetComponent<GameManager>() as GameManager;
+        	this.gm = tmp.GetComponent<GameManager>();
         
         // Get SceneManager reference
         tmp = GameObject.FindGameObjectWithTag("SceneManager");
         if(tmp != null)
-        	this.sceneManager = tmp.GetComponent<SceneChanger>() as SceneChanger;
+        	this.sceneManager = tmp.GetComponent<SceneChanger>();
 
         this.menus = GameObject.FindGameObjectsWithTag("Menu");
-		this.sliders = Object.FindObjectsOfType<Slider>() as Slider[]; // TODO
 
 		this.localIp.gameObject.SetActive(false);
 		this.serverIp.gameObject.SetActive(false);
@@ -79,24 +79,12 @@ public class MenuController : MonoBehaviour {
 				go.SetActive(true);
 			else go.SetActive(false);
 		}
-
-		foreach(Slider s in this.sliders) {
-			if(s.name.Equals("MaxDefenses") || s.name.Equals("MaxBullets")) {
-				s.minValue = 3;
-				s.maxValue = 10;
-			}
-			else if(s.name.Equals("CountdownTime"))  {
-				s.minValue = 2;
-				s.maxValue = 10;
-			}
-			s.gameObject.SetActive(false);
-		}
 	}
 
 	public void ChangedMaxDef(){
 		foreach(Slider s in sliders) {
 			if(s.name.Equals("MaxDefenses")) {
-				gameManager.MaxDefenses = (int) s.value;
+				gm.MaxDefenses = (int) s.value;
 			}
 		}
     }
@@ -129,7 +117,7 @@ public class MenuController : MonoBehaviour {
     public void ChangedCountdownTime() {
         foreach(Slider s in sliders) {
 			if(s.name.Equals("MaxBullets")) {
-				gameManager.MaxBullets = (int) s.value;
+				gm.MaxBullets = (int) s.value;
 			}
 		}
     }
@@ -137,7 +125,7 @@ public class MenuController : MonoBehaviour {
     public void ChangedMaxBullets() {
        foreach(Slider s in sliders) {
 			if(s.name.Equals("CountdownTime")) {
-				gameManager.CountdownTime = s.value;
+				gm.CountdownTime = s.value;
 			}
 		}
 	}
@@ -216,8 +204,6 @@ public class MenuController : MonoBehaviour {
 
 		EnableGameObject(names);
         if(moveRoutine != null) moveRoutine();
-
-
 	}
 
 	public void Play(){
@@ -285,6 +271,12 @@ public class MenuController : MonoBehaviour {
 
 	public void Server(){
 
+		if(this.connection){
+			Debug.Log("[Debug]: Closing connection...");
+			connection.CloseConnection();
+			connection = null;
+		}
+
 		Wifi wifi = gameObject.AddComponent<Wifi>();
 		this.connection = wifi; // Store a reference to this connection
 		
@@ -315,13 +307,21 @@ public class MenuController : MonoBehaviour {
 
 	public void Join(){
 
+		if(this.connection){
+			Debug.Log("[Debug] Closing connection...");
+			connection.CloseConnection();
+			connection = null;
+		}
+
 		Wifi wifi = gameObject.AddComponent<Wifi>();
 		this.connection = wifi; // Store a reference to this connection
 
 		// Set prefab
 		wifi.SetPlayerPrefab(this.dummy);
+		wifi.isHost = false;
 
 		// Join server
+		Debug.Log("[Debug] User Input IP: " + userInputIP);
 		wifi.SetIpAddress(userInputIP);
 		wifi.Connect();
 	}
@@ -332,8 +332,7 @@ public class MenuController : MonoBehaviour {
 
 	public void Offline(){
         // For testing reasons, there is no prompt or confirmation
-        gameManager.gameObject.AddComponent<Offline>();
-        connection = gameManager.gameObject.GetComponent<Offline>();
+        connection = gm.gameObject.AddComponent<Offline>();
         sceneManager.LoadBattleScene(connection);
 	}
 
@@ -379,4 +378,8 @@ public class MenuController : MonoBehaviour {
             EnableGameObject(names);
         }
 	}
+
+    public void UpdateMaxDefenses(float value){ gm.MaxDefenses = (int)value; }
+    public void UpdateMaxBullets(float value){ gm.MaxBullets = (int)value; }
+    public void UpdateCountdownTime(float value){ gm.CountdownTime = (int)value; }
 }

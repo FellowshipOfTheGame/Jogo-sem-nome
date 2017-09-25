@@ -74,7 +74,7 @@ public class SceneChanger : MonoBehaviour {
     public void MoveRight() {
         Moving = true;
         target = new Vector3(target.x - 6.21f, target.y, target.z);
-    }
+        }
 
     public void MoveLeft() {
         Moving = true;
