@@ -88,6 +88,8 @@
     <Compile Include="Assets\Scripts\Controllers\Player.cs" />
     <Compile Include="Assets\Scripts\Controllers\PlayerAnimator.cs" />
     <Compile Include="Assets\Scripts\Controllers\SceneChanger.cs" />
+    <Compile Include="Assets\Scripts\Controllers\SettingsFunctions.cs" />
+    <Compile Include="Assets\Scripts\Controllers\ShakeableObject.cs" />
     <Compile Include="Assets\Scripts\Controllers\Tumbleweed.cs" />
     <Compile Include="Assets\Scripts\Controllers\UniformSpeed.cs" />
     <Compile Include="Assets\Scripts\DontDestroyThis.cs" />

@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour {
 
 	// criar scripts auxiliares(Ex.: AnimationController) para nao sobrecarregar o GameManager
 
-	enum State : byte { MENU, GAME, RESULT }
+	enum State : byte { MENU, RESULT, TURN_START, WAITING, RESPONSE}
 
 	private Player localPlayer, enemyPlayer;
 	private GameObject[] playerObjects;
@@ -88,7 +88,7 @@ public class GameManager : MonoBehaviour {
 		switch (currentState) {
 
 			// Loop de batalha
-			case State.GAME:
+			case State.TURN_START:
 				// Verifica se o player já acabou sua animação e caso true armazena esse resultado
 				if (!playerAnimFinished) {
 					playerAnimFinished = localPlayer.FinishedAnimation;
@@ -131,6 +131,25 @@ public class GameManager : MonoBehaviour {
 					}
 				}
 				break;
+            case State.WAITING:
+                // Waits for message to be received. It's possible to put a timout counter here.
+                currentState = State.RESPONSE;
+                break;
+            case State.RESPONSE:
+                // Executes the response base on received message
+                // Tumbleweed
+                if (localPlayer.action == Action.NOOP && enemyPlayer.action == Action.NOOP)
+                    GameObject.Instantiate(tumbleweed);
+                // Realiza as ações selecionadas
+                Animation localAnimation = localPlayer.DoAction();
+                Animation enemyAnimation = enemyPlayer.DoAction();
+                // Compara os Animations das duas ações e, de acordo com o que aconteceu chama as animações de reação
+                localPlayer.DoReaction(localAnimation, enemyAnimation);
+                enemyPlayer.DoReaction(enemyAnimation, localAnimation);
+                // Se necessário, indica que acabou a batalha
+                if (!localPlayer.alive || !enemyPlayer.alive)
+                    battleEnded = true;
+                break;
 			case State.RESULT:
 				if (stopwatch > 0)
 					stopwatch -= Time.deltaTime;
@@ -173,7 +192,7 @@ public class GameManager : MonoBehaviour {
 		battleStarted = true;
 		battleEnded = false;
 
-		currentState = State.GAME;
+		currentState = State.TURN_START;
 	}
 
 	// Função a ser chamada quando acabar a batalha
@@ -215,18 +234,7 @@ public class GameManager : MonoBehaviour {
 		sendLocalAction(localPlayer.action);
         // Recebe a ação do inimigo
         enemyPlayer.action = getEnemyAction();
-        // Tumbleweed
-        if (localPlayer.action == Action.NOOP && enemyPlayer.action == Action.NOOP)
-            GameObject.Instantiate(tumbleweed);
-        // Realiza as ações selecionadas
-        Animation localAnimation = localPlayer.DoAction();
-		Animation enemyAnimation = enemyPlayer.DoAction();
-		// Compara os Animations das duas ações e, de acordo com o que aconteceu chama as animações de reação
-		localPlayer.DoReaction(localAnimation, enemyAnimation);
-		enemyPlayer.DoReaction(enemyAnimation, localAnimation);
-		// Se necessário, indica que acabou a batalha
-		if (!localPlayer.alive || !enemyPlayer.alive)
-			battleEnded = true;
+        currentState = State.WAITING;
 	}
 
 	private Action getEnemyAction(){
