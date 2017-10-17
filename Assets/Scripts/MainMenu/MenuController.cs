@@ -327,7 +327,27 @@ public class MenuController : MonoBehaviour {
 			Application.Quit(); // Exit application
 	}
 
+    public void WifiBack() {
+
+        localIp.gameObject.SetActive(false);
+        serverIp.gameObject.SetActive(false);
+        List<string> names = new List<string>();
+
+        if (this.connection) {
+            connection.CloseConnection();
+            connection = null;
+        }
+
+        foreach (GameObject go in this.menus)
+            if (go.name.Equals("PlayMenu"))
+                names.Add(go.name);
+
+        EnableGameObject(names);
+
+    }
+
     public void Back() {
+
 
         if (!sceneManager.Moving) {
             switch (position) {
@@ -343,15 +363,7 @@ public class MenuController : MonoBehaviour {
             }
             position = MenuPosition.MAIN;
 
-            localIp.gameObject.SetActive(false);
-            serverIp.gameObject.SetActive(false);
             List<string> names = new List<string>();
-
-            if(this.connection){
-				connection.CloseConnection();
-				connection = null;
-			}
-
             foreach (GameObject go in this.menus)
                 if (go.name.Equals("MainMenu"))
                     names.Add(go.name);
