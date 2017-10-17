@@ -23,14 +23,14 @@ public class GameManager : MonoBehaviour {
 
 	public bool battleEnded { get; private set; }
 	public float endingDuration;
-	public readonly int TIMEOUT = 10;
+	public readonly float TIMEOUT = 10.0f;
 	public Connection connection;
 	public SceneChanger sc;
 	public GameObject playerPrefab, enemyPrefab, timerPrefab, victorySign, drawSign, defeatSignLeft, defeatSignRight, tumbleweed;
 
 	private int maxDefenses;
 	private int maxBullets;
-	private float countdownTime;
+	private float countdownTime, messageWaitTime;
 
 	public int MaxDefenses {
 		get { return maxDefenses; }
@@ -132,8 +132,21 @@ public class GameManager : MonoBehaviour {
 				}
 				break;
             case State.WAITING:
-                // Waits for message to be received. It's possible to put a timout counter here.
-                currentState = State.RESPONSE;
+                // This needs to be updated every time but will stay as true for now
+                bool messageReceived = true;
+                // Checks if enemy has seent action
+                enemyPlayer.action = getEnemyAction();
+                if (messageReceived) {
+                    // Waits for message to be received. It's possible to put a timeout counter here.
+                    currentState = State.RESPONSE;
+                } else {
+                    // If it timouts while waiting for a message, gives a draw result
+                    messageWaitTime += Time.deltaTime;
+                    if (messageWaitTime >= TIMEOUT) {
+                        GameObject.Instantiate(drawSign);
+                        currentState = State.RESULT;
+                    }
+                }
                 break;
             case State.RESPONSE:
                 // Executes the response base on received message
@@ -149,6 +162,7 @@ public class GameManager : MonoBehaviour {
                 // Se necessário, indica que acabou a batalha
                 if (!localPlayer.alive || !enemyPlayer.alive)
                     battleEnded = true;
+                currentState = State.TURN_START;
                 break;
 			case State.RESULT:
 				if (stopwatch > 0)
@@ -232,8 +246,7 @@ public class GameManager : MonoBehaviour {
 
 		// Envia a ação selecionada
 		sendLocalAction(localPlayer.action);
-        // Recebe a ação do inimigo
-        enemyPlayer.action = getEnemyAction();
+        messageWaitTime = 0;
         currentState = State.WAITING;
 	}
 
