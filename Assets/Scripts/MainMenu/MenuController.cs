@@ -327,6 +327,25 @@ public class MenuController : MonoBehaviour {
 			Application.Quit(); // Exit application
 	}
 
+    public void ClientServerBack() {
+
+        localIp.gameObject.SetActive(false);
+        serverIp.gameObject.SetActive(false);
+
+        if (this.connection) {
+            connection.CloseConnection();
+            connection = null;
+        }
+
+        List<string> names = new List<string>();
+
+        foreach (GameObject go in this.menus)
+            if (go.name.Equals("WifiMenu"))
+                names.Add(go.name);
+
+        EnableGameObject(names);
+    }
+
     public void WifiBack() {
 
         localIp.gameObject.SetActive(false);
