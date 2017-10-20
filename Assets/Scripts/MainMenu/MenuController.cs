@@ -196,14 +196,22 @@ public class MenuController : MonoBehaviour {
 
 		List<string> names = new List<string>();
 
-		foreach(GameObject go in this.menus)
-			if(go.name.Equals("OptionsMenu"))
-				names.Add(go.name);
+        foreach (GameObject obj in this.menus)
+            if (obj.name.Equals("OptionsMenu")) {
+                names.Add(obj.name);
+            }
 
 		EnableGameObject(names);
         sceneManager.MoveLeft();
         position = MenuPosition.OPTIONS;
-	}
+
+        GameObject go = GameObject.Find("MaxDefensesSlider");
+        go.GetComponent<Slider>().value = gm.MaxDefenses;
+        go = GameObject.Find("MaxBulletsSlider");
+        go.GetComponent<Slider>().value = gm.MaxBullets;
+        go = GameObject.Find("CountdownTimeSlider");
+        go.GetComponent<Slider>().value = gm.CountdownTime;
+    }
 
 	public void Crebitz(){
 		
