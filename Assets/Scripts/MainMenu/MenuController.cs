@@ -61,18 +61,6 @@ public class MenuController : MonoBehaviour {
 		this.serverIp.gameObject.SetActive(false);
 
 		foreach (GameObject go in menus){
-
-			this.buttons = go.GetComponentsInChildren<Button>() as Button[];
-			
-			foreach(Button b in buttons){
-				
-				// Disable bluetooth button until we have it
-				if(b.name.Equals("Bluetooth"))
-					b.interactable = false;
-
-				else if(b.name.Equals("NS só queira deixar quadradinho bunitu :3"))
-					b.interactable = false;
-			}
 			
 			// Enable first menu and deactivate the rest
 			if(go.name.Equals("MainMenu"))
@@ -164,7 +152,8 @@ public class MenuController : MonoBehaviour {
 			
 			// Spawn bullet hole
 			Vector2 pos = Input.GetTouch(0).position; // Touch position
-			
+			/*
+            // TO DO: this.buttons does not currently have the desired value
 			foreach (Button b in this.buttons){
 				
 				RectTransform rect = b.GetComponent<RectTransform>();
@@ -177,6 +166,7 @@ public class MenuController : MonoBehaviour {
 					break;
 				}
 			}
+            */
 		}
 
 		List<string> names = new List<string>();
@@ -308,9 +298,15 @@ public class MenuController : MonoBehaviour {
 		wifi.Connect();
 	}
 
-	public void Bluetooth(){
-		return;
-	}
+	public void Bluetooth() {
+        List<string> names = new List<string>();
+
+        foreach (GameObject go in this.menus)
+            if (go.name.Equals("BluetoothMenu"))
+                names.Add(go.name);
+
+        EnableGameObject(names);
+    }
 
 	public void Offline(){
         // For testing reasons, there is no prompt or confirmation
