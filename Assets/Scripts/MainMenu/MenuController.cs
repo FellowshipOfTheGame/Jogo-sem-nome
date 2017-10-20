@@ -8,17 +8,33 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-enum MenuPosition {
+public enum MenuPosition {
     MAIN,
     OPTIONS,
     CREDITS,
-    PLAY
+    PLAY,
+    SWIPEBLOCKED
 }
 
 public delegate void MoveEvent();
 
 public class MenuController : MonoBehaviour {
 
+    private GameManager gm;
+    private SceneChanger sceneManager;
+
+    private GameObject background;
+    private MenuPosition position;
+    private Connection connection = null;
+    private string userInputIP = null;
+
+    private GameObject[] menus = null;
+    private Button[] buttons = null;
+    private Slider[] sliders = null;
+
+    private MoveEvent moveRoutine = null;
+
+    public MenuPosition Position { get { return position; } }
     public GameObject bulletHole;
 	public GameObject playerPrefab;
 
@@ -26,19 +42,6 @@ public class MenuController : MonoBehaviour {
 	public Text localIp;
 	public InputField serverIp;
 	
-	private GameManager gm;
-    private SceneChanger sceneManager;
-	
-    private GameObject background;
-    private MenuPosition position;
-	private Connection connection = null;
-	private string userInputIP = null;
-	
-	private GameObject[] menus = null;
-	private Button[] buttons = null;
-	private Slider[] sliders = null;
-
-	private MoveEvent moveRoutine = null;
 
 	void Awake(){
 
@@ -229,6 +232,8 @@ public class MenuController : MonoBehaviour {
 	public void Wifi(){
 
 		List<string> names = new List<string>();
+        // Blocks Swiping
+        position = MenuPosition.SWIPEBLOCKED;
 
 		foreach(GameObject go in this.menus)
 			if(go.name.Equals("WifiMenu"))
@@ -308,6 +313,8 @@ public class MenuController : MonoBehaviour {
 
 	public void Bluetooth() {
         List<string> names = new List<string>();
+        // Blocks Swiping
+        position = MenuPosition.SWIPEBLOCKED;
 
         foreach (GameObject go in this.menus)
             if (go.name.Equals("BluetoothMenu"))
@@ -351,6 +358,9 @@ public class MenuController : MonoBehaviour {
     }
 
     public void WifiBack() {
+
+        // Unblocks Swiping
+        position = MenuPosition.PLAY;
 
         localIp.gameObject.SetActive(false);
         serverIp.gameObject.SetActive(false);

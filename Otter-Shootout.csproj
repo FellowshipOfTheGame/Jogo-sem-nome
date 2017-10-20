@@ -94,6 +94,7 @@
     <Compile Include="Assets\Scripts\Controllers\UniformSpeed.cs" />
     <Compile Include="Assets\Scripts\DontDestroyThis.cs" />
     <Compile Include="Assets\Scripts\MainMenu\MenuController.cs" />
+    <Compile Include="Assets\Scripts\SwipeController.cs" />
     <Compile Include="Assets\Scripts\Timer.cs" />
     <Compile Include="Assets\Scripts\UpdateSliderValue.cs" />
   </ItemGroup>
