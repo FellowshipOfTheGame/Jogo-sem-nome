@@ -18,10 +18,11 @@ Baixa prioridade - fazer mecanismos de sincronização do código, mandar uma me
 
 public class Wifi : Connection {
 	
-	private enum MyMsgType : short { Debug = 100, Action, Config }
+	private enum MyMsgType : short { Debug = 100, Action, Config, Null }
 
 	public bool isHost;
 
+	private short type = Null;
 	private string localIp;
 	private NetworkClient localClient, remoteClient;
 	private Queue<string> messages;
@@ -40,7 +41,6 @@ public class Wifi : Connection {
 	public void Update(){
 
 		/* Debug */
-
 		if(Input.GetKeyDown(KeyCode.Space)){
 
 			Debug.Log("[Debug] Server connections: ");
@@ -91,14 +91,18 @@ public class Wifi : Connection {
 		return true;
 	}
 
-	public override bool OtterSendMessage(string msg, short type){
+	public override bool OtterSendMessage(string msg){
 		
+		if(this.type == MyMsgType.Null)
+			throw new WifiConnectionException("No message type defined");
+
 		Debug.Log("[Debug] Sending message: " + msg);
 
 		StringMessage sendMsg = new StringMessage();
 		sendMsg.value = msg;
 
-		return client.Send(type, sendMsg);
+		return client.Send(this.type, sendMsg);
+		return false;
 	}
 
 	public override string GetMessage(){
@@ -149,7 +153,7 @@ public class Wifi : Connection {
 
 	public void OnConnected(NetworkMessage netMsg){
 		Debug.Log("Connected!");
-		OtterSendMessage("START", (short) MyMsgType.Action);
+		// OtterSendMessage("START", (short) MyMsgType.Action);
 		GameObject.FindGameObjectWithTag("MenuController").GetComponent<MenuController>().LoadWifiBattle();
 	}
 	

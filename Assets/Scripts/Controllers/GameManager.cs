@@ -23,7 +23,9 @@ public class GameManager : MonoBehaviour {
 
 	public bool battleEnded { get; private set; }
 	public float endingDuration;
-	public readonly float TIMEOUT = 10.0f;
+	
+	public readonly int TRIES_LIMIT = 10f;
+	private int tries;
 	public Connection connection;
 	public SceneChanger sc;
 	public GameObject playerPrefab, enemyPrefab, timerPrefab, victorySign, drawSign, defeatSignLeft, defeatSignRight, tumbleweed;
@@ -87,93 +89,104 @@ public class GameManager : MonoBehaviour {
 	void Update () {
 		switch (currentState) {
 
-			// Loop de batalha
-			case State.TURN_START:
-				// Verifica se o player já acabou sua animação e caso true armazena esse resultado
-				if (!playerAnimFinished) {
-					playerAnimFinished = localPlayer.FinishedAnimation;
-				}
-				// Verifica se a animação do inimigo já acabou
-				if (!enemyAnimFinished) {
-					enemyAnimFinished = enemyPlayer.FinishedAnimation;
-				}
-				// Caso as duas animações tenham acabado
-				if (playerAnimFinished && enemyAnimFinished) {
-					// Indica que o turno terminou
-					playerAnimFinished = false;
-					enemyAnimFinished = false;
-					animating = false;
-				}
-				// Caso o turno tenha acabado e o timer esteja em 0
-				if (timer.time <= 0 && !animating) {// Sempre que o timer não estiver ativo, uma ação deve ser realizada
-					// Caso necessário, reinicia o timer
-					if (!battleEnded) {
-						timer.StartTimer(countdownTime, SelectAction); // inicia o timer
-					// Senão, acaba a batalha
-					} else {
-						// Avalia qual foi o resultado
-						Result result = localPlayer.alive ? Result.VICTORY : enemyPlayer.alive ? Result.DEFEAT : Result.DRAW;
-						// Creates the sign to indicate battle result
-						switch (result) {
-							case Result.VICTORY:
-								GameObject.Instantiate(victorySign);
-								break;
-							case Result.DEFEAT:
-								GameObject.Instantiate(defeatSignLeft);
-								GameObject.Instantiate(defeatSignRight);
-								break;
-							case Result.DRAW:
-								GameObject.Instantiate(drawSign);
-								break;
-						}
-						// Changes current state
-						currentState = State.RESULT;
+		// Loop de batalha
+		case State.TURN_START:
+			// Verifica se o player já acabou sua animação e caso true armazena esse resultado
+			if (!playerAnimFinished) {
+				playerAnimFinished = localPlayer.FinishedAnimation;
+			}
+			// Verifica se a animação do inimigo já acabou
+			if (!enemyAnimFinished) {
+				enemyAnimFinished = enemyPlayer.FinishedAnimation;
+			}
+			// Caso as duas animações tenham acabado
+			if (playerAnimFinished && enemyAnimFinished) {
+				// Indica que o turno terminou
+				playerAnimFinished = false;
+				enemyAnimFinished = false;
+				animating = false;
+			}
+			// Caso o turno tenha acabado e o timer esteja em 0
+			if (timer.time <= 0 && !animating) {// Sempre que o timer não estiver ativo, uma ação deve ser realizada
+				// Caso necessário, reinicia o timer
+				if (!battleEnded) {
+					timer.StartTimer(countdownTime, SelectAction); // inicia o timer
+				// Senão, acaba a batalha
+				} else {
+					// Avalia qual foi o resultado
+					Result result = localPlayer.alive ? 
+										Result.VICTORY : 
+										enemyPlayer.alive ? 
+											Result.DEFEAT : 
+											Result.DRAW;
+
+					// Creates the sign to indicate battle result
+					switch(result){
+					case Result.VICTORY:
+						GameObject.Instantiate(victorySign);
+						break;
+					case Result.DEFEAT:
+						GameObject.Instantiate(defeatSignLeft);
+						GameObject.Instantiate(defeatSignRight);
+						break;
+					case Result.DRAW:
+						GameObject.Instantiate(drawSign);
+						break;
 					}
+					// Changes current state
+					currentState = State.RESULT;
 				}
-				break;
-            case State.WAITING:
-                // This needs to be updated every time but will stay as true for now
-                bool messageReceived = true;
-                // Checks if enemy has seent action
-                enemyPlayer.action = getEnemyAction();
-                if (messageReceived) {
-                    // Waits for message to be received. It's possible to put a timeout counter here.
-                    currentState = State.RESPONSE;
-                } else {
-                    // If it timouts while waiting for a message, gives a draw result
-                    messageWaitTime += Time.deltaTime;
-                    if (messageWaitTime >= TIMEOUT) {
-                        GameObject.Instantiate(drawSign);
-                        currentState = State.RESULT;
-                    }
+			}
+			break;
+        case State.WAITING:
+            
+            bool messageReceived = false;
+            
+            // Checks if enemy has sent action
+            enemyPlayer.action = getEnemyAction();
+
+            if(enemyPlayer.action != null)
+            	messageReceived = true;
+            
+            if (messageReceived) {
+                // Waits for message to be received. It's possible to put a timeout counter here.
+                // NOTE timeout is inside getEnemyAction but its a bad idea
+                currentState = State.RESPONSE;
+            } else {
+                // If it timouts while waiting for a message, gives a draw result
+                messageWaitTime += Time.deltaTime;
+                if (messageWaitTime >= TIMEOUT) {
+                    GameObject.Instantiate(drawSign);
+                    currentState = State.RESULT;
                 }
-                break;
-            case State.RESPONSE:
-                // Executes the response base on received message
-                // Tumbleweed
-                if (localPlayer.action == Action.NOOP && enemyPlayer.action == Action.NOOP)
-                    GameObject.Instantiate(tumbleweed);
-                // Realiza as ações selecionadas
-                Animation localAnimation = localPlayer.DoAction();
-                Animation enemyAnimation = enemyPlayer.DoAction();
-                // Compara os Animations das duas ações e, de acordo com o que aconteceu chama as animações de reação
-                localPlayer.DoReaction(localAnimation, enemyAnimation);
-                enemyPlayer.DoReaction(enemyAnimation, localAnimation);
-                // Se necessário, indica que acabou a batalha
-                if (!localPlayer.alive || !enemyPlayer.alive)
-                    battleEnded = true;
-                currentState = State.TURN_START;
-                break;
-			case State.RESULT:
-				if (stopwatch > 0)
-					stopwatch -= Time.deltaTime;
-				else
-					EndBattle();
-				break;
-			case State.MENU:
-				break;
-			default:
-				break;
+            }
+            break;
+        case State.RESPONSE:
+            // Executes the response base on received message
+            // Tumbleweed
+            if (localPlayer.action == Action.NOOP && enemyPlayer.action == Action.NOOP)
+                GameObject.Instantiate(tumbleweed);
+            // Realiza as ações selecionadas
+            Animation localAnimation = localPlayer.DoAction();
+            Animation enemyAnimation = enemyPlayer.DoAction();
+            // Compara os Animations das duas ações e, de acordo com o que aconteceu chama as animações de reação
+            localPlayer.DoReaction(localAnimation, enemyAnimation);
+            enemyPlayer.DoReaction(enemyAnimation, localAnimation);
+            // Se necessário, indica que acabou a batalha
+            if (!localPlayer.alive || !enemyPlayer.alive)
+                battleEnded = true;
+            currentState = State.TURN_START;
+            break;
+		case State.RESULT:
+			if (stopwatch > 0)
+				stopwatch -= Time.deltaTime;
+			else
+				EndBattle();
+			break;
+		case State.MENU:
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -253,61 +266,62 @@ public class GameManager : MonoBehaviour {
 	private Action getEnemyAction(){
 		
 		string message = null;
-		int timeout = 0;
+		this.tries++;
 
-		// Wait up to TIMEOUT seconds for a message.
-		// FIXME: NEED TO SYNC EACH ROUND BETWEEN CLIENTS!!! THIS LOOP CAUSES DESYNC
-		do {
-			message = connection.GetMessage();
-			timeout++;
-			System.Threading.Thread.Sleep(300);
-			
-			if(timeout < TIMEOUT){
-				// Do what?
-				break;
-			}
+		message = connection.GetMessage();
 
-		} while(message == null || message.Equals(""));
-		
 		switch (message) {
-			
-			case "ATK":
-				return Action.ATK;
-			case "DEF":
-				return Action.DEF;
-			case "REL":
-				return Action.REL;
-			case "NOOP":
-				return Action.NOOP;
-			case "": // Empty
-				return Action.NOOP;
-			
-			case null: // No message received disconnected?
-				Debug.Log("[Debug] No message received. Disconnected?");
-				return Action.NOOP;
-			
-			default: // Error
-				Debug.Log("[Debug] Message: " + message);
-				throw new System.Exception("Invalid message received");
+		
+		case "ATK":
+			tries = 0;
+			return Action.ATK;
+		case "DEF":
+			tries = 0;
+			return Action.DEF;
+		case "REL":
+			tries = 0;
+			return Action.REL;
+		case "NOOP":
+			tries = 0;
+			return Action.NOOP;
+		case "": // Empty
+			tries = 0;
+			return Action.NOOP;
+		
+		case null: // No message received, wait
+			Debug.Log("[Debug] No message received. Tries: " + this.tries);
+			System.Thread.Sleep(1); // FIXME: Should not use this
+			if(tries > TRIES_LIMIT){
+				Debug.Log("[Debug] Exceeded tries limit. Disconnecting...");
+				connection.CloseConnection();
+				GameObject.Instantiate(drawSign); // NOTE: maybe say something differente on disconnect?
+				EndBattle();
+				return null; // Throw exception to disconnect?
+			}
+			return null;
+		
+		default: // Error
+			Debug.Log("[Debug] Message: " + message);
+			throw new System.Exception("Invalid message received");
 		}
 	}
 
 	private void sendLocalAction(Action localAction) {
 		switch (localAction) {
-			case Action.ATK:
-				connection.OtterSendMessage("ATK");
-				break;
-			case Action.DEF:
-				connection.OtterSendMessage("DEF");
-				break;
-			case Action.REL:
-				connection.OtterSendMessage("REL");
-				break;
-			case Action.NOOP:
-				connection.OtterSendMessage("NOOP");
-				break;
-			default:
-				throw new System.Exception("Trying to send invalid message");
+		case Action.ATK:
+			connection.OtterSendMessage("ATK");
+			break;
+		case Action.DEF:
+			connection.OtterSendMessage("DEF");
+			break;
+		case Action.REL:
+			connection.OtterSendMessage("REL");
+			break;
+		case Action.NOOP:
+			connection.OtterSendMessage("NOOP");
+			break;
+		default:
+			throw new System.Exception("Trying to send invalid message");
 		}
 	}
 }
