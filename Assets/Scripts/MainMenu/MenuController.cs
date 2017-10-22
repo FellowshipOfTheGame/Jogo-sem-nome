@@ -8,17 +8,33 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-enum MenuPosition {
+public enum MenuPosition {
     MAIN,
     OPTIONS,
     CREDITS,
-    PLAY
+    PLAY,
+    SWIPEBLOCKED
 }
 
 public delegate void MoveEvent();
 
 public class MenuController : MonoBehaviour {
 
+    private GameManager gm;
+    private SceneChanger sceneManager;
+
+    private GameObject background;
+    private MenuPosition position;
+    private Connection connection = null;
+    private string userInputIP = null;
+
+    private GameObject[] menus = null;
+    private Button[] buttons = null;
+    private Slider[] sliders = null;
+
+    private MoveEvent moveRoutine = null;
+
+    public MenuPosition Position { get { return position; } }
     public GameObject bulletHole;
 	public GameObject playerPrefab;
 
@@ -26,19 +42,6 @@ public class MenuController : MonoBehaviour {
 	public Text localIp;
 	public InputField serverIp;
 	
-	private GameManager gm;
-    private SceneChanger sceneManager;
-	
-    private GameObject background;
-    private MenuPosition position;
-	private Connection connection = null;
-	private string userInputIP = null;
-	
-	private GameObject[] menus = null;
-	private Button[] buttons = null;
-	private Slider[] sliders = null;
-
-	private MoveEvent moveRoutine = null;
 
 	void Awake(){
 
@@ -61,18 +64,6 @@ public class MenuController : MonoBehaviour {
 		this.serverIp.gameObject.SetActive(false);
 
 		foreach (GameObject go in menus){
-
-			this.buttons = go.GetComponentsInChildren<Button>() as Button[];
-			
-			foreach(Button b in buttons){
-				
-				// Disable bluetooth button until we have it
-				if(b.name.Equals("Bluetooth"))
-					b.interactable = false;
-
-				else if(b.name.Equals("NS só queira deixar quadradinho bunitu :3"))
-					b.interactable = false;
-			}
 			
 			// Enable first menu and deactivate the rest
 			if(go.name.Equals("MainMenu"))
@@ -164,7 +155,8 @@ public class MenuController : MonoBehaviour {
 			
 			// Spawn bullet hole
 			Vector2 pos = Input.GetTouch(0).position; // Touch position
-			
+			/*
+            // TO DO: this.buttons does not currently have the desired value
 			foreach (Button b in this.buttons){
 				
 				RectTransform rect = b.GetComponent<RectTransform>();
@@ -177,6 +169,7 @@ public class MenuController : MonoBehaviour {
 					break;
 				}
 			}
+            */
 		}
 
 		List<string> names = new List<string>();
@@ -206,14 +199,22 @@ public class MenuController : MonoBehaviour {
 
 		List<string> names = new List<string>();
 
-		foreach(GameObject go in this.menus)
-			if(go.name.Equals("OptionsMenu"))
-				names.Add(go.name);
+        foreach (GameObject obj in this.menus)
+            if (obj.name.Equals("OptionsMenu")) {
+                names.Add(obj.name);
+            }
 
 		EnableGameObject(names);
         sceneManager.MoveLeft();
         position = MenuPosition.OPTIONS;
-	}
+
+        GameObject go = GameObject.Find("MaxDefensesSlider");
+        go.GetComponent<Slider>().value = gm.MaxDefenses;
+        go = GameObject.Find("MaxBulletsSlider");
+        go.GetComponent<Slider>().value = gm.MaxBullets;
+        go = GameObject.Find("CountdownTimeSlider");
+        go.GetComponent<Slider>().value = gm.CountdownTime;
+    }
 
 	public void Crebitz(){
 		
@@ -231,6 +232,8 @@ public class MenuController : MonoBehaviour {
 	public void Wifi(){
 
 		List<string> names = new List<string>();
+        // Blocks Swiping
+        position = MenuPosition.SWIPEBLOCKED;
 
 		foreach(GameObject go in this.menus)
 			if(go.name.Equals("WifiMenu"))
@@ -308,9 +311,17 @@ public class MenuController : MonoBehaviour {
 		wifi.Connect();
 	}
 
-	public void Bluetooth(){
-		return;
-	}
+	public void Bluetooth() {
+        List<string> names = new List<string>();
+        // Blocks Swiping
+        position = MenuPosition.SWIPEBLOCKED;
+
+        foreach (GameObject go in this.menus)
+            if (go.name.Equals("BluetoothMenu"))
+                names.Add(go.name);
+
+        EnableGameObject(names);
+    }
 
 	public void Offline(){
         // For testing reasons, there is no prompt or confirmation
@@ -327,7 +338,49 @@ public class MenuController : MonoBehaviour {
 			Application.Quit(); // Exit application
 	}
 
+    public void ClientServerBack() {
+
+        localIp.gameObject.SetActive(false);
+        serverIp.gameObject.SetActive(false);
+
+        if (this.connection) {
+            connection.CloseConnection();
+            connection = null;
+        }
+
+        List<string> names = new List<string>();
+
+        foreach (GameObject go in this.menus)
+            if (go.name.Equals("WifiMenu"))
+                names.Add(go.name);
+
+        EnableGameObject(names);
+    }
+
+    public void WifiBack() {
+
+        // Unblocks Swiping
+        position = MenuPosition.PLAY;
+
+        localIp.gameObject.SetActive(false);
+        serverIp.gameObject.SetActive(false);
+        List<string> names = new List<string>();
+
+        if (this.connection) {
+            connection.CloseConnection();
+            connection = null;
+        }
+
+        foreach (GameObject go in this.menus)
+            if (go.name.Equals("PlayMenu"))
+                names.Add(go.name);
+
+        EnableGameObject(names);
+
+    }
+
     public void Back() {
+
 
         if (!sceneManager.Moving) {
             switch (position) {
@@ -343,15 +396,7 @@ public class MenuController : MonoBehaviour {
             }
             position = MenuPosition.MAIN;
 
-            localIp.gameObject.SetActive(false);
-            serverIp.gameObject.SetActive(false);
             List<string> names = new List<string>();
-
-            if(this.connection){
-				connection.CloseConnection();
-				connection = null;
-			}
-
             foreach (GameObject go in this.menus)
                 if (go.name.Equals("MainMenu"))
                     names.Add(go.name);
