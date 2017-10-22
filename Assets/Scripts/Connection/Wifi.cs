@@ -5,10 +5,20 @@ using UnityEngine.Networking.NetworkSystem;
 using System.Collections;
 using System.Collections.Generic;
 
+/*
+Tirar selectedAction do timer e fazer o timer simplesmente mudar o estado do gameManager para "Waiting for message (type Action)"
+		Timer acabou -> Esperando Mensagem -> In battle parte2
+
+Adicionar handler de mensagem pra configurações (cliente vai aceitar a porra das configurações do server)
+
+
+
+Baixa prioridade - fazer mecanismos de sincronização do código, mandar uma mensagem com estado atual do jogo, numero de balas e defesas do jogador
+*/
 
 public class Wifi : Connection {
 	
-	private enum MyMsgType : short { Debug = 100, Op }
+	private enum MyMsgType : short { Debug = 100, Action, Config }
 
 	public bool isHost;
 
@@ -29,6 +39,8 @@ public class Wifi : Connection {
 
 	public void Update(){
 
+		/* Debug */
+
 		if(Input.GetKeyDown(KeyCode.Space)){
 
 			Debug.Log("[Debug] Server connections: ");
@@ -40,7 +52,7 @@ public class Wifi : Connection {
 
 			StringMessage sendMsg = new StringMessage();
 			sendMsg.value = "batata";
-			client.Send((short) MyMsgType.Op, sendMsg);
+			client.Send((short) MyMsgType.Action, sendMsg);
 		}
 	}
 
@@ -52,6 +64,7 @@ public class Wifi : Connection {
 			localClient = StartHost();
 			
 			localClient.RegisterHandler(MsgType.Connect, OnHostConnected);
+			// localClient.RegisterHandler(MsgType.Config, config callback);
 			localClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
 			localClient.RegisterHandler(MsgType.Error, OnError);
 
@@ -67,24 +80,25 @@ public class Wifi : Connection {
 				return false;
 			}
 
-			remoteClient.RegisterHandler((short) MyMsgType.Op, HandleMessage);
+			remoteClient.RegisterHandler((short) MyMsgType.Action, HandleActionMessage);
 			remoteClient.RegisterHandler(MsgType.Connect, OnConnected);
 			remoteClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
 			remoteClient.RegisterHandler(MsgType.Error, OnError);
+			networkAddress = "172.28.143.20"; // Debug
 			remoteClient.Connect(networkAddress, networkPort);
 		}
 
 		return true;
 	}
 
-	public override bool OtterSendMessage(string msg){
+	public override bool OtterSendMessage(string msg, short type){
 		
 		Debug.Log("[Debug] Sending message: " + msg);
 
 		StringMessage sendMsg = new StringMessage();
 		sendMsg.value = msg;
 
-		return client.Send((short) MyMsgType.Op, sendMsg);
+		return client.Send(type, sendMsg);
 	}
 
 	public override string GetMessage(){
@@ -103,13 +117,16 @@ public class Wifi : Connection {
 	/* Network Manager Functions */
 	/*****************************/
 
-	public void HandleMessage(NetworkMessage msg){
+	public void HandleActionMessage(NetworkMessage msg){
 		
-		if(msg.ReadMessage<StringMessage>().value.Equals("START"))
+		string str = msg.ReadMessage<StringMessage>().value;
+
+		if(str.Equals("START"))
 			GameObject.FindGameObjectWithTag("MenuController").GetComponent<MenuController>().LoadWifiBattle();
 		else {
-			messages.Enqueue(msg.ReadMessage<StringMessage>().value);
+			messages.Enqueue(str);
 			Debug.Log("[Debug] Message handler received: \"" + messages.Peek() + "\"");
+			Debug.Log("[Debug] str: \"" + str + "\"");
 		}
 	}
 
@@ -127,12 +144,12 @@ public class Wifi : Connection {
 
 	public override void OnStartHost() {
 		Debug.Log("[Debug]: Host started!");	
-		NetworkServer.RegisterHandler((short) MyMsgType.Op, HandleMessage);
+		NetworkServer.RegisterHandler((short) MyMsgType.Action, HandleActionMessage);
 	}
 
 	public void OnConnected(NetworkMessage netMsg){
 		Debug.Log("Connected!");
-		OtterSendMessage("START");
+		OtterSendMessage("START", (short) MyMsgType.Action);
 		GameObject.FindGameObjectWithTag("MenuController").GetComponent<MenuController>().LoadWifiBattle();
 	}
 	
