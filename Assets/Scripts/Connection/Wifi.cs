@@ -22,7 +22,7 @@ public class Wifi : Connection {
 
 	public bool isHost;
 
-	private short type = Null;
+	private short type = (short)MyMsgType.Null;
 	private string localIp;
 	private NetworkClient localClient, remoteClient;
 	private Queue<string> messages;
@@ -93,7 +93,7 @@ public class Wifi : Connection {
 
 	public override bool OtterSendMessage(string msg){
 		
-		if(this.type == MyMsgType.Null)
+		if(this.type == (short)MyMsgType.Null)
 			throw new WifiConnectionException("No message type defined");
 
 		Debug.Log("[Debug] Sending message: " + msg);
@@ -102,7 +102,6 @@ public class Wifi : Connection {
 		sendMsg.value = msg;
 
 		return client.Send(this.type, sendMsg);
-		return false;
 	}
 
 	public override string GetMessage(){
