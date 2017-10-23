@@ -206,8 +206,11 @@ public class GameManager : MonoBehaviour {
 		timerObject.transform.SetParent(canvasObject.transform, false);
 		timer = timerObject.GetComponent<Timer>();
 		
-		// Set Bullets/Defences/Time BEFORE battleStarted = true
-		this.connection.GetMessage();
+		// Set Bullets/Defenses/Time BEFORE battleStarted = true
+		object retVal = null;
+		connection.SetMessageType(Connection.MyMsgType.Config);
+		if(!connection.GetMessage(ref retVal))
+			Debug.Log("Deu ruim"); // FIXME: deu ruim
 
 		// Seta as variáveis booleanas que indicam o estado da batalha
 		playerAnimFinished = false;
@@ -262,14 +265,17 @@ public class GameManager : MonoBehaviour {
 
 	private Action getEnemyAction(){
 		
+		object retVal = null;
 		string message = null;
 		this.tries++;
 
-		connection.SetMessageType(connection.MyMsgType.Action);
-		if(!connection.GetMessage(message))
-			Debug.Log("Deu ruim");
+		connection.SetMessageType(Connection.MyMsgType.Action);
+		if(!connection.GetMessage(ref retVal))
+			Debug.Log("Deu ruim"); // FIXME: deu ruim
 
-		switch (message) {
+		message = (string) retVal;
+
+		switch(message) {
 		
 		case "ATK":
 			tries = 0;
@@ -321,5 +327,20 @@ public class GameManager : MonoBehaviour {
 		default:
 			throw new System.Exception("Trying to send invalid message");
 		}
+	}
+
+	public int CompileSettings(){
+		return (int) (maxDefenses*100 + maxBullets*10 + countdownTime);
+	}
+
+	public void ProcessSettings(int config){
+		this.maxDefenses = config/100;
+		this.maxBullets = (config%100)/10;
+		this.countdownTime = config%10;
+
+		Debug.Log("config: " + config); 
+		Debug.Log("maxDefenses: " + maxDefenses); 
+		Debug.Log("maxBullets: " + maxBullets); 
+		Debug.Log("countdownTime: " + countdownTime); 
 	}
 }

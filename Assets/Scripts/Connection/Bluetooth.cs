@@ -18,4 +18,8 @@ public class Bluetooth : Connection {
 	public override bool CloseConnection(){
         return false;
 	}
+
+	public override bool SetMessageType(MyMsgType type){
+		return false;
+	}
 }

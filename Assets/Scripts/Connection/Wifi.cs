@@ -7,8 +7,6 @@ using System.Collections.Generic;
 
 public class Wifi : Connection {
 	
-	public enum MyMsgType : short { Debug = 100, Action, Config, Null }
-
 	public bool isHost;
 
 	private GameManager gm;
@@ -50,6 +48,10 @@ public class Wifi : Connection {
 			client.Send((short) MyMsgType.Action, sendMsg);
 		}
 	}
+
+	/**********************************/
+	/* Connection Interface Functions */
+	/**********************************/
 
 	public override bool Connect(){
 		
@@ -106,6 +108,8 @@ public class Wifi : Connection {
 	// which message type to send (safer)
 	public override bool GetMessage(ref object retVal){
 
+		SetMessageType((MyMsgType) retVal);
+
 		retVal = null;
 		if(this.type == (short) MyMsgType.Null)
 			throw new WifiConnectionException("No message type defined");
@@ -132,13 +136,14 @@ public class Wifi : Connection {
 		return true;
 	}
 
-	public void SetMessageType(MyMsgType type){
+	public override bool SetMessageType(MyMsgType type){
 		
 		// If message is not in enum, throw exception
 		if(!MyMsgType.IsDefined(typeof(MyMsgType), type)) 
 			throw new InvalidMessageTypeException();
 
 		this.type = (short) type;
+		return true;
 	}
 
 	/*****************************/
@@ -190,9 +195,7 @@ public class Wifi : Connection {
 	void OnPlayerConnected(NetworkPlayer player) {
 		
 		IntegerMessage msg = new IntegerMessage();
-		msg.value = (int) ( gm.MaxDefenses*100	+ 
-							gm.MaxBullets*10	+ 
-							gm.CountdownTime	);
+		msg.value = gm.CompileSettings();
 
 		NetworkServer.SendToClient(
 						remoteClient.connection.connectionId, 

@@ -31,4 +31,8 @@ public class Offline : Connection {
             return false;
         }
     }
+
+    public override bool SetMessageType(MyMsgType type){
+        return false;
+    }
 }
