@@ -212,6 +212,8 @@ public class GameManager : MonoBehaviour {
 		if(!connection.GetMessage(ref retVal))
 			Debug.Log("Deu ruim"); // FIXME: deu ruim
 
+		if(retVal != null) ProcessSettings((int) retVal);
+
 		// Seta as variáveis booleanas que indicam o estado da batalha
 		playerAnimFinished = false;
 		enemyAnimFinished = false;
@@ -311,6 +313,8 @@ public class GameManager : MonoBehaviour {
 	}
 
 	private void sendLocalAction(Action localAction) {
+		
+		connection.SetMessageType(Connection.MyMsgType.Action);
 		switch (localAction) {
 		case Action.ATK:
 			connection.OtterSendMessage("ATK");
