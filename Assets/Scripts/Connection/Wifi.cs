@@ -5,37 +5,32 @@ using UnityEngine.Networking.NetworkSystem;
 using System.Collections;
 using System.Collections.Generic;
 
-/*
-Tirar selectedAction do timer e fazer o timer simplesmente mudar o estado do gameManager para "Waiting for message (type Action)"
-		Timer acabou -> Esperando Mensagem -> In battle parte2
-
-Adicionar handler de mensagem pra configurações (cliente vai aceitar a porra das configurações do server)
-
-
-
-Baixa prioridade - fazer mecanismos de sincronização do código, mandar uma mensagem com estado atual do jogo, numero de balas e defesas do jogador
-*/
-
 public class Wifi : Connection {
 	
-	private enum MyMsgType : short { Debug = 100, Action, Config, Null }
+	public enum MyMsgType : short { Debug = 100, Action, Config, Null }
 
 	public bool isHost;
 
-	private short type = (short)MyMsgType.Null;
+	private GameManager gm;
+	private short type = (short) MyMsgType.Null;
 	private string localIp;
 	private NetworkClient localClient, remoteClient;
-	private Queue<string> messages;
+	private Queue<string> actions;
+	private Queue<string> configs;
 
 	public void Start(){
 
 		this.localIp = GetLocalIp();
 
-		localClient = null;
-		remoteClient = null;
+		this.localClient = null;
+		this.remoteClient = null;
 		this.isHost = false;
 		this.autoCreatePlayer = false;
-		messages = new Queue<string>();
+		this.actions = new Queue<string>();
+		this.configs = new Queue<string>();
+
+		this.gm = GameObject.FindGameObjectWithTag("GameManager").
+			GetComponent<GameManager>();
 	}
 
 	public void Update(){
@@ -91,9 +86,11 @@ public class Wifi : Connection {
 		return true;
 	}
 
+	// These functions always set msg type to null to force user to always set 
+	// which message type to send (safer)
 	public override bool OtterSendMessage(string msg){
 		
-		if(this.type == (short)MyMsgType.Null)
+		if(this.type == (short) MyMsgType.Null)
 			throw new WifiConnectionException("No message type defined");
 
 		Debug.Log("[Debug] Sending message: " + msg);
@@ -101,19 +98,47 @@ public class Wifi : Connection {
 		StringMessage sendMsg = new StringMessage();
 		sendMsg.value = msg;
 
+		SetMessageType(MyMsgType.Null);
 		return client.Send(this.type, sendMsg);
 	}
 
-	public override string GetMessage(){
+	// These functions always set msg type to null to force user to always set 
+	// which message type to send (safer)
+	public override bool GetMessage(ref object retVal){
+
+		if(this.type == (short) MyMsgType.Null)
+			throw new WifiConnectionException("No message type defined");
 
 		string msg = null;
 
-		if(messages.Count > 0){
-			Debug.Log("[Debug] New message(s)");
-			msg = messages.Dequeue();
+		switch(this.type){
+		case MyMsgType.Config:
+			if(configs.Count > 0){
+				Debug.Log("[Debug] New message(s)");
+				msg = configs.Dequeue();
+			
+			break;
+		case MyMsgType.Action:
+			if(actions.Count > 0){
+				Debug.Log("[Debug] New message(s)");
+				msg = actions.Dequeue();
+			}
+			break;
+		default:
+			throw new WifiConnectionException("Invalid message type");
 		}
 
+		SetMessageType(MyMsgType.Null);
 		return msg;
+	}
+
+	public void SetMessageType(MyMsgType type){
+		
+		// If message is not in enum, throw exception
+		if(!Enum.IsDefined(typeof(MyMsgType), type)) 
+			throw new InvalidMessageTypeException();
+
+		this.type = type;
 	}
 
 	/*****************************/
@@ -127,8 +152,8 @@ public class Wifi : Connection {
 		if(str.Equals("START"))
 			GameObject.FindGameObjectWithTag("MenuController").GetComponent<MenuController>().LoadWifiBattle();
 		else {
-			messages.Enqueue(str);
-			Debug.Log("[Debug] Message handler received: \"" + messages.Peek() + "\"");
+			actions.Enqueue(str);
+			Debug.Log("[Debug] Message handler received: \"" + actions.Peek() + "\"");
 			Debug.Log("[Debug] str: \"" + str + "\"");
 		}
 	}
@@ -161,6 +186,19 @@ public class Wifi : Connection {
 		GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>().EndBattle();
 		CloseConnection();
 	}
+
+	void OnPlayerConnected(NetworkPlayer player) {
+		
+		IntegerMessage msg = new IntegerMessage();
+		msg.value = (int) ( gm.MaxDefenses*100	+ 
+							gm.MaxBullets*10	+ 
+							gm.CountdownTime	);
+
+		NetworkServer.SendToClient(
+						remoteClient.connection.connectionId, 
+						(short) MyMsgType.Config, 
+						msg);
+    }
 
 	public void OnHostConnected(NetworkMessage netMsg){ Debug.Log("[Debug]: Host connected!"); }
 	public void OnError(NetworkMessage netMsg){ Debug.Log("[ERROR]: Error connecting - Vish deu ruim :c"); }

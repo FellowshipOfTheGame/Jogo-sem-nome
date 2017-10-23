@@ -191,6 +191,7 @@ public class GameManager : MonoBehaviour {
 
 		// Instancia a prefab do player
 		playerObjects[0] = GameObject.Instantiate(playerPrefab, gameObject.transform);
+		
 		// Obtem uma referencia para o script e configura
 		localPlayer = playerObjects[0].GetComponent<Player>();
 		localPlayer.Configure(maxDefenses, maxBullets);
@@ -205,6 +206,9 @@ public class GameManager : MonoBehaviour {
 		timerObject.transform.SetParent(canvasObject.transform, false);
 		timer = timerObject.GetComponent<Timer>();
 		
+		// Set Bullets/Defences/Time BEFORE battleStarted = true
+		this.connection.GetMessage();
+
 		// Seta as variáveis booleanas que indicam o estado da batalha
 		playerAnimFinished = false;
 		enemyAnimFinished = false;
@@ -261,7 +265,9 @@ public class GameManager : MonoBehaviour {
 		string message = null;
 		this.tries++;
 
-		message = connection.GetMessage();
+		connection.SetMessageType(connection.MyMsgType.Action);
+		if(!connection.GetMessage(message))
+			Debug.Log("Deu ruim");
 
 		switch (message) {
 		

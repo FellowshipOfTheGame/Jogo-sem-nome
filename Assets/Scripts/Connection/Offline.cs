@@ -9,7 +9,7 @@ public class Offline : Connection {
     public override bool OtterSendMessage(string msg){ return true; }
 	public override bool CloseConnection(){ return true; }
 
-	public override string GetMessage(){
+    public override bool GetMessage(ref object retVal){
         
         int choice = Random.Range(0, 4);
         switch (choice) {
