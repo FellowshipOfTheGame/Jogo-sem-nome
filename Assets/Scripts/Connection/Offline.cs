@@ -13,17 +13,22 @@ public class Offline : Connection {
         
         int choice = Random.Range(0, 4);
         switch (choice) {
-            case 0:
-                return "NOOP";
-            case 1:
-                return "ATK";
-            case 2:
-                return "DEF";
-            case 3:
-                return "REL";
-            default:
-                Debug.Log("This REALLY shouldn't happen");
-                return "NOOP";
+        case 0:
+            retVal = "NOOP";
+            return true;
+        case 1:
+            retVal = "ATK";
+            return true;
+        case 2:
+            retVal = "DEF";
+            return true;
+        case 3:
+            retVal = "REL";
+            return true;
+        default:
+            Debug.Log("This REALLY shouldn't happen");
+            retVal = "NOOP";
+            return false;
         }
     }
 }

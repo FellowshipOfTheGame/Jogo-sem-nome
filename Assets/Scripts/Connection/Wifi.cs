@@ -16,7 +16,7 @@ public class Wifi : Connection {
 	private string localIp;
 	private NetworkClient localClient, remoteClient;
 	private Queue<string> actions;
-	private Queue<string> configs;
+	private Queue<int> configs;
 
 	public void Start(){
 
@@ -27,7 +27,7 @@ public class Wifi : Connection {
 		this.isHost = false;
 		this.autoCreatePlayer = false;
 		this.actions = new Queue<string>();
-		this.configs = new Queue<string>();
+		this.configs = new Queue<int>();
 
 		this.gm = GameObject.FindGameObjectWithTag("GameManager").
 			GetComponent<GameManager>();
@@ -79,7 +79,7 @@ public class Wifi : Connection {
 			remoteClient.RegisterHandler(MsgType.Connect, OnConnected);
 			remoteClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
 			remoteClient.RegisterHandler(MsgType.Error, OnError);
-			networkAddress = "172.28.143.20"; // Debug
+			// networkAddress = "172.28.143.20"; // Debug
 			remoteClient.Connect(networkAddress, networkPort);
 		}
 
@@ -106,22 +106,22 @@ public class Wifi : Connection {
 	// which message type to send (safer)
 	public override bool GetMessage(ref object retVal){
 
+		retVal = null;
 		if(this.type == (short) MyMsgType.Null)
 			throw new WifiConnectionException("No message type defined");
 
-		string msg = null;
-
 		switch(this.type){
-		case MyMsgType.Config:
+		case (short) MyMsgType.Config:
 			if(configs.Count > 0){
 				Debug.Log("[Debug] New message(s)");
-				msg = configs.Dequeue();
-			
+				retVal = configs.Dequeue(); // Int message
+			}
 			break;
-		case MyMsgType.Action:
+
+		case (short) MyMsgType.Action:
 			if(actions.Count > 0){
 				Debug.Log("[Debug] New message(s)");
-				msg = actions.Dequeue();
+				retVal = actions.Dequeue(); // string message
 			}
 			break;
 		default:
@@ -129,16 +129,16 @@ public class Wifi : Connection {
 		}
 
 		SetMessageType(MyMsgType.Null);
-		return msg;
+		return true;
 	}
 
 	public void SetMessageType(MyMsgType type){
 		
 		// If message is not in enum, throw exception
-		if(!Enum.IsDefined(typeof(MyMsgType), type)) 
+		if(!MyMsgType.IsDefined(typeof(MyMsgType), type)) 
 			throw new InvalidMessageTypeException();
 
-		this.type = type;
+		this.type = (short) type;
 	}
 
 	/*****************************/
