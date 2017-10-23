@@ -8,8 +8,6 @@ public enum Action : byte { NOOP, ATK, DEF, REL }
 // Recebe as mensagens do player e do inimigo conectado, avalia o comando nesse turno e envia o resultado calculado para os dois
 public class GameManager : MonoBehaviour {
 
-	// criar scripts auxiliares(Ex.: AnimationController) para nao sobrecarregar o GameManager
-
 	enum State : byte { MENU, RESULT, TURN_START, WAITING, RESPONSE}
 
 	private Player localPlayer, enemyPlayer;
@@ -289,8 +287,10 @@ public class GameManager : MonoBehaviour {
 			return Action.NOOP;
 		
 		case null: // No message received, wait
+			
 			Debug.Log("[Debug] No message received. Tries: " + this.tries);
 			System.Thread.Sleep(1); // FIXME: Should not use this
+			
 			if(tries > TRIES_LIMIT){
 				Debug.Log("[Debug] Exceeded tries limit. Disconnecting...");
 				connection.CloseConnection();

@@ -102,7 +102,6 @@ public class Wifi : Connection {
 		sendMsg.value = msg;
 
 		return client.Send(this.type, sendMsg);
-		return false;
 	}
 
 	public override string GetMessage(){
