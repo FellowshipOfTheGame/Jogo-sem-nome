@@ -3,7 +3,7 @@ using System.Collections;
 
 public enum Animation: byte { NOAMMO, CANATK, NODEF, CANDEF, NOREL, CANREL, NOTHING, DEATH, ATKHIT, ATKMISS, DEFHIT, DEFMISS, RELOK, RELFAIL, DEFFAIL, TUMBLEWEED}
 public enum Result : byte { VICTORY, DEFEAT, DRAW }
-public enum Action : byte { NOOP, ATK, DEF, REL }
+public enum Action : byte { NOOP, ATK, DEF, REL , NOANSWER, NOCONNECTION}
 
 // Recebe as mensagens do player e do inimigo conectado, avalia o comando nesse turno e envia o resultado calculado para os dois
 public class GameManager : MonoBehaviour {
@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour {
 	public bool battleEnded { get; private set; }
 	public float endingDuration;
 	
-	public readonly int TRIES_LIMIT = 10f;
+	public readonly int TRIES_LIMIT = 10;
 	private int tries;
 	public Connection connection;
 	public SceneChanger sc;
@@ -142,21 +142,16 @@ public class GameManager : MonoBehaviour {
             
             // Checks if enemy has sent action
             enemyPlayer.action = getEnemyAction();
-
-            if(enemyPlayer.action != null)
-            	messageReceived = true;
+                
+            messageReceived = enemyPlayer.action != Action.NOANSWER && enemyPlayer.action != Action.NOCONNECTION;
             
             if (messageReceived) {
                 // Waits for message to be received. It's possible to put a timeout counter here.
                 // NOTE timeout is inside getEnemyAction but its a bad idea
                 currentState = State.RESPONSE;
-            } else {
-                // If it timouts while waiting for a message, gives a draw result
-                messageWaitTime += Time.deltaTime;
-                if (messageWaitTime >= TIMEOUT) {
-                    GameObject.Instantiate(drawSign);
-                    currentState = State.RESULT;
-                }
+            } else if (enemyPlayer.action == Action.NOCONNECTION){
+                GameObject.Instantiate(drawSign);
+                currentState = State.RESULT;
             }
             break;
         case State.RESPONSE:
@@ -289,16 +284,13 @@ public class GameManager : MonoBehaviour {
 		case null: // No message received, wait
 			
 			Debug.Log("[Debug] No message received. Tries: " + this.tries);
-			System.Thread.Sleep(1); // FIXME: Should not use this
-			
+			System.Threading.Thread.Sleep(1); // FIXME: Should not use this
 			if(tries > TRIES_LIMIT){
 				Debug.Log("[Debug] Exceeded tries limit. Disconnecting...");
 				connection.CloseConnection();
-				GameObject.Instantiate(drawSign); // NOTE: maybe say something differente on disconnect?
-				EndBattle();
-				return null; // Throw exception to disconnect?
+				return Action.NOCONNECTION; // Throw exception to disconnect?
 			}
-			return null;
+			return Action.NOANSWER;
 		
 		default: // Error
 			Debug.Log("[Debug] Message: " + message);
