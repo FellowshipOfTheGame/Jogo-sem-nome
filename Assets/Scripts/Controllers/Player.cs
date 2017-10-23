@@ -9,9 +9,27 @@ public class Player : MonoBehaviour {
     private bool configured;
     private bool shouldShake = false;
     private Animator anim;
-	public Action action { get; set; }
-    public bool alive { get; private set; }
     private bool finishedAnimation;
+
+    public Action action { get; set; }
+    public bool alive { get; private set; }
+    public AudioClip shotFired, shotFailed, shotBlocked, reload;
+    public float volume = 1.0f;
+
+    public void PlayShotBlocked() {
+    }
+
+    public void PlayReload() {
+        GetComponent<AudioSource>().PlayOneShot(reload, volume);
+    }
+
+    public void PlayShotFailed() {
+        GetComponent<AudioSource>().PlayOneShot(shotFailed, volume);
+    }
+
+    public void PlayShotFired() {
+        GetComponent<AudioSource>().PlayOneShot(shotFired, volume);
+    }
 
     public void CheckShake() {
 

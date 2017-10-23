@@ -13,6 +13,8 @@ public class SceneChanger : MonoBehaviour {
 
     public GameManager gm;
     public Canvas cv;
+    public AudioClip battleBGM;
+    public AudioClip menuBGM;
 
     // Use this for initialization
     private void Awake() {
@@ -102,11 +104,12 @@ public class SceneChanger : MonoBehaviour {
     }
 
     private void OnBattleSceneLoad(Scene scene, LoadSceneMode mode) {
-
         gm.StartBattle();
     }
 
     public void LoadMenuScene(bool gameStart) {
+
+        GetComponent<DoubleAudioSource>().CrossFade(menuBGM, 1.0f, 2.0f);
         // Clear sceneloaded queue
         if (queuedFunction == FunctionQueue.Battle)
             SceneManager.sceneLoaded -= OnBattleSceneLoad;
@@ -123,6 +126,7 @@ public class SceneChanger : MonoBehaviour {
             SceneManager.sceneLoaded += MoveBGFindCanvas;
             queuedFunction = FunctionQueue.MenuAgain;
         } else {
+            GetComponent<DoubleAudioSource>().CrossFade(menuBGM, 1.0f, 0.0f);
             SceneManager.sceneLoaded += FindTheCanvas;
             queuedFunction = FunctionQueue.MenuFirst;
         }
@@ -130,6 +134,8 @@ public class SceneChanger : MonoBehaviour {
     }
 
     public void LoadBattleScene(Connection successfulConection) {
+
+        GetComponent<DoubleAudioSource>().CrossFade(battleBGM, 1.0f, 0.25f);
         MoveRight();
         // Clear sceneloaded queue
         if (queuedFunction == FunctionQueue.Battle)
