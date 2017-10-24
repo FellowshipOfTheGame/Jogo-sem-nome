@@ -13,8 +13,8 @@ public class SceneChanger : MonoBehaviour {
 
     public GameManager gm;
     public Canvas cv;
-    public AudioClip battleBGM;
-    public AudioClip menuBGM;
+    public AudioClip battleBGM, menuBGM;
+    
 
     // Use this for initialization
     private void Awake() {
@@ -109,7 +109,6 @@ public class SceneChanger : MonoBehaviour {
 
     public void LoadMenuScene(bool gameStart) {
 
-        GetComponent<DoubleAudioSource>().CrossFade(menuBGM, 1.0f, 2.0f);
         // Clear sceneloaded queue
         if (queuedFunction == FunctionQueue.Battle)
             SceneManager.sceneLoaded -= OnBattleSceneLoad;

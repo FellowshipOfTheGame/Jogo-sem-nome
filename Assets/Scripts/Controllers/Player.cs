@@ -13,8 +13,20 @@ public class Player : MonoBehaviour {
 
     public Action action { get; set; }
     public bool alive { get; private set; }
-    public AudioClip shotFired, shotFailed, shotBlocked, reload;
+    public AudioClip shotFired, shotFailed, shotBlocked, reload, victory, defeat, draw;
     public float volume = 1.0f;
+
+    public void PlayDefeat() {
+        GetComponent<AudioSource>().PlayOneShot(defeat, volume);
+    }
+
+    public void PlayDraw() {
+        GetComponent<AudioSource>().PlayOneShot(draw, volume);
+    }
+
+    public void PlayVictory() {
+        GetComponent<AudioSource>().PlayOneShot(victory, volume);
+    }
 
     public void PlayShotBlocked() {
     }

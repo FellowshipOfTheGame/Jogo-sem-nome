@@ -123,13 +123,16 @@ public class GameManager : MonoBehaviour {
 					switch(result){
 					case Result.VICTORY:
 						GameObject.Instantiate(victorySign);
+                        localPlayer.PlayVictory();
 						break;
 					case Result.DEFEAT:
 						GameObject.Instantiate(defeatSignLeft);
 						GameObject.Instantiate(defeatSignRight);
+                        localPlayer.PlayDefeat();
 						break;
 					case Result.DRAW:
 						GameObject.Instantiate(drawSign);
+                        localPlayer.PlayDraw();
 						break;
 					}
 					// Changes current state
@@ -152,6 +155,8 @@ public class GameManager : MonoBehaviour {
                 currentState = State.RESPONSE;
             } else if (enemyPlayer.action == Action.NOCONNECTION){
                 GameObject.Instantiate(drawSign);
+                localPlayer.PlayDraw();
+                GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 1.0f);
                 currentState = State.RESULT;
             }
             break;
