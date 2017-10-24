@@ -13,7 +13,7 @@ public class SceneChanger : MonoBehaviour {
 
     public GameManager gm;
     public Canvas cv;
-    public AudioClip battleBGM, menuBGM;
+    public AudioClip battleBGM, menuBGM, chains;
     
 
     // Use this for initialization

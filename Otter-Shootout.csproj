@@ -81,6 +81,7 @@
     <Compile Include="Assets\Scripts\Connection\Bluetooth.cs" />
     <Compile Include="Assets\Scripts\Connection\Connection.cs" />
     <Compile Include="Assets\Scripts\Connection\ConnectionException.cs" />
+    <Compile Include="Assets\Scripts\Connection\InvalidMessageTypeException.cs" />
     <Compile Include="Assets\Scripts\Connection\Offline.cs" />
     <Compile Include="Assets\Scripts\Connection\Wifi.cs" />
     <Compile Include="Assets\Scripts\Connection\WifiConnectionException.cs" />

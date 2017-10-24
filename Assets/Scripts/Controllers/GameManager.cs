@@ -119,9 +119,10 @@ public class GameManager : MonoBehaviour {
 											Result.DEFEAT : 
 											Result.DRAW;
 
-					// Creates the sign to indicate battle result
-					switch(result){
-					case Result.VICTORY:
+                    // Creates the sign to indicate battle result
+                    sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 1.0f);
+                    switch (result) {
+                    case Result.VICTORY:
 						GameObject.Instantiate(victorySign);
                         localPlayer.PlayVictory();
 						break;
@@ -159,7 +160,7 @@ public class GameManager : MonoBehaviour {
             } else if (enemyPlayer.action == Action.NOCONNECTION){
                 GameObject.Instantiate(drawSign);
                 localPlayer.PlayDraw();
-                GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 1.0f);
+                sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 1.0f);
             	Debug.Log("[Debug]: Connection dropped");
                 currentState = State.RESULT;
             }
