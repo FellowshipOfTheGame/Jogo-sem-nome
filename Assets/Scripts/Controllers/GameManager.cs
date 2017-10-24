@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	public void findCanvas() {
+	public void FindCanvas() {
 		canvasObject = GameObject.FindGameObjectWithTag("Canvas");
 	}
 
@@ -85,7 +85,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	// Update is called once per frame
-	void Update () {
+	void Update(){
 		switch (currentState) {
 
 		// Loop de batalha
@@ -142,13 +142,13 @@ public class GameManager : MonoBehaviour {
             bool messageReceived = false;
             
             // Checks if enemy has sent action
-            enemyPlayer.action = getEnemyAction();
+            enemyPlayer.action = GetEnemyAction();
                 
             messageReceived = enemyPlayer.action != Action.NOANSWER && enemyPlayer.action != Action.NOCONNECTION;
             
             if(messageReceived){
                 // Waits for message to be received. It's possible to put a timeout counter here.
-                // NOTE timeout is inside getEnemyAction but its a bad idea
+                // NOTE timeout is inside GetEnemyAction but its a bad idea
                 currentState = State.RESPONSE;
             } else if (enemyPlayer.action == Action.NOCONNECTION){
                 GameObject.Instantiate(drawSign);
@@ -185,10 +185,10 @@ public class GameManager : MonoBehaviour {
 	}
 
 	// Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
-	public void StartBattle() {
+	public void StartBattle(){
 
 		stopwatch = endingDuration;
-		findCanvas();
+		FindCanvas();
 
 		// Instancia a prefab do player
 		playerObjects[0] = GameObject.Instantiate(playerPrefab, gameObject.transform);
@@ -209,12 +209,9 @@ public class GameManager : MonoBehaviour {
 		
 		// Set Bullets/Defenses/Time BEFORE battleStarted = true
 		object retVal = new object();
-		int counter = 0;
-		do {
-			connection.SetMessageType(Connection.MyMsgType.Config);
-		} while(!connection.GetMessage(ref retVal) && counter++ < 10000); // Wait for config message 
-
-		if(retVal != null) ProcessSettings((int) retVal);
+		connection.SetMessageType(Connection.MyMsgType.Config);
+		connection.GetMessage(ref retVal); // Get battle configurations settings
+		if(retVal != null) ProcessSettings(retVal as int?); // Process configs
 
 		// Seta as variáveis booleanas que indicam o estado da batalha
 		playerAnimFinished = false;
@@ -262,12 +259,12 @@ public class GameManager : MonoBehaviour {
 		animating = true;
 
 		// Envia a ação selecionada
-		sendLocalAction(localPlayer.action);
+		SendLocalAction(localPlayer.action);
         messageWaitTime = 0;
         currentState = State.WAITING;
 	}
 
-	private Action getEnemyAction(){
+	private Action GetEnemyAction(){
 		
 		object retVal = new object();
 		string message = null;
@@ -314,7 +311,7 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	private void sendLocalAction(Action localAction) {
+	private void SendLocalAction(Action localAction) {
 		
 		connection.SetMessageType(Connection.MyMsgType.Action);
 		switch (localAction) {
@@ -339,12 +336,16 @@ public class GameManager : MonoBehaviour {
 		return (int) (maxDefenses*100 + maxBullets*10 + countdownTime);
 	}
 
-	public void ProcessSettings(int config){
-		this.maxDefenses = config/100;
-		this.maxBullets = (config%100)/10;
-		this.countdownTime = config%10;
+	public void ProcessSettings(int? config){
 
-		Debug.Log("config: " + config); 
+		if(config == null) throw new System.Exception("Config value is null");
+		int _config = (int) config;
+
+		this.maxDefenses = _config/100;
+		this.maxBullets = (_config%100)/10;
+		this.countdownTime = _config%10;
+
+		Debug.Log("config: " + _config); 
 		Debug.Log("maxDefenses: " + maxDefenses); 
 		Debug.Log("maxBullets: " + maxBullets); 
 		Debug.Log("countdownTime: " + countdownTime); 

@@ -4,12 +4,18 @@ using System.Collections;
 // Media a interacao com a IA do jogo
 public class Offline : Connection { 
 
+    private GameManager gm;
     private short type = (short) MyMsgType.Null;
     
+    void Start(){
+        this.gm = GameObject.FindGameObjectWithTag("GameManager").
+            GetComponent<GameManager>();
+    }
+
     public override bool Connect(){ return true; }
     public override bool CloseConnection(){ return true; }
     
-    public override bool OtterSendMessage(string msg){ 
+    public override bool OtterSendMessage(object msg){ 
         type = (short) MyMsgType.Null;
         return true; 
     }
@@ -40,7 +46,10 @@ public class Offline : Connection {
                 return false;
             }
         } else if(this.type == (short) MyMsgType.Config){
-            retVal = 333;
+            Debug.Log("[Debug](Offline): Getting config message.");
+            retVal = gm.CompileSettings();
+            Debug.Log("[Debug](Offline): Returning: " + retVal);
+            type = (short) MyMsgType.Null;
             return true;
         }
 
@@ -48,6 +57,7 @@ public class Offline : Connection {
     }
 
     public override bool SetMessageType(MyMsgType type){
-        return false;
+        this.type = (short) type;
+        return true;
     }
 }

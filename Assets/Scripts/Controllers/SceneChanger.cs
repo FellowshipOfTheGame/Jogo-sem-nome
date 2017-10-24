@@ -93,14 +93,14 @@ public class SceneChanger : MonoBehaviour {
     }
 
     private void FindTheCanvas(Scene scene, LoadSceneMode mode) {
-        gm.findCanvas();
+        gm.FindCanvas();
     }
 
     private void MoveBGFindCanvas(Scene scene, LoadSceneMode mode) {
         GameObject mc = GameObject.FindGameObjectWithTag("MenuController");
         MenuController menuController = mc.GetComponent<MenuController>();
         menuController.Play();
-        gm.findCanvas();
+        gm.FindCanvas();
     }
 
     private void OnBattleSceneLoad(Scene scene, LoadSceneMode mode) {
