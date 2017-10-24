@@ -11,11 +11,12 @@ public class GameManager : MonoBehaviour {
 	enum State : byte { MENU, RESULT, TURN_START, WAITING, RESPONSE}
 
 	private Player localPlayer, enemyPlayer;
-	private GameObject[] playerObjects;
 	private Timer timer;
 	private GameObject timerObject;
-	private State currentState;
 	private GameObject canvasObject;
+	private GameObject[] playerObjects;
+	
+	private State currentState;
 	private bool animating, playerAnimFinished, enemyAnimFinished, battleStarted;
 	private float stopwatch;
 
@@ -145,7 +146,7 @@ public class GameManager : MonoBehaviour {
                 
             messageReceived = enemyPlayer.action != Action.NOANSWER && enemyPlayer.action != Action.NOCONNECTION;
             
-            if (messageReceived) {
+            if(messageReceived){
                 // Waits for message to be received. It's possible to put a timeout counter here.
                 // NOTE timeout is inside getEnemyAction but its a bad idea
                 currentState = State.RESPONSE;
@@ -207,10 +208,11 @@ public class GameManager : MonoBehaviour {
 		timer = timerObject.GetComponent<Timer>();
 		
 		// Set Bullets/Defenses/Time BEFORE battleStarted = true
-		object retVal = null;
-		connection.SetMessageType(Connection.MyMsgType.Config);
-		if(!connection.GetMessage(ref retVal))
-			Debug.Log("Deu ruim"); // FIXME: deu ruim
+		object retVal = new object();
+		int counter = 0;
+		do {
+			connection.SetMessageType(Connection.MyMsgType.Config);
+		} while(!connection.GetMessage(ref retVal) && counter++ < 10000); // Wait for config message 
 
 		if(retVal != null) ProcessSettings((int) retVal);
 
@@ -225,7 +227,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	// Função a ser chamada quando acabar a batalha
-	public void EndBattle() {
+	public void EndBattle(){
 		
 		// Destrói os objetos e componentes desnecessários
 		Destroy(playerObjects[0]);
@@ -267,7 +269,7 @@ public class GameManager : MonoBehaviour {
 
 	private Action getEnemyAction(){
 		
-		object retVal = null;
+		object retVal = new object();
 		string message = null;
 		this.tries++;
 

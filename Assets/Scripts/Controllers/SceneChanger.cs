@@ -133,10 +133,11 @@ public class SceneChanger : MonoBehaviour {
         SceneManager.LoadScene("MainMenu");
     }
 
-    public void LoadBattleScene(Connection successfulConection) {
+    public void LoadBattleScene(Connection successfulConection){
 
         GetComponent<DoubleAudioSource>().CrossFade(battleBGM, 1.0f, 0.25f);
         MoveRight();
+        
         // Clear sceneloaded queue
         if (queuedFunction == FunctionQueue.Battle)
             SceneManager.sceneLoaded -= OnBattleSceneLoad;
@@ -144,6 +145,7 @@ public class SceneChanger : MonoBehaviour {
             SceneManager.sceneLoaded -= MoveBGFindCanvas;
         else if (queuedFunction == FunctionQueue.MenuFirst)
             SceneManager.sceneLoaded -= FindTheCanvas;
+        
         // Adds a different function to be called when the scene is loaded
         SceneManager.sceneLoaded += OnBattleSceneLoad;
         queuedFunction = FunctionQueue.Battle;

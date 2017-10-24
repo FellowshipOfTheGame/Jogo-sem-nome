@@ -63,7 +63,7 @@ public class MenuController : MonoBehaviour {
 		this.localIp.gameObject.SetActive(false);
 		this.serverIp.gameObject.SetActive(false);
 
-		foreach (GameObject go in menus){
+		foreach(GameObject go in menus){
 			
 			// Enable first menu and deactivate the rest
 			if(go.name.Equals("MainMenu"))
@@ -313,6 +313,7 @@ public class MenuController : MonoBehaviour {
 
 	public void Bluetooth() {
         List<string> names = new List<string>();
+        
         // Blocks Swiping
         position = MenuPosition.SWIPEBLOCKED;
 
@@ -324,7 +325,7 @@ public class MenuController : MonoBehaviour {
     }
 
 	public void Offline(){
-        // For testing reasons, there is no prompt or confirmation
+        // NOTE: For testing reasons, there is no prompt or confirmation
         connection = gm.gameObject.AddComponent<Offline>();
         sceneManager.LoadBattleScene(connection);
 	}

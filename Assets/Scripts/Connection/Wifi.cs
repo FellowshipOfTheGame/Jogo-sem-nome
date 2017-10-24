@@ -61,7 +61,8 @@ public class Wifi : Connection {
 			localClient = StartHost();
 			
 			localClient.RegisterHandler(MsgType.Connect, OnHostConnected);
-			// localClient.RegisterHandler(MsgType.Config, config callback);
+			// localClient.RegisterHandler((short) MyMsgType.Action, HandleActionMessage);
+			// localClient.RegisterHandler((short) MyMsgType.Config, HandleConfigMessage);
 			localClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
 			localClient.RegisterHandler(MsgType.Error, OnError);
 
@@ -82,10 +83,10 @@ public class Wifi : Connection {
 			remoteClient.RegisterHandler(MsgType.Connect, OnConnected);
 			remoteClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
 			remoteClient.RegisterHandler(MsgType.Error, OnError);
-			// networkAddress = "172.28.143.20"; // Debug
+			this.networkAddress = "172.26.195.208"; // Debug
+			Debug.Log("[Debug]: Connecting to " + networkAddress);
 			remoteClient.Connect(networkAddress, networkPort);
 		}
-
 		return true;
 	}
 
@@ -101,8 +102,10 @@ public class Wifi : Connection {
 		StringMessage sendMsg = new StringMessage();
 		sendMsg.value = msg;
 
-		SetMessageType(MyMsgType.Null);
-		return client.Send(this.type, sendMsg);
+		bool ret = client.Send(this.type, sendMsg);
+		
+		SetMessageType(MyMsgType.Null); // Reset type to null
+		return ret;
 	}
 
 	// These functions always set msg type to null to force user to always set 
@@ -118,9 +121,14 @@ public class Wifi : Connection {
 		switch(this.type){
 		case (short) MyMsgType.Config:
 			if(configs.Count > 0){
-				Debug.Log("[Debug] New message(s)");
+				Debug.Log("[Debug]: New message(s)");
 				retVal = configs.Dequeue(); // Int message
-			} else ret = false;
+			} else {
+				Debug.Log("[Debug]: IsHost? " + isHost);
+				ret = isHost; 	// Host doesnt need to get configuration 
+										// messages, so if isHost is true, just 
+										// assume everything is allright
+			}
 			break;
 
 		case (short) MyMsgType.Action:
@@ -144,6 +152,7 @@ public class Wifi : Connection {
 		if(!MyMsgType.IsDefined(typeof(MyMsgType), type)) 
 			throw new InvalidMessageTypeException();
 
+		Debug.Log("[Debug]: Setting message type as " + type);
 		this.type = (short) type;
 		return true;
 	}
@@ -156,12 +165,12 @@ public class Wifi : Connection {
 		
 		string str = msg.ReadMessage<StringMessage>().value;
 
-		if(str.Equals("START"))
-			GameObject.FindGameObjectWithTag("MenuController").GetComponent<MenuController>().LoadWifiBattle();
-		else {
+		Debug.Log("[Debug] Action message handler received: \"" + str + "\"");
+		if(str.Equals("START")){
+			GameObject.FindGameObjectWithTag("MenuController").
+				GetComponent<MenuController>().LoadWifiBattle();
+		} else {
 			actions.Enqueue(str);
-			Debug.Log("[Debug] Action message handler received: \"" + actions.Peek() + "\"");
-			Debug.Log("[Debug] str: \"" + str + "\"");
 		}
 	}
 
@@ -186,40 +195,43 @@ public class Wifi : Connection {
 	public string GetLocalIp(){ return Network.player.ipAddress; }
 	public string GetRemoteIp(){ return this.networkAddress; }
 
-	public void OnHostConnected(NetworkMessage netMsg){ Debug.Log("[Debug]: Host connected!"); }
+	public void OnHostConnected(NetworkMessage netMsg){ 
+		Debug.Log("[Debug]: Host connected!"); 
+		// isHost = true;
+		IntegerMessage msg = new IntegerMessage();
+		msg.value = gm.CompileSettings();
+
+		Debug.Log("[Debug] Sending config message: " + msg.value);
+		NetworkServer.SendToClient(1, (short) MyMsgType.Config, msg);
+	}
+
 	public override void OnStartHost() {
-		Debug.Log("[Debug]: Host started!");	
 		NetworkServer.RegisterHandler((short) MyMsgType.Action, HandleActionMessage);
+		NetworkServer.RegisterHandler((short) MyMsgType.Config, HandleConfigMessage);
 	}
 
 	public void OnConnected(NetworkMessage netMsg){
-		Debug.Log("Connected!");
+		
+		Debug.Log("[Debug]: Client connected! Sending start message...");
 		SetMessageType(MyMsgType.Action);
-		OtterSendMessage("START");
+		
+		if(!OtterSendMessage("START")) 
+			Debug.Log("Deu ruim em mandar a mensagem \"START\""); // FIXME: Deu ruim
+
+				Debug.Log("[Debug]: Message sent!");
 		GameObject.FindGameObjectWithTag("MenuController").
 			GetComponent<MenuController>().LoadWifiBattle();
 	}
 	
 	public void OnDisconnected(NetworkMessage netMsg){ 
+
 		Debug.Log("[Debug]: Disconnected from server");
+
 		GameObject.FindGameObjectWithTag("GameManager").
 			GetComponent<GameManager>().EndBattle();
 		
 		CloseConnection();
 	}
-
-	void OnPlayerConnected(NetworkPlayer player) {
-		
-		Debug.Log("Client connected!");
-
-		IntegerMessage msg = new IntegerMessage();
-		msg.value = gm.CompileSettings();
-
-		NetworkServer.SendToClient(
-						remoteClient.connection.connectionId, 
-						(short) MyMsgType.Config, 
-						msg);
-    }
 
 	public void OnError(NetworkMessage netMsg){ Debug.Log("[ERROR]: Error connecting - Vish deu ruim :c"); }
 }
