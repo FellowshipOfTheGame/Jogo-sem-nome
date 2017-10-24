@@ -104,7 +104,9 @@ public class Wifi : Connection {
 			throw new WifiConnectionException("Invalid message type");
 		}
 
-		bool ret = client.Send(this.type, sendMsg);
+		bool ret = true;
+		if(isHost) NetworkServer.SendToClient(1, this.type, sendMsg);
+		else ret = client.Send(this.type, sendMsg);
 		
 		SetMessageType(MyMsgType.Null); // Reset type to null
 		return ret;

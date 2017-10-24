@@ -147,7 +147,10 @@ public class GameManager : MonoBehaviour {
             // Checks if enemy has sent action
             enemyPlayer.action = GetEnemyAction();
                 
-            messageReceived = enemyPlayer.action != Action.NOANSWER && enemyPlayer.action != Action.NOCONNECTION;
+            messageReceived = (enemyPlayer.action != Action.NOANSWER) && 
+          					  (enemyPlayer.action != Action.NOCONNECTION);
+          	// messageReceived = (enemyPlayer.action != Action.NOCONNECTION);
+     		Debug.Log("[Debug]: message received: " + messageReceived);
             
             if(messageReceived){
                 // Waits for message to be received. It's possible to put a timeout counter here.
@@ -157,6 +160,7 @@ public class GameManager : MonoBehaviour {
                 GameObject.Instantiate(drawSign);
                 localPlayer.PlayDraw();
                 GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 1.0f);
+            	Debug.Log("[Debug]: Connection dropped");
                 currentState = State.RESULT;
             }
             break;
@@ -302,7 +306,7 @@ public class GameManager : MonoBehaviour {
 		case null: // No message received, wait
 			
 			Debug.Log("[Debug] No message received. Tries: " + this.tries);
-			System.Threading.Thread.Sleep(1); // FIXME: Should not use this
+			System.Threading.Thread.Sleep(300); // FIXME: Should not use this
 			if(tries > TRIES_LIMIT){
 				Debug.Log("[Debug] Exceeded tries limit. Disconnecting...");
 				connection.CloseConnection();
