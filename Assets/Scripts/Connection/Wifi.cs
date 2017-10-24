@@ -31,24 +31,6 @@ public class Wifi : Connection {
 			GetComponent<GameManager>();
 	}
 
-	public void Update(){
-
-		/* Debug */
-		if(Input.GetKeyDown(KeyCode.Space)){
-
-			Debug.Log("[Debug] Server connections: ");
-			foreach (NetworkConnection nc in NetworkServer.connections)
-				if(nc != null)
-					Debug.Log("[Debug] Connection: " + nc.connectionId);
-
-			// Debug.Log("[Debug] Message: " + msg);
-
-			StringMessage sendMsg = new StringMessage();
-			sendMsg.value = "batata";
-			client.Send((short) MyMsgType.Action, sendMsg);
-		}
-	}
-
 	/**********************************/
 	/* Connection Interface Functions */
 	/**********************************/
@@ -59,10 +41,15 @@ public class Wifi : Connection {
 			
 			this.networkPort = 7777;
 			localClient = StartHost();
+
+			if(localClient == null){
+				Debug.Log("[FATAL] Failed to initialize host.");
+				return false;
+			}
 			
+			localClient.RegisterHandler((short) MyMsgType.Action, HandleActionMessage);
+			localClient.RegisterHandler((short) MyMsgType.Config, HandleConfigMessage);
 			localClient.RegisterHandler(MsgType.Connect, OnHostConnected);
-			// localClient.RegisterHandler((short) MyMsgType.Action, HandleActionMessage);
-			// localClient.RegisterHandler((short) MyMsgType.Config, HandleConfigMessage);
 			localClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
 			localClient.RegisterHandler(MsgType.Error, OnError);
 
@@ -83,7 +70,8 @@ public class Wifi : Connection {
 			remoteClient.RegisterHandler(MsgType.Connect, OnConnected);
 			remoteClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
 			remoteClient.RegisterHandler(MsgType.Error, OnError);
-			this.networkAddress = "172.26.195.208"; // Debug
+			// this.networkAddress = "172.26.195.238"; // Debug
+			this.networkAddress = "192.168.0.22"; // Debug
 			Debug.Log("[Debug]: Connecting to " + networkAddress);
 			remoteClient.Connect(networkAddress, networkPort);
 		}
@@ -92,15 +80,29 @@ public class Wifi : Connection {
 
 	// These functions always set msg type to null to force user to always set 
 	// which message type to send (safer)
-	public override bool OtterSendMessage(string msg){
+	public override bool OtterSendMessage(object msg){
 		
 		if(this.type == (short) MyMsgType.Null)
 			throw new WifiConnectionException("No message type defined");
 
-		Debug.Log("[Debug] Sending message: " + msg);
+		MessageBase sendMsg;
 
-		StringMessage sendMsg = new StringMessage();
-		sendMsg.value = msg;
+		switch(this.type){
+		case (short) MyMsgType.Action:
+			
+			sendMsg = new StringMessage(msg as string);
+			Debug.Log("[Debug] Sending message: " + msg as string);
+			break;
+
+		case (short) MyMsgType.Config:
+			
+			sendMsg = new IntegerMessage((int) (msg as int?));
+			Debug.Log("[Debug] Sending message: " + (int) (msg as int?));
+			break;
+		
+		default:
+			throw new WifiConnectionException("Invalid message type");
+		}
 
 		bool ret = client.Send(this.type, sendMsg);
 		
@@ -120,22 +122,15 @@ public class Wifi : Connection {
 
 		switch(this.type){
 		case (short) MyMsgType.Config:
-			if(configs.Count > 0){
-				Debug.Log("[Debug]: New message(s)");
-				retVal = configs.Dequeue(); // Int message
-			} else {
-				Debug.Log("[Debug]: IsHost? " + isHost);
-				ret = isHost; 	// Host doesnt need to get configuration 
-										// messages, so if isHost is true, just 
-										// assume everything is allright
-			}
+			if(configs.Count > 0) retVal = configs.Dequeue(); // Int message
+			else {Debug.Log("[Debug]: isHost? " + isHost); ret = isHost;} 	// Host doesnt need to get configuration 
+								// messages, so if isHost is true, just 
+								// assume everything is allright
 			break;
 
 		case (short) MyMsgType.Action:
-			if(actions.Count > 0){
-				Debug.Log("[Debug] New message(s)");
-				retVal = actions.Dequeue(); // string message
-			} else ret = false;
+			if(actions.Count > 0) retVal = actions.Dequeue(); // string message
+			else ret = false;
 			break;
 
 		default:
@@ -167,6 +162,16 @@ public class Wifi : Connection {
 
 		Debug.Log("[Debug] Action message handler received: \"" + str + "\"");
 		if(str.Equals("START")){
+
+			Debug.Log("[Debug] Sending message: " + gm.CompileSettings());
+			// Send configuration to remote client
+			NetworkServer.SendToClient(1, // Connection ID-should be only player
+				(short) MyMsgType.Config, // Type
+				new IntegerMessage(gm.CompileSettings())); // Message
+
+			// Wait for a second to better synchronize local and remote clients
+			System.Threading.Thread.Sleep(1000);
+
 			GameObject.FindGameObjectWithTag("MenuController").
 				GetComponent<MenuController>().LoadWifiBattle();
 		} else {
@@ -181,6 +186,14 @@ public class Wifi : Connection {
 		configs.Enqueue(config);
 		Debug.Log("[Debug] Config message handler received: \"" + configs.Peek() + "\"");
 		Debug.Log("[Debug] config: \"" + config + "\"");
+
+		if(!isHost){
+			// Wait for a second to better synchronize local and remote clients
+			System.Threading.Thread.Sleep(1000);
+
+			GameObject.FindGameObjectWithTag("MenuController").
+				GetComponent<MenuController>().LoadWifiBattle();
+		}
 	}
 
 	public override bool CloseConnection(){
@@ -195,32 +208,27 @@ public class Wifi : Connection {
 	public string GetLocalIp(){ return Network.player.ipAddress; }
 	public string GetRemoteIp(){ return this.networkAddress; }
 
+	/**********************/
+	/* Host-side callback */
+	/**********************/
+	public override void OnStartHost(){ Debug.Log("[Debug]: Host has started!"); }
 	public void OnHostConnected(NetworkMessage netMsg){ 
-		Debug.Log("[Debug]: Host connected!"); 
-		// isHost = true;
-		IntegerMessage msg = new IntegerMessage();
-		msg.value = gm.CompileSettings();
-
-		Debug.Log("[Debug] Sending config message: " + msg.value);
-		NetworkServer.SendToClient(1, (short) MyMsgType.Config, msg);
-	}
-
-	public override void OnStartHost() {
+		Debug.Log("[Debug]: Host connected!");
+		isHost = true;
 		NetworkServer.RegisterHandler((short) MyMsgType.Action, HandleActionMessage);
 		NetworkServer.RegisterHandler((short) MyMsgType.Config, HandleConfigMessage);
 	}
 
+	/************************/
+	/* Client-side callback */
+	/************************/
 	public void OnConnected(NetworkMessage netMsg){
 		
 		Debug.Log("[Debug]: Client connected! Sending start message...");
 		SetMessageType(MyMsgType.Action);
 		
-		if(!OtterSendMessage("START")) 
-			Debug.Log("Deu ruim em mandar a mensagem \"START\""); // FIXME: Deu ruim
-
-				Debug.Log("[Debug]: Message sent!");
-		GameObject.FindGameObjectWithTag("MenuController").
-			GetComponent<MenuController>().LoadWifiBattle();
+		if(!OtterSendMessage("START"))
+			throw new WifiConnectionException("Failed to send START message.");
 	}
 	
 	public void OnDisconnected(NetworkMessage netMsg){ 
@@ -233,5 +241,7 @@ public class Wifi : Connection {
 		CloseConnection();
 	}
 
-	public void OnError(NetworkMessage netMsg){ Debug.Log("[ERROR]: Error connecting - Vish deu ruim :c"); }
+	public void OnError(NetworkMessage netMsg){
+		Debug.Log("[FATAL]: Error connecting - Vish deu ruim :c");
+	}
 }
