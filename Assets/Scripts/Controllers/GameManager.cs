@@ -124,6 +124,9 @@ public class GameManager : MonoBehaviour {
 											Result.DRAW;
 
                     // Creates the sign to indicate battle result
+                    AudioSource[] sources = sc.GetComponents<AudioSource>();
+                    foreach (AudioSource s in sources)
+                        s.volume = 0.5f;
                     sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 1.0f);
                     GameObject.Find("RightCollider").GetComponent<AudioSource>().Play();
                     switch (result) {
