@@ -37,6 +37,8 @@ public class GameManager : MonoBehaviour {
 	private int maxBullets;
 	private float countdownTime, messageWaitTime;
 
+	private Button shoot, reload, defend;
+
 	public int MaxDefenses {
 		get { return maxDefenses; }
 		set {
@@ -76,6 +78,7 @@ public class GameManager : MonoBehaviour {
 		DontDestroyOnLoad(gameObject);
 		playerObjects = new GameObject[2];
 		playerObjects[0] = playerObjects[1] = null;
+		
 		timer = null;
 		maxBullets = 3;
 		maxDefenses = 3;
@@ -86,6 +89,7 @@ public class GameManager : MonoBehaviour {
 		battleStarted = false;
 		battleEnded = true;
 		currentState = State.MENU;
+
 	}
 
 	// Update is called once per frame
@@ -94,6 +98,23 @@ public class GameManager : MonoBehaviour {
 
 		// Loop de batalha
 		case State.TURN_START:
+
+			if(shoot == null){
+				shoot = GameObject.Find("Canvas/BattleButtons/Attack").
+					GetComponent<Button>();
+				reload = GameObject.Find("Canvas/BattleButtons/Reload").
+					GetComponent<Button>();
+				defend = GameObject.Find("Canvas/BattleButtons/Guard").
+					GetComponent<Button>();
+			}
+
+			ColorBlock cw = shoot.colors;
+			cw.normalColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+
+			shoot.colors = cw;
+			defend.colors = cw;
+			reload.colors = cw;
+
 			// Verifica se o player já acabou sua animação e caso true armazena esse resultado
 			if (!playerAnimFinished) {
 				playerAnimFinished = localPlayer.FinishedAnimation;
@@ -175,7 +196,15 @@ public class GameManager : MonoBehaviour {
             }
             break;
         case State.RESPONSE:
+        
             // Executes the response base on received message
+        	cw = shoot.colors;
+			cw.normalColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+
+			shoot.colors = cw;
+			defend.colors = cw;
+			reload.colors = cw;
+
             // Tumbleweed
             if (localPlayer.action == Action.NOOP && enemyPlayer.action == Action.NOOP) {
                     GameObject.Instantiate(tumbleweed);
@@ -244,7 +273,7 @@ public class GameManager : MonoBehaviour {
 		animating = false;
 		battleStarted = true;
 		battleEnded = false;
-		
+
 		// Start countdown to begin battle
 		Debug.Log("[Debug]: Calling coroutine");
 		StartCoroutine("StartCountdownTimer", State.TURN_START);
@@ -276,9 +305,7 @@ public class GameManager : MonoBehaviour {
 		sc.LoadMenuScene(false);
 	}
 
-	private void SetState(State s){
-		currentState = s;
-	}
+	private void SetState(State s){ currentState = s; }
 
 	IEnumerator StartCountdownTimer(State s){
 
@@ -295,8 +322,26 @@ public class GameManager : MonoBehaviour {
 		currentState = State.TURN_START;
 	}
 
-	public void SetPlayerAction(Action selectedAction) {
+	public void SetPlayerAction(Action selectedAction){
+
 		localPlayer.action = selectedAction;
+
+		ColorBlock cg = shoot.colors;
+		cg.normalColor = new Color(0.5f, 0.5f, 0.5f, 1.0f);
+
+		switch(selectedAction){
+		case Action.ATK:
+			shoot.colors = cg;
+			return;
+
+		case Action.DEF:
+			defend.colors = cg;
+			return;
+
+		case Action.REL:
+			reload.colors = cg;
+			return;
+		}
 	}
 
 	private void SelectAction(){

@@ -67,6 +67,8 @@ public class SwipeController : MonoBehaviour {
             case SwipeDirection.DOWN:
                 if (mc.Position == MenuPosition.CREDITS)
                     mc.Back();
+                else if (mc.Position == MenuPosition.MAIN)
+                    mc.Instructions();
                 break;
             case SwipeDirection.RIGHT:
                 if (mc.Position == MenuPosition.OPTIONS)

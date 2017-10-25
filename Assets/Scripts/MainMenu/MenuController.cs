@@ -13,6 +13,7 @@ public enum MenuPosition {
     OPTIONS,
     CREDITS,
     PLAY,
+    INSTRUCTIONS,
     SWIPEBLOCKED
 }
 
@@ -146,6 +147,13 @@ public class MenuController : MonoBehaviour {
 			Quit();
 			return;
 		
+		case "InstructionsMenu":
+
+			tag = "InstructionsMenu";
+			moveRoutine = sceneManager.MoveDown;
+			Instructions();
+			return;
+
 		default:
 			Debug.Log("Error");
 			break;
@@ -156,7 +164,7 @@ public class MenuController : MonoBehaviour {
 			// Spawn bullet hole
 			Vector2 pos = Input.GetTouch(0).position; // Touch position
 			/*
-            // TO DO: this.buttons does not currently have the desired value
+            // TODO: this.buttons does not currently have the desired value
 			foreach (Button b in this.buttons){
 				
 				RectTransform rect = b.GetComponent<RectTransform>();
@@ -227,6 +235,18 @@ public class MenuController : MonoBehaviour {
 		EnableGameObject(names);
         sceneManager.MoveUp();
         position = MenuPosition.CREDITS;
+	}
+
+	public void Instructions(){
+		List<string> names = new List<string>();
+
+		foreach(GameObject go in this.menus)
+			if(go.name.Equals("InstructionsMenu"))
+				names.Add(go.name);
+
+		EnableGameObject(names);
+        sceneManager.MoveDown();
+        position = MenuPosition.INSTRUCTIONS;
 	}
 
 	public void Wifi(){
@@ -381,19 +401,22 @@ public class MenuController : MonoBehaviour {
 
     public void Back() {
 
-
         if (!sceneManager.Moving) {
             switch (position) {
-                case MenuPosition.CREDITS:
-                    sceneManager.MoveDown();
-                    break;
-                case MenuPosition.OPTIONS:
-                    sceneManager.MoveRight();
-                    break;
-                case MenuPosition.PLAY:
-                    sceneManager.MoveLeft();
-                    break;
+            case MenuPosition.CREDITS:
+                sceneManager.MoveDown();
+                break;
+            case MenuPosition.INSTRUCTIONS:
+                sceneManager.MoveUp();
+                break;
+            case MenuPosition.OPTIONS:
+                sceneManager.MoveRight();
+                break;
+            case MenuPosition.PLAY:
+                sceneManager.MoveLeft();
+                break;
             }
+
             position = MenuPosition.MAIN;
 
             List<string> names = new List<string>();
