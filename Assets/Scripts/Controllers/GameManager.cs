@@ -274,11 +274,13 @@ public class GameManager : MonoBehaviour {
 	IEnumerator StartCountdownTimer(State s){
 
 		for (int i = 0; i < 3; i++){
+            GameObject.FindGameObjectWithTag("Countdown").GetComponent<Text>().text = "" + (3 - i);
 			yield return new WaitForSeconds(1);
 			Debug.Log("Starting game in " + (3-i));
 		}
-
-		timerObject = GameObject.Instantiate(timerPrefab);
+        
+        GameObject.Destroy(GameObject.FindGameObjectWithTag("Countdown"));
+        timerObject = GameObject.Instantiate(timerPrefab);
 		timerObject.transform.SetParent(canvasObject.transform, false);
 		timer = timerObject.GetComponent<Timer>();
 		currentState = State.TURN_START;
