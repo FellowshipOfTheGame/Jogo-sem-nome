@@ -306,7 +306,6 @@ public class MenuController : MonoBehaviour {
 		wifi.isHost = false;
 
 		// Join server
-		Debug.Log("[Debug] User Input IP: " + userInputIP);
 		wifi.SetIpAddress(userInputIP);
 		wifi.Connect();
 	}

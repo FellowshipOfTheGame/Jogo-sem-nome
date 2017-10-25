@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public enum Animation: byte { NOAMMO, CANATK, NODEF, CANDEF, NOREL, CANREL, NOTHING, DEATH, ATKHIT, ATKMISS, DEFHIT, DEFMISS, RELOK, RELFAIL, DEFFAIL, TUMBLEWEED}
@@ -8,9 +9,11 @@ public enum Action : byte { NOOP, ATK, DEF, REL , NOANSWER, NOCONNECTION}
 // Recebe as mensagens do player e do inimigo conectado, avalia o comando nesse turno e envia o resultado calculado para os dois
 public class GameManager : MonoBehaviour {
 
-	enum State : byte { MENU, RESULT, TURN_START, WAITING, RESPONSE}
+	private enum State : byte { MENU, RESULT, TURN_START, WAITING, RESPONSE}
 
 	private Player localPlayer, enemyPlayer;
+	[UnityEngine.SerializeField]
+	private Text countdown;
 	private Timer timer;
 	private GameObject timerObject;
 	private GameObject canvasObject;
@@ -27,7 +30,8 @@ public class GameManager : MonoBehaviour {
 	private int tries;
 	public Connection connection;
 	public SceneChanger sc;
-	public GameObject playerPrefab, enemyPrefab, timerPrefab, victorySign, drawSign, defeatSignLeft, defeatSignRight, tumbleweed;
+	public GameObject playerPrefab, enemyPrefab, timerPrefab;
+	public GameObject victorySign, drawSign, defeatSignLeft, defeatSignRight, tumbleweed;
 
 	private int maxDefenses;
 	private int maxBullets;
@@ -106,7 +110,7 @@ public class GameManager : MonoBehaviour {
 				animating = false;
 			}
 			// Caso o turno tenha acabado e o timer esteja em 0
-			if (timer.time <= 0 && !animating) {// Sempre que o timer não estiver ativo, uma ação deve ser realizada
+			if (timer.time <= 0 && !animating) { // Sempre que o timer não estiver ativo, uma ação deve ser realizada
 				// Caso necessário, reinicia o timer
 				if (!battleEnded) {
 					timer.StartTimer(countdownTime, SelectAction); // inicia o timer
@@ -150,14 +154,12 @@ public class GameManager : MonoBehaviour {
                 
             messageReceived = (enemyPlayer.action != Action.NOANSWER) && 
           					  (enemyPlayer.action != Action.NOCONNECTION);
-          	// messageReceived = (enemyPlayer.action != Action.NOCONNECTION);
-     		Debug.Log("[Debug]: message received: " + messageReceived);
             
-            if(messageReceived){
-                // Waits for message to be received. It's possible to put a timeout counter here.
-                // NOTE timeout is inside GetEnemyAction but its a bad idea
-                currentState = State.RESPONSE;
-            } else if (enemyPlayer.action == Action.NOCONNECTION){
+			// Waits for message to be received. It's possible to put a timeout
+			// counter here.
+			// NOTE: timeout is inside GetEnemyAction but its a bad idea
+            if(messageReceived) currentState = State.RESPONSE;
+            else if (enemyPlayer.action == Action.NOCONNECTION){
                 GameObject.Instantiate(drawSign);
                 localPlayer.PlayDraw();
                 sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 1.0f);
@@ -196,6 +198,13 @@ public class GameManager : MonoBehaviour {
 
 	// Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
 	public void StartBattle(){
+		
+		// Set Bullets/Defenses/Time BEFORE battleStarted = true
+		object retVal = new object();
+		connection.SetMessageType(Connection.MyMsgType.Config);
+		connection.GetMessage(ref retVal); // Get battle configurations settings
+		if(retVal != null) ProcessSettings(retVal as int?); // Process configs
+
 
 		stopwatch = endingDuration;
 		FindCanvas();
@@ -213,24 +222,23 @@ public class GameManager : MonoBehaviour {
 		enemyPlayer.Configure(maxDefenses, maxBullets);
 		
 		// Instancia e salva referencia para o timer
+		/* FIXME: Timer not working properly with Countdown Coroutine 
+				Moving this code inside that coroutine but should not need this.
 		timerObject = GameObject.Instantiate(timerPrefab);
 		timerObject.transform.SetParent(canvasObject.transform, false);
 		timer = timerObject.GetComponent<Timer>();
+		*/
 		
-		// Set Bullets/Defenses/Time BEFORE battleStarted = true
-		object retVal = new object();
-		connection.SetMessageType(Connection.MyMsgType.Config);
-		connection.GetMessage(ref retVal); // Get battle configurations settings
-		if(retVal != null) ProcessSettings(retVal as int?); // Process configs
-
 		// Seta as variáveis booleanas que indicam o estado da batalha
 		playerAnimFinished = false;
 		enemyAnimFinished = false;
 		animating = false;
 		battleStarted = true;
 		battleEnded = false;
-
-		currentState = State.TURN_START;
+		
+		// Start countdown to begin battle
+		Debug.Log("[Debug]: Calling coroutine");
+		StartCoroutine("StartCountdownTimer", State.TURN_START);
 	}
 
 	// Função a ser chamada quando acabar a batalha
@@ -259,11 +267,28 @@ public class GameManager : MonoBehaviour {
 		sc.LoadMenuScene(false);
 	}
 
+	private void SetState(State s){
+		currentState = s;
+	}
+
+	IEnumerator StartCountdownTimer(State s){
+
+		for (int i = 0; i < 3; i++){
+			yield return new WaitForSeconds(1);
+			Debug.Log("Starting game in " + (3-i));
+		}
+
+		timerObject = GameObject.Instantiate(timerPrefab);
+		timerObject.transform.SetParent(canvasObject.transform, false);
+		timer = timerObject.GetComponent<Timer>();
+		currentState = State.TURN_START;
+	}
+
 	public void SetPlayerAction(Action selectedAction) {
 		localPlayer.action = selectedAction;
 	}
 
-	private void SelectAction() {
+	private void SelectAction(){
 
 		// Avisa que o turno começou
 		animating = true;
@@ -316,7 +341,6 @@ public class GameManager : MonoBehaviour {
 			return Action.NOANSWER;
 		
 		default: // Error
-			Debug.Log("[Debug] Message: " + message);
 			throw new System.Exception("Invalid message received");
 		}
 	}
@@ -354,10 +378,5 @@ public class GameManager : MonoBehaviour {
 		this.maxDefenses = _config/100;
 		this.maxBullets = (_config%100)/10;
 		this.countdownTime = _config%10;
-
-		Debug.Log("config: " + _config); 
-		Debug.Log("maxDefenses: " + maxDefenses); 
-		Debug.Log("maxBullets: " + maxBullets); 
-		Debug.Log("countdownTime: " + countdownTime); 
 	}
 }
