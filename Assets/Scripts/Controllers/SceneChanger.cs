@@ -25,7 +25,7 @@ public class SceneChanger : MonoBehaviour {
 
     void Start() {
         Moving = false;
-        background.transform.position = new Vector3(3.115f, 6.25f, 0.0f);
+        background.transform.position = new Vector3(3.115f, 1.0f, 0.0f);
         target = background.transform.position;
         DontDestroyOnLoad(gameObject);
         LoadMenuScene(true);
@@ -119,6 +119,9 @@ public class SceneChanger : MonoBehaviour {
 
         // If it's coming back from the battle scene, moves background
         if (!gameStart) {
+            AudioSource[] sources = GetComponents<AudioSource>();
+            foreach (AudioSource s in sources)
+                s.volume = 1.0f;
             MoveLeft();
             MoveLeft();
             // And queues a function that simulates the play button being pressed

@@ -125,6 +125,7 @@ public class GameManager : MonoBehaviour {
 
                     // Creates the sign to indicate battle result
                     sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 1.0f);
+                    GameObject.Find("RightCollider").GetComponent<AudioSource>().Play();
                     switch (result) {
                     case Result.VICTORY:
 						GameObject.Instantiate(victorySign);
@@ -162,6 +163,9 @@ public class GameManager : MonoBehaviour {
             else if (enemyPlayer.action == Action.NOCONNECTION){
                 GameObject.Instantiate(drawSign);
                 localPlayer.PlayDraw();
+                AudioSource[] sources = sc.GetComponents<AudioSource>();
+                foreach (AudioSource s in sources)
+                    s.volume = 0.5f;
                 sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 1.0f);
             	Debug.Log("[Debug]: Connection dropped");
                 currentState = State.RESULT;
@@ -170,8 +174,10 @@ public class GameManager : MonoBehaviour {
         case State.RESPONSE:
             // Executes the response base on received message
             // Tumbleweed
-            if (localPlayer.action == Action.NOOP && enemyPlayer.action == Action.NOOP)
-                GameObject.Instantiate(tumbleweed);
+            if (localPlayer.action == Action.NOOP && enemyPlayer.action == Action.NOOP) {
+                    GameObject.Instantiate(tumbleweed);
+                    localPlayer.PlayBatata();
+                }
             // Realiza as ações selecionadas
             Animation localAnimation = localPlayer.DoAction();
             Animation enemyAnimation = enemyPlayer.DoAction();

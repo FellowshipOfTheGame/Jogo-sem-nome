@@ -13,8 +13,17 @@ public class Player : MonoBehaviour {
 
     public Action action { get; set; }
     public bool alive { get; private set; }
-    public AudioClip shotFired, shotFailed, shotBlocked, reload, victory, defeat, draw;
+    public AudioClip shotFired, shotFailed, shotBlocked, reload, victory, defeat, draw, batata, slap;
     public float volume = 1.0f;
+
+    public void PlaySlap() {
+        // TO DO: if the sound is attached to the player and enemy prefabs, this line can be uncommented
+        //GetComponent<AudioSource>().PlayOneShot(slap, volume);
+    }
+
+    public void PlayBatata() {
+        GetComponent<AudioSource>().PlayOneShot(batata, volume);
+    }
 
     public void PlayDefeat() {
         GetComponent<AudioSource>().PlayOneShot(defeat, volume);
