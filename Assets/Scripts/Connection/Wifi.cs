@@ -71,7 +71,7 @@ public class Wifi : Connection {
 			remoteClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
 			remoteClient.RegisterHandler(MsgType.Error, OnError);
 			// this.networkAddress = "172.26.195.238"; // Debug
-			this.networkAddress = "192.168.0.22"; // Debug
+			// this.networkAddress = "192.168.0.22"; // Debug
 			Debug.Log("[Debug]: Connecting to " + networkAddress);
 			remoteClient.Connect(networkAddress, networkPort);
 		}
@@ -125,7 +125,7 @@ public class Wifi : Connection {
 		switch(this.type){
 		case (short) MyMsgType.Config:
 			if(configs.Count > 0) retVal = configs.Dequeue(); // Int message
-			else {Debug.Log("[Debug]: isHost? " + isHost); ret = isHost;} 	// Host doesnt need to get configuration 
+			else ret = isHost; 	// Host doesnt need to get configuration 
 								// messages, so if isHost is true, just 
 								// assume everything is allright
 			break;
@@ -149,7 +149,6 @@ public class Wifi : Connection {
 		if(!MyMsgType.IsDefined(typeof(MyMsgType), type)) 
 			throw new InvalidMessageTypeException();
 
-		Debug.Log("[Debug]: Setting message type as " + type);
 		this.type = (short) type;
 		return true;
 	}
@@ -187,7 +186,6 @@ public class Wifi : Connection {
 
 		configs.Enqueue(config);
 		Debug.Log("[Debug] Config message handler received: \"" + configs.Peek() + "\"");
-		Debug.Log("[Debug] config: \"" + config + "\"");
 
 		if(!isHost){
 			// Wait for a second to better synchronize local and remote clients
@@ -226,7 +224,6 @@ public class Wifi : Connection {
 	/************************/
 	public void OnConnected(NetworkMessage netMsg){
 		
-		Debug.Log("[Debug]: Client connected! Sending start message...");
 		SetMessageType(MyMsgType.Action);
 		
 		if(!OtterSendMessage("START"))

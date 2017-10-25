@@ -9,11 +9,13 @@ public class Timer : MonoBehaviour {
     private float maxTime, firstPosition, currentPosition, fuseSize;
     private int currentIndex;
     private VoidFunction timerFunction;
+    public float time { get; private set; }
+    
+    // Game specific variables
     private GameObject[] fuse;
     private GameObject barrel, tip;
     public float speed;
     public int nFuses;
-    public float time { get; private set; }
 
     // Use this for initialization
     void Awake () {
@@ -43,20 +45,23 @@ public class Timer : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        
         // Updates timer if needed
         if (counting)
             UpdateTimer();
+        
         // Calculates new tip position
         int targetIndex = Mathf.FloorToInt((time / maxTime) * nFuses);
         float targetPosition = firstPosition + (targetIndex * fuseSize);
         currentPosition = tip.GetComponent<RectTransform>().anchoredPosition.x;
         currentIndex = Mathf.FloorToInt((currentPosition - firstPosition) / fuseSize);
+        
         // If the new position is to the left of the current one, moves tip deactivating the fuse components
         if (targetIndex < currentIndex) {
             for (int i = currentIndex; i > targetIndex && i > 0; i--) {
                 fuse[i - 1].SetActive(false);
             }
-            // If the new position is to the right of the current one, moves tip activating the components instead
+        // If the new position is to the right of the current one, moves tip activating the components instead
         } else if (targetIndex > currentIndex) {
             for (int i = currentIndex; i < targetIndex && i < nFuses - 1; i++) {
                 fuse[i].SetActive(true);
