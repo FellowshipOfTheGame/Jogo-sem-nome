@@ -63,6 +63,8 @@ public class SwipeController : MonoBehaviour {
             case SwipeDirection.UP:
                 if (mc.Position == MenuPosition.MAIN)
                     mc.Crebitz();
+                else if(mc.Position == MenuPosition.INSTRUCTIONS)
+                    mc.Back();
                 break;
             case SwipeDirection.DOWN:
                 if (mc.Position == MenuPosition.CREDITS)
