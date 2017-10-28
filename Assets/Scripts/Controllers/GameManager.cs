@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour {
 	private float countdownTime, messageWaitTime;
 
 	private Button shoot, reload, defend;
+    private ColorBlock activeColors, inactiveColors;
 
 	public int MaxDefenses {
 		get { return maxDefenses; }
@@ -99,21 +100,9 @@ public class GameManager : MonoBehaviour {
 		// Loop de batalha
 		case State.TURN_START:
 
-			if(shoot == null){
-				shoot = GameObject.Find("Canvas/BattleButtons/Attack").
-					GetComponent<Button>();
-				reload = GameObject.Find("Canvas/BattleButtons/Reload").
-					GetComponent<Button>();
-				defend = GameObject.Find("Canvas/BattleButtons/Guard").
-					GetComponent<Button>();
-			}
-
-			ColorBlock cw = shoot.colors;
-			cw.normalColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
-
-			shoot.colors = cw;
-			defend.colors = cw;
-			reload.colors = cw;
+			shoot.colors = inactiveColors;
+			defend.colors = inactiveColors;
+			reload.colors = inactiveColors;
 
 			// Verifica se o player já acabou sua animação e caso true armazena esse resultado
 			if (!playerAnimFinished) {
@@ -147,8 +136,8 @@ public class GameManager : MonoBehaviour {
                     // Creates the sign to indicate battle result
                     AudioSource[] sources = sc.GetComponents<AudioSource>();
                     foreach (AudioSource s in sources)
-                        s.volume = 0.5f;
-                    sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 1.0f);
+                        s.volume = 0.2f;
+                    sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 2.0f);
                     GameObject.Find("RightCollider").GetComponent<AudioSource>().Play();
                     switch (result) {
                     case Result.VICTORY:
@@ -189,21 +178,19 @@ public class GameManager : MonoBehaviour {
                 localPlayer.PlayDraw();
                 AudioSource[] sources = sc.GetComponents<AudioSource>();
                 foreach (AudioSource s in sources)
-                    s.volume = 0.5f;
-                sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 1.0f);
+                    s.volume = 0.2f;
+                sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, endingDuration + 2.0f);
             	Debug.Log("[Debug]: Connection dropped");
                 currentState = State.RESULT;
             }
             break;
         case State.RESPONSE:
-        
-            // Executes the response base on received message
-        	cw = shoot.colors;
-			cw.normalColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 
-			shoot.colors = cw;
-			defend.colors = cw;
-			reload.colors = cw;
+			shoot.colors = inactiveColors;
+			defend.colors = inactiveColors;
+			reload.colors = inactiveColors;
+
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
 
             // Tumbleweed
             if (localPlayer.action == Action.NOOP && enemyPlayer.action == Action.NOOP) {
@@ -236,9 +223,21 @@ public class GameManager : MonoBehaviour {
 
 	// Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
 	public void StartBattle(){
-		
-		// Set Bullets/Defenses/Time BEFORE battleStarted = true
-		object retVal = new object();
+        
+        shoot = GameObject.Find("Canvas/BattleButtons/Attack").
+            GetComponent<Button>();
+        reload = GameObject.Find("Canvas/BattleButtons/Reload").
+            GetComponent<Button>();
+        defend = GameObject.Find("Canvas/BattleButtons/Guard").
+            GetComponent<Button>();
+
+        inactiveColors = shoot.colors;
+        inactiveColors.normalColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        activeColors = shoot.colors;
+        activeColors.normalColor = new Color(0.5f, 0.5f, 0.5f, 1.0f);
+
+        // Set Bullets/Defenses/Time BEFORE battleStarted = true
+        object retVal = new object();
 		connection.SetMessageType(Connection.MyMsgType.Config);
 		connection.GetMessage(ref retVal); // Get battle configurations settings
 		if(retVal != null) ProcessSettings(retVal as int?); // Process configs
@@ -326,20 +325,18 @@ public class GameManager : MonoBehaviour {
 
 		localPlayer.action = selectedAction;
 
-		ColorBlock cg = shoot.colors;
-		cg.normalColor = new Color(0.5f, 0.5f, 0.5f, 1.0f);
 
 		switch(selectedAction){
 		case Action.ATK:
-			shoot.colors = cg;
+			shoot.colors = activeColors;
 			return;
 
 		case Action.DEF:
-			defend.colors = cg;
+			defend.colors = activeColors;
 			return;
 
 		case Action.REL:
-			reload.colors = cg;
+			reload.colors = activeColors;
 			return;
 		}
 	}
