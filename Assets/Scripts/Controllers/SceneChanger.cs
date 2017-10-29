@@ -129,6 +129,7 @@ public class SceneChanger : MonoBehaviour {
             SceneManager.sceneLoaded += FindTheCanvas;
             queuedFunction = FunctionQueue.MenuFirst;
         }
+        Destroy(GameObject.FindGameObjectWithTag("MenuController"));
         SceneManager.LoadScene("MainMenu");
     }
 

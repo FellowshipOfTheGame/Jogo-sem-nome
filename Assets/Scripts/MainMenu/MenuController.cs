@@ -193,7 +193,7 @@ public class MenuController : MonoBehaviour {
 		List<string> names = new List<string>();
 
 		foreach(GameObject go in this.menus)
-			if(go.name.Equals("PlayMenu"))
+			if(go != null && go.name.Equals("PlayMenu"))
 				names.Add(go.name);
 
 		EnableGameObject(names);

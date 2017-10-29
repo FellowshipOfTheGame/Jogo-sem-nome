@@ -70,17 +70,27 @@ public class Wifi : Connection {
 			remoteClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
 			remoteClient.RegisterHandler(MsgType.Error, OnError);
 			// this.networkAddress = "172.26.195.238"; // Debug
-			// this.networkAddress = "192.168.0.22"; // Debug
+			this.networkAddress = "192.168.0.22"; // Debug
 			Debug.Log("[Debug]: Connecting to " + networkAddress);
 			remoteClient.Connect(networkAddress, networkPort);
-            if (!remoteClient.isConnected) {
-                Debug.Log("[Debug]: Falied to connect to " + networkAddress);
-                remoteClient.Shutdown();
-                remoteClient = null;
-                return false;
-            }
-		}
+        }
 		return true;
+	}
+
+	public override bool CloseConnection(){
+        
+        if(localClient != null){
+            localClient.Disconnect();
+            localClient.Shutdown();
+        }
+        
+        if(remoteClient != null){
+            remoteClient.Disconnect();
+            remoteClient.Shutdown();
+        }
+
+        NetworkManager.Shutdown();
+	    return true;
 	}
 
 	// These functions always set msg type to null to force user to always set 
@@ -201,19 +211,6 @@ public class Wifi : Connection {
 		}
 	}
 
-	public override bool CloseConnection(){
-        if (localClient != null) {
-            localClient.Disconnect();
-            localClient.Shutdown();
-        }
-        if (remoteClient != null) {
-            remoteClient.Disconnect();
-            remoteClient.Shutdown();
-        }
-        NetworkManager.Shutdown();
-	    return true;
-	}
-
 	public void SetPlayerPrefab(GameObject pp){ this.playerPrefab = pp; }
 	public void SetIpAddress(string remoteIp){ this.networkAddress = remoteIp; }
 
@@ -254,5 +251,6 @@ public class Wifi : Connection {
 
 	public void OnError(NetworkMessage netMsg){
 		Debug.Log("[FATAL]: Error connecting - Vish deu ruim :c");
+		CloseConnection();
 	}
 }
