@@ -81,19 +81,16 @@ public class DoubleAudioSource : MonoBehaviour {
     #endregion
 
 
-    //gradually shifts the sound comming from our audio sources to the this clip:
+    // gradually shifts the sound comming from our audio sources to the this clip:
     // maxVolume should be in 0-to-1 range
-    public void CrossFade(AudioClip clipToPlay, float maxVolume, float fadingTime, float delay_before_crossFade = 0) {
+    public void CrossFade(AudioClip clipToPlay, float maxVolume, float fadingTime, float delay_between_crossFade = 0) {
         //var fadeRoutine = StartCoroutine(Fade(clipToPlay, maxVolume, fadingTime, delay_before_crossFade));
-        StartCoroutine(Fade(clipToPlay, maxVolume, fadingTime, delay_before_crossFade));
+        StartCoroutine(Fade(clipToPlay, maxVolume, fadingTime, delay_between_crossFade));
 
     }//end CrossFade()
 
 
-    IEnumerator Fade(AudioClip playMe, float maxVolume, float fadingTime, float delay_before_crossFade = 0) {
-        if (delay_before_crossFade > 0) {
-            yield return new WaitForSeconds(delay_before_crossFade);
-        }
+    IEnumerator Fade(AudioClip playMe, float maxVolume, float fadingTime, float delay_between_crossFade = 0) {
 
         AudioSource curActiveSource, newActiveSource;
         if (cur_is_source0) {
@@ -122,6 +119,11 @@ public class DoubleAudioSource : MonoBehaviour {
         }
 
         _curSourceFadeRoutine = StartCoroutine(fadeSource(curActiveSource, curActiveSource.volume, 0, fadingTime));
+
+        if (delay_between_crossFade > 0) {
+            yield return new WaitForSeconds(delay_between_crossFade);
+        }
+
         _newSourceFadeRoutine = StartCoroutine(fadeSource(newActiveSource, newActiveSource.volume, maxVolume, fadingTime));
 
         cur_is_source0 = !cur_is_source0;

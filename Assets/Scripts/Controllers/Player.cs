@@ -26,7 +26,7 @@ public class Player : MonoBehaviour {
     }
 
     public void PlayDefeat() {
-        GetComponent<AudioSource>().PlayOneShot(defeat, volume);
+        GetComponent<AudioSource>().PlayOneShot(defeat, volume * 1.5f);
     }
 
     public void PlayDraw() {
@@ -193,7 +193,6 @@ public class Player : MonoBehaviour {
             case Animation.RELFAIL:
             case Animation.DEFFAIL:
                 anim.SetTrigger("overLimit");
-                Debug.Log("ativou");
                 shouldShake = true;
                 break;
             case Animation.DEATH:

@@ -27,8 +27,7 @@ public class Wifi : Connection {
 		this.actions = new Queue<string>();
 		this.configs = new Queue<int>();
 
-		this.gm = GameObject.FindGameObjectWithTag("GameManager").
-			GetComponent<GameManager>();
+		this.gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
 	}
 
 	/**********************************/
@@ -63,9 +62,9 @@ public class Wifi : Connection {
 			if(remoteClient == null){
 				Debug.Log("[FATAL] Failed to initialize client.");
 				return false;
-			}
+            }
 
-			remoteClient.RegisterHandler((short) MyMsgType.Action, HandleActionMessage);
+            remoteClient.RegisterHandler((short) MyMsgType.Action, HandleActionMessage);
 			remoteClient.RegisterHandler((short) MyMsgType.Config, HandleConfigMessage);
 			remoteClient.RegisterHandler(MsgType.Connect, OnConnected);
 			remoteClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
@@ -74,6 +73,12 @@ public class Wifi : Connection {
 			// this.networkAddress = "192.168.0.22"; // Debug
 			Debug.Log("[Debug]: Connecting to " + networkAddress);
 			remoteClient.Connect(networkAddress, networkPort);
+            if (!remoteClient.isConnected) {
+                Debug.Log("[Debug]: Falied to connect to " + networkAddress);
+                remoteClient.Shutdown();
+                remoteClient = null;
+                return false;
+            }
 		}
 		return true;
 	}
@@ -197,7 +202,15 @@ public class Wifi : Connection {
 	}
 
 	public override bool CloseConnection(){
-		NetworkManager.Shutdown();
+        if (localClient != null) {
+            localClient.Disconnect();
+            localClient.Shutdown();
+        }
+        if (remoteClient != null) {
+            remoteClient.Disconnect();
+            remoteClient.Shutdown();
+        }
+        NetworkManager.Shutdown();
 	    return true;
 	}
 

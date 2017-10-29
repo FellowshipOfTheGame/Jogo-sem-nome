@@ -13,7 +13,7 @@ public class Timer : MonoBehaviour {
     
     // Game specific variables
     private GameObject[] fuse;
-    private GameObject barrel, tip;
+    private GameObject tip;
     public float speed;
     public int nFuses;
 
@@ -33,8 +33,6 @@ public class Timer : MonoBehaviour {
                 }
             } else if (child.gameObject.tag == "Tip")
                 tip = child.gameObject;
-            else if (child.gameObject.tag == "Barrel")
-                barrel = child.gameObject;
         }
         fuseSize = fuse[1].GetComponent<RectTransform>().anchoredPosition.x - fuse[0].GetComponent<RectTransform>().anchoredPosition.x;
         firstPosition = fuse[0].GetComponent<RectTransform>().anchoredPosition.x - (fuseSize/2);

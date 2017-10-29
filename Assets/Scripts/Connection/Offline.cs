@@ -8,20 +8,27 @@ public class Offline : Connection {
     private short type = (short) MyMsgType.Null;
     private int nBullets;
     private int consecutiveDefs;
-    
+    private bool justDidNothing;
+
     private bool IsValidChoice(int choice) {
-        if (choice == 1 && nBullets <= 0)
-            return false;
-        if (choice == 2 && consecutiveDefs >= (gm.MaxDefenses - 1))
-            return false;
-        if (choice == 3 && nBullets >= (gm.MaxBullets - 1))
-            return false;
+        switch (choice) {
+        case 0:
+        return !justDidNothing;
+        case 1:
+        return nBullets > 0;
+        case 2:
+        return consecutiveDefs < gm.MaxDefenses;
+        case 3:
+        return nBullets < gm.MaxBullets;
+        default:
         return true;
+        }
     }
 
     void Start(){
         nBullets = 0;
         consecutiveDefs = 0;
+        justDidNothing = false;
         this.gm = GameObject.FindGameObjectWithTag("GameManager").
             GetComponent<GameManager>();
     }
@@ -48,15 +55,25 @@ public class Offline : Connection {
             switch(choice) {
             case 0:
                 retVal = "NOOP";
+                justDidNothing = true;
+                consecutiveDefs = 0;
                 return true;
             case 1:
+                justDidNothing = false;
                 retVal = "ATK";
+                consecutiveDefs = 0;
+                nBullets--;
                 return true;
             case 2:
+                justDidNothing = false;
                 retVal = "DEF";
+                consecutiveDefs++;
                 return true;
             case 3:
+                justDidNothing = false;
                 retVal = "REL";
+                consecutiveDefs = 0;
+                nBullets++;
                 return true;
             default:
                 Debug.Log("This REALLY shouldn't happen");

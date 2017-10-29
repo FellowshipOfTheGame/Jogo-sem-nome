@@ -30,8 +30,6 @@ public class MenuController : MonoBehaviour {
     private string userInputIP = null;
 
     private GameObject[] menus = null;
-    private Button[] buttons = null;
-    private Slider[] sliders = null;
 
     private MoveEvent moveRoutine = null;
 
@@ -327,7 +325,10 @@ public class MenuController : MonoBehaviour {
 
 		// Join server
 		wifi.SetIpAddress(userInputIP);
-		wifi.Connect();
+        if (!wifi.Connect()) {
+            Destroy(wifi);
+            this.connection = null;
+        }
 	}
 
 	public void Bluetooth() {
@@ -344,7 +345,7 @@ public class MenuController : MonoBehaviour {
     }
 
 	public void Offline(){
-        // NOTE: For testing reasons, there is no prompt or confirmation
+        // NOTE: there is no prompt or confirmation
         connection = gm.gameObject.AddComponent<Offline>();
         sceneManager.LoadBattleScene(connection);
 	}
@@ -364,7 +365,13 @@ public class MenuController : MonoBehaviour {
         serverIp.gameObject.SetActive(false);
 
         if (this.connection) {
+            Wifi wifi = connection as Wifi;
+            if(wifi.isHost)
+                wifi.StopHost();
+            Debug.Log("[Debug]: Stopped hosting");
+
             connection.CloseConnection();
+            Destroy(connection);
             connection = null;
         }
 
