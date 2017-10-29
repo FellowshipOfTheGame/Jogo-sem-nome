@@ -289,7 +289,7 @@ public class GameManager : MonoBehaviour {
 		
 		Destroy(timerObject);
 		connection.CloseConnection();
-		Destroy(connection);
+		Destroy(connection.gameObject);
 		
 		timerObject = null;
 		connection = null;

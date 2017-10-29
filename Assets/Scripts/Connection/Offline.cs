@@ -6,8 +6,22 @@ public class Offline : Connection {
 
     private GameManager gm;
     private short type = (short) MyMsgType.Null;
+    private int nBullets;
+    private int consecutiveDefs;
     
+    private bool IsValidChoice(int choice) {
+        if (choice == 1 && nBullets <= 0)
+            return false;
+        if (choice == 2 && consecutiveDefs >= (gm.MaxDefenses - 1))
+            return false;
+        if (choice == 3 && nBullets >= (gm.MaxBullets - 1))
+            return false;
+        return true;
+    }
+
     void Start(){
+        nBullets = 0;
+        consecutiveDefs = 0;
         this.gm = GameObject.FindGameObjectWithTag("GameManager").
             GetComponent<GameManager>();
     }
@@ -25,8 +39,12 @@ public class Offline : Connection {
         if(this.type == (short) MyMsgType.Action){
 
             type = (short) MyMsgType.Null;
-            
-            int choice = Random.Range(0, 4);
+
+            int choice;
+            do {
+                choice = Random.Range(0, 4);
+            } while (!IsValidChoice(choice));
+
             switch(choice) {
             case 0:
                 retVal = "NOOP";
