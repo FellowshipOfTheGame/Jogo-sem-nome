@@ -280,12 +280,13 @@ public class MenuController : MonoBehaviour {
 			connection = null;
 		}
 
-		Wifi wifi = gameObject.AddComponent<Wifi>();
-		this.connection = wifi; // Store a reference to this connection
-		
+        
+        this.connection = gm.gameObject.AddComponent<Wifi>(); // Store a reference to this connection
+        Wifi wifi = this.connection as Wifi;
+
 		this.localIp.gameObject.SetActive(true);
-		localIp.text = "Your IP: " + (this.connection as Wifi).GetLocalIp();
-		
+		localIp.text = "Your IP: " + wifi.LocalIp;
+
 		foreach(GameObject go in this.menus){
 			if(go.name.Equals("ServerMenu"))
 				go.SetActive(true);
@@ -316,7 +317,7 @@ public class MenuController : MonoBehaviour {
 			connection = null;
 		}
 
-		Wifi wifi = gameObject.AddComponent<Wifi>();
+		Wifi wifi = gm.gameObject.AddComponent<Wifi>();
 		this.connection = wifi; // Store a reference to this connection
 
 		// Set prefab
@@ -371,7 +372,6 @@ public class MenuController : MonoBehaviour {
             Debug.Log("[Debug]: Stopped hosting");
 
             connection.CloseConnection();
-            Destroy(connection);
             connection = null;
         }
 

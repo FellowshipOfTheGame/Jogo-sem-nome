@@ -34,7 +34,10 @@ public class Offline : Connection {
     }
 
     public override bool Connect(){ return true; }
-    public override bool CloseConnection(){ return true; }
+    public override bool CloseConnection(){
+        Destroy(this);
+        return true;
+    }
     
     public override bool OtterSendMessage(object msg){ 
         type = (short) MyMsgType.Null;

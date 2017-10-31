@@ -126,6 +126,7 @@ public class GameManager : MonoBehaviour {
 					timer.StartTimer(countdownTime, SelectAction); // inicia o timer
 				// Senão, acaba a batalha
 				} else {
+                    connection.CloseConnection();
 					// Avalia qual foi o resultado
 					Result result = localPlayer.alive ? 
 										Result.VICTORY : 
@@ -282,8 +283,8 @@ public class GameManager : MonoBehaviour {
 		playerObjects[0] = playerObjects[1] = null;
 		
 		Destroy(timerObject);
-		connection.CloseConnection();
-		Destroy(connection);
+        // If the connection fails, this was already called
+		//connection.CloseConnection();
 		
 		timerObject = null;
 		connection = null;

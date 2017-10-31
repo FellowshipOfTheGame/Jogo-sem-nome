@@ -16,7 +16,9 @@ public class Wifi : Connection {
 	private Queue<string> actions;
 	private Queue<int> configs;
 
-	public void Start(){
+    public string LocalIp { get { return localIp; }}
+
+	public void Awake(){
 
 		this.localIp = GetLocalIp();
 
@@ -90,6 +92,7 @@ public class Wifi : Connection {
         }
 
         NetworkManager.Shutdown();
+        Destroy(this);
 	    return true;
 	}
 
