@@ -14,6 +14,7 @@ public class ShakeableObject : MonoBehaviour {
         shaking = false;
     }
 
+    // Saves initial position and starts the countdown
     public void Shake() {
         startPosition = transform.position;
         shaking = true;
@@ -22,11 +23,15 @@ public class ShakeableObject : MonoBehaviour {
     
 	void Update () {
         if (shaking) {
+            // While the countdown is not over
             if (currentTime > 0.0f) {
+                // Moves to a random position inside the defined radius
                 Vector2 randomPosition = Random.insideUnitCircle * shakeRange;
                 transform.position = new Vector3(startPosition.x + randomPosition.x, startPosition.y + randomPosition.y, startPosition.z);
+                // Counts down
                 currentTime -= Time.deltaTime;
             } else {
+                // Sets the object back to the starting position and timer to zero
                 currentTime = 0.0f;
                 shaking = false;
                 transform.position = startPosition;

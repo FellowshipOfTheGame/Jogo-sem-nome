@@ -2,6 +2,7 @@
 using System.Collections;
 
 // Responsavel por ter as informacoes do player e enviar as acoes realizadas para o GameManager
+[RequireComponent(typeof(ShakeableObject))]
 public class Player : MonoBehaviour {
 
 	private int defCount, defMax;
@@ -10,6 +11,7 @@ public class Player : MonoBehaviour {
     private bool shouldShake = false;
     private Animator anim;
     private bool finishedAnimation;
+    private ShakeableObject so;
 
     public Action action { get; set; }
     public bool alive { get; private set; }
@@ -52,10 +54,8 @@ public class Player : MonoBehaviour {
         GetComponent<AudioSource>().PlayOneShot(shotFired, volume);
     }
 
+    // Verifica se o player deve tremer, e se for o caso causa a tremedeira
     public void CheckShake() {
-
-        ShakeableObject so = GetComponent<ShakeableObject>();
-
         if (so != null && shouldShake) {
             so.Shake();
             shouldShake = false;
@@ -97,6 +97,7 @@ public class Player : MonoBehaviour {
         anim = gameObject.GetComponent<Animator>();
         finishedAnimation = false;
         shouldShake = false;
+        so = GetComponent<ShakeableObject>();
 	}
 
 	// Realiza a ação desejada

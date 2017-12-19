@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Bluetooth : Connection {
 
+    // Not implemented
 	public override bool Connect(){
         return false;
 	}

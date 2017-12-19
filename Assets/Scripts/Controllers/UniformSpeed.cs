@@ -14,7 +14,9 @@ public class UniformSpeed : MonoBehaviour {
     }
 
     void FixedUpdate () {
+        // Normalize the direction defined through the unity editor
         direction.Normalize();
+        // Applies the desired speed to the object
         if(direction.x == 0.0f)
             rb.velocity = new Vector2(rb.velocity.x, direction.y * speed);
         else if (direction.y == 0.0f)

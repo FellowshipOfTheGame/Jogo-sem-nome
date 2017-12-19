@@ -23,6 +23,7 @@ public class Timer : MonoBehaviour {
         counting = false;
         timerFunction = null;
         fuse = new GameObject[nFuses];
+        // Activates all the fuses that should be activated and saves a reference to it
         foreach(Transform child in transform){
             if (child.gameObject.tag == "Fuse") {
                 string positionString = child.gameObject.name.Split(' ')[1];
@@ -31,9 +32,11 @@ public class Timer : MonoBehaviour {
                     fuse[position] = child.gameObject;
                     child.gameObject.SetActive(true);
                 }
+            // Saves a reference to the tip of the fuse
             } else if (child.gameObject.tag == "Tip")
                 tip = child.gameObject;
         }
+        // Saves values to be used when updating
         fuseSize = fuse[1].GetComponent<RectTransform>().anchoredPosition.x - fuse[0].GetComponent<RectTransform>().anchoredPosition.x;
         firstPosition = fuse[0].GetComponent<RectTransform>().anchoredPosition.x - (fuseSize/2);
         currentPosition = firstPosition + (nFuses * fuseSize);

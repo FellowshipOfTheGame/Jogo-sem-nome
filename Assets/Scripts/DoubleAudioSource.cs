@@ -6,6 +6,7 @@ using System.Collections;
 
 //audio source which holds a reference to Two audio sources, allowing to transition
 //between incoming sound and the previously played one.
+// NOTE: This script has been altered, but you only need to give credit to the original creator if you reuse it
 
 /*the idea is
 1) attach this component onto gameObject.
@@ -161,5 +162,4 @@ public class DoubleAudioSource : MonoBehaviour {
             return _source0.isPlaying || _source1.isPlaying;
         }//end get
     }
-
 }

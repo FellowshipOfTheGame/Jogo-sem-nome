@@ -10,6 +10,7 @@ public class Offline : Connection {
     private int consecutiveDefs;
     private bool justDidNothing;
 
+    // Makes sure the AI doesnt try to break the rules and does not stay idle twice in a row
     private bool IsValidChoice(int choice) {
         switch (choice) {
         case 0:
@@ -51,6 +52,7 @@ public class Offline : Connection {
             type = (short) MyMsgType.Null;
 
             int choice;
+            // Gets a random action until it is a valid choice
             do {
                 choice = Random.Range(0, 4);
             } while (!IsValidChoice(choice));

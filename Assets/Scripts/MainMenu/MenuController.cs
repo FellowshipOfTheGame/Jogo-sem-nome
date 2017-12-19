@@ -34,7 +34,8 @@ public class MenuController : MonoBehaviour {
     private MoveEvent moveRoutine = null;
 
     public MenuPosition Position { get { return position; } }
-    public GameObject bulletHole;
+    // Not implemented
+    //public GameObject bulletHole;
 	public GameObject playerPrefab;
 
 	public GameObject dummy;
@@ -159,7 +160,7 @@ public class MenuController : MonoBehaviour {
 
 		if(position != MenuPosition.CREDITS){
 			
-			// Spawn bullet hole
+			// Spawn bullet hole (Not Implemented)
 			Vector2 pos = Input.GetTouch(0).position; // Touch position
 			/*
             // TODO: this.buttons does not currently have the desired value
@@ -408,7 +409,7 @@ public class MenuController : MonoBehaviour {
 
     public void Back() {
 
-        if (!sceneManager.Moving) {
+        if (!sceneManager.moving) {
             switch (position) {
             case MenuPosition.CREDITS:
                 sceneManager.MoveDown();

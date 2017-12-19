@@ -9,7 +9,7 @@ public class SceneChanger : MonoBehaviour {
     private Vector3 target;
     private FunctionQueue queuedFunction;
     public float backgroundSpeed;
-    public bool Moving { get; private set; }
+    public bool moving { get; private set; }
 
     public GameManager gm;
     public Canvas cv;
@@ -24,7 +24,7 @@ public class SceneChanger : MonoBehaviour {
     }
 
     void Start() {
-        Moving = false;
+        moving = false;
         background.transform.position = new Vector3(3.115f, 1.0f, 0.0f);
         target = background.transform.position;
         DontDestroyOnLoad(gameObject);
@@ -59,27 +59,27 @@ public class SceneChanger : MonoBehaviour {
                 Debug.Log("The background should not have been moved along the z axis");
             }
         }else {
-            Moving = false;
+            moving = false;
         }
     }
 
     public void MoveUp() {
-        Moving = true;
+        moving = true;
         target = new Vector3(target.x, target.y - 10.52f, target.z);
     }
 
     public void MoveDown() {
-        Moving = true;
+        moving = true;
         target = new Vector3(target.x, target.y + 10.52f, target.z);
     }
 
     public void MoveRight() {
-        Moving = true;
+        moving = true;
         target = new Vector3(target.x - 6.21f, target.y, target.z);
         }
 
     public void MoveLeft() {
-        Moving = true;
+        moving = true;
         target = new Vector3(target.x + 6.21f, target.y, target.z);
     }
 

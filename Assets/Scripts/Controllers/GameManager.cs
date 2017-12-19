@@ -135,7 +135,7 @@ public class GameManager : MonoBehaviour {
 											Result.DRAW;
 
                     // Creates the sign to indicate battle result
-                    sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, 2.0f, endingDuration - 1.0f);
+                    sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, 1.0f, endingDuration - 1.0f);
                     GameObject.Find("RightCollider").GetComponent<AudioSource>().Play();
                     switch (result) {
                     case Result.VICTORY:
@@ -172,6 +172,7 @@ public class GameManager : MonoBehaviour {
 			// NOTE: timeout is inside GetEnemyAction but its a bad idea
             if(messageReceived) currentState = State.RESPONSE;
             else if (enemyPlayer.action == Action.NOCONNECTION){
+                // If the connection failed, connection.CloseConnection() was already called
                 GameObject.Instantiate(drawSign);
                 localPlayer.PlayDraw();
                 sc.GetComponent<DoubleAudioSource>().CrossFade(sc.menuBGM, 1.0f, 2.0f, endingDuration - 1.0f);
@@ -189,9 +190,9 @@ public class GameManager : MonoBehaviour {
 
             // Tumbleweed
             if (localPlayer.action == Action.NOOP && enemyPlayer.action == Action.NOOP) {
-                    GameObject.Instantiate(tumbleweed);
-                    localPlayer.PlayBatata();
-                }
+                GameObject.Instantiate(tumbleweed);
+                localPlayer.PlayBatata();
+            }
             // Realiza as ações selecionadas
             Animation localAnimation = localPlayer.DoAction();
             Animation enemyAnimation = enemyPlayer.DoAction();
@@ -219,6 +220,7 @@ public class GameManager : MonoBehaviour {
 	// Após a conexão ser estabelecida e for verificado que ela está funcionando, inicia-se a batalha
 	public void StartBattle(){
         
+        // Save reference to action buttons
         shoot = GameObject.Find("Canvas/BattleButtons/Attack").
             GetComponent<Button>();
         reload = GameObject.Find("Canvas/BattleButtons/Reload").
@@ -226,6 +228,7 @@ public class GameManager : MonoBehaviour {
         defend = GameObject.Find("Canvas/BattleButtons/Guard").
             GetComponent<Button>();
 
+        // Save inactive and active button colors
         inactiveColors = shoot.colors;
         inactiveColors.normalColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
         activeColors = shoot.colors;
@@ -265,8 +268,8 @@ public class GameManager : MonoBehaviour {
 		playerAnimFinished = false;
 		enemyAnimFinished = false;
 		animating = false;
-		battleStarted = true;
-		battleEnded = false;
+        battleEnded = false;
+        battleStarted = true;
 
 		// Start countdown to begin battle
 		Debug.Log("[Debug]: Calling coroutine");
@@ -303,13 +306,23 @@ public class GameManager : MonoBehaviour {
 
 	IEnumerator StartCountdownTimer(State s){
 
+        string rules = "Match Rules:\n\n Max " + maxDefenses + " defenses in a row\nMax " + maxBullets + " bullets saved\n"+ countdownTime + " seconds to choose action\n";
+        GameObject[] temp = GameObject.FindGameObjectsWithTag("Rules");
+        foreach (GameObject obj in temp) {
+            if (obj.name == "Rules")
+                obj.GetComponent<Text>().text = rules;
+        }
+
 		for (int i = 0; i < 3; i++){
             GameObject.FindGameObjectWithTag("Countdown").GetComponent<Text>().text = "" + (3 - i);
 			yield return new WaitForSeconds(1);
 			Debug.Log("Starting game in " + (3-i));
 		}
         
-        GameObject.Destroy(GameObject.FindGameObjectWithTag("Countdown"));
+        foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Countdown"))
+            GameObject.Destroy(obj);
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Rules"))
+            GameObject.Destroy(obj);
         timerObject = GameObject.Instantiate(timerPrefab);
 		timerObject.transform.SetParent(canvasObject.transform, false);
 		timer = timerObject.GetComponent<Timer>();
@@ -319,8 +332,7 @@ public class GameManager : MonoBehaviour {
 	public void SetPlayerAction(Action selectedAction){
 
 		localPlayer.action = selectedAction;
-
-
+        
 		switch(selectedAction){
 		case Action.ATK:
 			shoot.colors = activeColors;
@@ -346,6 +358,7 @@ public class GameManager : MonoBehaviour {
         currentState = State.WAITING;
 	}
 
+    // Receive the enemy action through the connection
 	private Action GetEnemyAction(){
 		
 		object retVal = new object();
@@ -392,6 +405,7 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+    // Send local action through the connection
 	private void SendLocalAction(Action localAction) {
 		
 		connection.SetMessageType(Connection.MyMsgType.Action);

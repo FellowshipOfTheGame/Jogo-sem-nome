@@ -16,6 +16,7 @@ public class UpdateSliderValue : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        // Make sure the text has the current value on the slider
         txt.text = "" + (int)slider.value;
 	}
 }

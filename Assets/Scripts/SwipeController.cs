@@ -28,23 +28,28 @@ public class SwipeController : MonoBehaviour {
         if (Input.touchCount > 0) {
             Touch touch = Input.GetTouch(0);
 
+            // If a new touch is detected, resets the variables
             if (touch.phase == TouchPhase.Began) {
                 deltaPosition = Vector2.zero;
                 deltaTime = 0.0f;
+            // If the touch ended, checks the movement done and applies it if necessary
             } else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) {
                 deltaPosition += touch.deltaPosition;
                 if (deltaTime <= timeTreshold && (Mathf.Abs(deltaPosition.x) >= distanceTreshold || Mathf.Abs(deltaPosition.y) >= distanceTreshold))
                     SwipeDetected(GetSwipeDirection(deltaPosition));
+            // Updates movement as needed
             } else if (touch.phase == TouchPhase.Moved) {
                 deltaPosition += touch.deltaPosition;
                 deltaTime += touch.deltaTime;
             }
+        // Resets variables when no touches occur
         } else {
             deltaPosition = Vector2.zero;
             deltaTime = 0.0f;
         }
 	}
 
+    // Gets swipe direction based on screen movement
     private SwipeDirection GetSwipeDirection(Vector2 deltaPosition) {
         if (deltaPosition.x > distanceTreshold && Mathf.Abs(deltaPosition.x) >= Mathf.Abs(deltaPosition.y)) {
             return SwipeDirection.LEFT;
@@ -58,6 +63,7 @@ public class SwipeController : MonoBehaviour {
         return SwipeDirection.ERROR;
     }
 
+    // Calls the desired functions based on swipe detected and current menu status
     private void SwipeDetected(SwipeDirection direction) {
         switch (direction) {
             case SwipeDirection.UP:
