@@ -72,7 +72,7 @@ public class Wifi : Connection {
 			remoteClient.RegisterHandler(MsgType.Disconnect, OnDisconnected);
 			remoteClient.RegisterHandler(MsgType.Error, OnError);
 			// this.networkAddress = "172.26.195.238"; // Debug
-			this.networkAddress = "192.168.0.22"; // Debug
+			//this.networkAddress = "192.168.0.22"; // Debug
 			Debug.Log("[Debug]: Connecting to " + networkAddress);
 			remoteClient.Connect(networkAddress, networkPort);
         }
